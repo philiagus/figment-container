@@ -1,0 +1,39 @@
+{
+    "name": "philiagus/figment-container",
+    "description": "PHP Figment Framework: Container and DI",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "php",
+        "figment",
+        "container"
+    ],
+    "authors": [
+        {
+            "name": "Andreas Bittner",
+            "email": "philiagus@philiagus.de",
+            "role": "lead"
+        }
+    ],
+    "require": {
+        "php": ">=8.3",
+        "philiagus/parser": "v2.0.x-dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*",
+        "phpspec/prophecy-phpunit": "*",
+        "ext-xdebug": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Philiagus\\Figment\\Container\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Philiagus\\Figment\\Container\\Test\\Unit\\": "tests/Unit",
+            "Philiagus\\Figment\\Container\\Test\\Integration\\": "tests/Integration",
+            "Philiagus\\Figment\\Container\\Test\\": "tests/"
+        }
+    }
+}
