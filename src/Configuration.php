@@ -54,7 +54,7 @@ class Configuration implements Contract\Configuration
         return new InstanceObject($this->instanceExposer, $object);
     }
 
-    public function listResolver(string $name): Contract\List\ListResolver
+    public function exposedList(string $name): Contract\List\ListResolver
     {
         return $this->lists[$name] ?? new LazyListResolver(
             function () use ($name) {
@@ -65,7 +65,7 @@ class Configuration implements Contract\Configuration
         );
     }
 
-    public function instanceResolver(string $name): Contract\Instance\InstanceResolver
+    public function exposedInstance(string $name): Contract\Instance\InstanceResolver
     {
         return $this->instances[$name] ?? new LazyInstanceResolver(
             function (bool $disableSingleton) use ($name) {

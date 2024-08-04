@@ -93,8 +93,8 @@ $config
         'list',
         $config
             ->list(
-                $config->instanceResolver('std1'),
-                $config->instanceResolver('std2'),
+                $config->exposedInstance('std1'),
+                $config->exposedInstance('std2'),
                 $config->instanceObject((object)['baba' => 'bui']),
                 $config
                     ->list($config->instanceObject((object)['the last child']))

@@ -31,21 +31,21 @@ readonly class Container implements Contract\Container
 
     public function list(string $name): Contract\List\InstanceList
     {
-        return $this->listResolver($name)->resolve();
+        return $this->exposedList($name)->resolve();
     }
 
-    public function listResolver(string $name): ListResolver
+    public function exposedList(string $name): ListResolver
     {
-        return $this->configuration->listResolver($name);
+        return $this->configuration->exposedList($name);
     }
 
     public function instance(string $name, bool $disableSingleton = false): object
     {
-        return $this->instanceResolver($name)->resolve($disableSingleton);
+        return $this->exposedInstance($name)->resolve($disableSingleton);
     }
 
-    public function instanceResolver(string $name): InstanceResolver
+    public function exposedInstance(string $name): InstanceResolver
     {
-        return $this->configuration->instanceResolver($name);
+        return $this->configuration->exposedInstance($name);
     }
 }

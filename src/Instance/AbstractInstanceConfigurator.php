@@ -59,22 +59,22 @@ abstract class AbstractInstanceConfigurator
 
     public function list(string $name): InstanceList
     {
-        return $this->listResolver($name)->resolve();
+        return $this->exposedList($name)->resolve();
     }
 
-    public function listResolver(string $name): ListResolver
+    public function exposedList(string $name): ListResolver
     {
-        return $this->listRedirection[$name] ?? $this->container->listResolver($name);
+        return $this->listRedirection[$name] ?? $this->container->exposedList($name);
     }
 
     public function instance(string $name, bool $disableSingleton = false): object
     {
-        return $this->instanceResolver($name)->resolve($disableSingleton);
+        return $this->exposedInstance($name)->resolve($disableSingleton);
     }
 
-    public function instanceResolver(string $name): InstanceResolver
+    public function exposedInstance(string $name): InstanceResolver
     {
-        return $this->instanceRedirection[$name] ?? $this->container->instanceResolver($name);
+        return $this->instanceRedirection[$name] ?? $this->container->exposedInstance($name);
     }
 
     public function instantiate(string $className, Contract\Context\Provider $context): object

@@ -16,7 +16,7 @@ use Philiagus\Figment\Container\Contract\Instance\InstanceResolver;
 use Philiagus\Figment\Container\Contract\List\ListResolver;
 
 /**
- * A class impelementing this interface can provide resolvers of both lists and instances
+ * A class implementing this interface can provide resolvers of both lists and instances
  */
 interface ResolverProvider
 {
@@ -29,7 +29,7 @@ interface ResolverProvider
      * @return ListResolver
      * @throws \OutOfBoundsException
      */
-    public function listResolver(string $name): ListResolver;
+    public function exposedList(string $name): ListResolver;
 
     /**
      * Returns an instance resolver that has been exposed/redirected with the targeted name or
@@ -38,6 +38,6 @@ interface ResolverProvider
      * @param string $name
      * @return InstanceResolver
      */
-    public function instanceResolver(string $name): InstanceResolver;
+    public function exposedInstance(string $name): InstanceResolver;
 }
 
