@@ -23,10 +23,10 @@ interface Exposable
      * Exposes the instance under the given name to other Injectables.
      * No two services can be exposed under the same name at the same time!
      *
-     * @param string $id
+     * @param string ...$id
      * @return Exposable
      * @throws \LogicException
      */
-    public function exposeAs(string $id): Exposable;
+    public function exposeAs(string ...$id): Exposable;
 
 }

@@ -44,9 +44,9 @@ abstract class AbstractInstanceConfigurator
     }
 
     /** @inheritDoc */
-    public function exposeAs(string $id): Contract\Exposable
+    public function exposeAs(string ...$id): Contract\Exposable
     {
-        $this->configuration->expose($id, $this);
+        $this->configuration->expose($this, ...$id);
 
         return $this;
     }

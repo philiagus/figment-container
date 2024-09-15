@@ -26,14 +26,16 @@ class Configuration implements Contract\Configuration
     private array $lazies = [];
 
     /** @inheritDoc */
-    public function expose(string $id, Resolvable $resolvable): self
+    public function expose(Resolvable $resolvable, string ...$id): self
     {
-        if (isset($this->exposed[$id]))
-            throw new \LogicException(
-                "Trying to expose under the name '$id', which is already in use"
-            );
+        foreach($id as $individualId) {
+            if (isset($this->exposed[$individualId]))
+                throw new \LogicException(
+                    "Trying to expose under the name '$individualId', which is already in use"
+                );
 
-        $this->exposed[$id] = $resolvable;
+            $this->exposed[$individualId] = $resolvable;
+        }
 
         return $this;
     }

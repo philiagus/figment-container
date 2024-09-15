@@ -100,8 +100,8 @@ interface Configuration
      * This method is rarely called directly and should instead be called using the
      * chained calling for configurations
      *
-     * @param string $id
      * @param Resolvable $resolvable
+     * @param string ...$id
      * @return self
      * @see self::object()
      * @see self::class()
@@ -109,7 +109,7 @@ interface Configuration
      * @see self::generator()
      * @see Exposable::exposeAs()
      */
-    public function expose(string $id, Resolvable $resolvable): self;
+    public function expose(Resolvable $resolvable, string ...$id): self;
 
     /**
      * Creates a container instance that points to this configuration

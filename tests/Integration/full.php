@@ -17,14 +17,13 @@ use Philiagus\Figment\Container\Container;
 use Philiagus\Figment\Container\Contract\Injectable;
 use Philiagus\Figment\Container\Contract\Injector;
 use Philiagus\Figment\Container\Contract\List\InstanceList;
-use Philiagus\Parser\Base\Subject;
 use Philiagus\Parser\Parser\Assert\AssertString;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 foreach (glob(__DIR__ . '/../../src/**/*.php') as $file) {
     try {
-        include_once $file;
+        require_once $file;
     } catch (\Throwable) {
     }
 }
@@ -99,10 +98,12 @@ $config
 
 $config
     ->generator(
-        static fn(Injector $injector) => new \stdClass()
+        static function (Injector $injector) {
+            $injector->disableSingleton();
+            return new \stdClass();
+        }
     )
-    ->exposeAs('std1')
-    ->exposeAs('std2');
+    ->exposeAs('std1', 'std2');
 
 $container = new Container($config, 'container');
 echo "Container creation: ", microtime(true) - $start, PHP_EOL;

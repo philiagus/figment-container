@@ -33,9 +33,9 @@ readonly class InstanceObject implements Contract\Resolvable, Contract\Exposable
         return $this->object;
     }
 
-    public function exposeAs(string $id): Contract\Exposable
+    public function exposeAs(string ...$id): Contract\Exposable
     {
-        $this->configuration->expose($id, $this);
+        $this->configuration->expose($this, ...$id);
 
         return $this;
     }

@@ -41,9 +41,9 @@ class ListConfigurator implements Contract\List\ListConfigurator, IteratorAggreg
         $this->content = array_values($content);
     }
 
-    public function exposeAs(string $id): Contract\Exposable
+    public function exposeAs(string ...$id): Contract\Exposable
     {
-        $this->configuration->expose($id, $this);
+        $this->configuration->expose($this, ...$id);
 
         return $this;
     }
