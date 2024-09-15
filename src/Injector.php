@@ -12,67 +12,95 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
-use Philiagus\Figment\Container\Instance\AbstractInstanceConfigurator;
+use Philiagus\Figment\Container\Resolvable\AbstractInstanceConfigurator;
 use Philiagus\Parser\Base\Subject;
 use Philiagus\Parser\Contract\Parser;
+use Philiagus\Parser\Exception\ParsingException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
+/**
+ * Implementation of the Injector interface.
+ *
+ * Should not be used outside this library
+ *
+ * @internal
+ */
 class Injector implements Contract\Injector
 {
 
-    private const int TYPE_INSTANCE = 1,
-        TYPE_LIST = 2,
-        TYPE_CONTEXT = 3,
-        TYPE_CONTEXT_PARSE = 4;
+    private const int TYPE_INJECT = 1,
+        TYPE_CONTEXT = 2,
+        TYPE_CONTEXT_PARSE = 3;
 
-    /** @var array<array{"0":int,"1":string,"2":mixed,"3":bool}> */
+    /** @var array<array{"0":int,"1":string,"2":mixed}> */
     private array $injections = [];
 
-    public function __construct(
-        private readonly AbstractInstanceConfigurator $source
-    )
-    {
-    }
+    private bool $singletonEnabled = true;
 
+    /** @inheritDoc */
     public function context(string $name, mixed &$target): Contract\Injector
     {
-        $this->injections[] = [self::TYPE_CONTEXT, $name, &$target, null];
+        $this->injections[] = [self::TYPE_CONTEXT, $name, &$target];
 
         return $this;
     }
 
+    /** @inheritDoc */
     public function parseContext(string $name, Parser $parser): Contract\Injector
     {
-        $this->injections[] = [self::TYPE_CONTEXT_PARSE, $name, $parser, null];
+        $this->injections[] = [self::TYPE_CONTEXT_PARSE, $name, $parser];
 
         return $this;
     }
 
-    public function execute(): void
+    /**
+     * Executes the configuration of the Injector, injecting dependencies requested from the provided
+     * instance configuration, where redirections and data sources are handled
+     *
+     * @param AbstractInstanceConfigurator $instanceConfiguration
+     * @return void
+     * @throws ParsingException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function execute(AbstractInstanceConfigurator $instanceConfiguration): void
     {
-        foreach ($this->injections as [$type, $name, &$target, $etc]) {
+        foreach ($this->injections as [$type, $name, &$target]) {
             if ($type === self::TYPE_CONTEXT_PARSE) {
                 /** @var Parser $target */
-                $target->parse(Subject::default($this->source->getContext($name), "Context '$name'"));
+                $target->parse(Subject::default($instanceConfiguration->getContext($name), "Context '$name'"));
             } else {
                 $target = match ($type) {
-                    self::TYPE_INSTANCE => $this->source->instance($name, $etc),
-                    self::TYPE_LIST => $this->source->list($name),
-                    self::TYPE_CONTEXT => $this->source->getContext($name)
+                    self::TYPE_INJECT => $instanceConfiguration->get($name),
+                    self::TYPE_CONTEXT => $instanceConfiguration->getContext($name)
                 };
             }
         }
     }
 
-    public function instance(string $name, mixed &$target, bool $disableSingleton = false): Contract\Injector
+    /** @inheritDoc */
+    public function inject(string $name, mixed &$target): Contract\Injector
     {
-        $this->injections[] = [self::TYPE_INSTANCE, $name, &$target, $disableSingleton];
+        $this->injections[] = [self::TYPE_INJECT, $name, &$target];
 
         return $this;
     }
 
-    public function list(string $name, mixed &$target): Contract\Injector
+    /**
+     * Returns true if singleton for the class is still enabled, which is the default
+     * behaviour
+     * @return bool
+     */
+    public function isSingletonEnabled(): bool
     {
-        $this->injections[] = [self::TYPE_LIST, $name, &$target, null];
+        return $this->singletonEnabled;
+    }
+
+    /** @inheritDoc */
+    public function disableSingleton(): Contract\Injector
+    {
+        $this->singletonEnabled = false;
 
         return $this;
     }

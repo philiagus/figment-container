@@ -12,12 +12,13 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract\List;
 
-use Philiagus\Figment\Container\Contract\Instance\InstanceResolver;
+use Philiagus\Figment\Container\Contract\Exposable;
+use Philiagus\Figment\Container\Contract\Resolvable;
 
 /**
  * Implementing classes are defined as list configuration classes
  */
-interface ListConfigurator extends ListResolver, ListExposer
+interface ListConfigurator extends Resolvable, Exposable
 {
 
     /**
@@ -25,21 +26,8 @@ interface ListConfigurator extends ListResolver, ListExposer
      * This method will ignore named parameters, so setting names for the instances
      * is not possible using this method.
      *
-     * @param InstanceResolver ...$instance
+     * @param Resolvable ...$instance
      * @return self
      */
-    public function append(InstanceResolver ...$instance): self;
-
-    /**
-     * Concat the provided lists to this list.
-     * The lists are expanded on resolve, so any changes made to the provided lists
-     * after calling concat will alter the result of this configurator
-     *
-     * Any keys provided by those lists will be ignored. The elements of the lists will
-     * be added to the sequence of instances provided by the list
-     *
-     * @param ListResolver ...$list
-     * @return self
-     */
-    public function concat(ListResolver ...$list): self;
+    public function append(Resolvable ...$instance): self;
 }

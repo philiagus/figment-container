@@ -13,16 +13,14 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Contract;
 
 use Philiagus\Figment\Container\Contract\Instance\InstanceConfigurator;
-use Philiagus\Figment\Container\Contract\Instance\InstanceExposer;
-use Philiagus\Figment\Container\Contract\Instance\InstanceResolver;
+use Philiagus\Figment\Container\Contract\List\InstanceList;
 use Philiagus\Figment\Container\Contract\List\ListConfigurator;
-use Philiagus\Figment\Container\Contract\List\ListResolver;
 
 /**
  * Implementing classes can build a configuration for a container.
  * Think of this configuration as a factory for container
  */
-interface Configuration extends ResolverProvider
+interface Configuration
 {
     /**
      * Creates a configurator for a class that can be instanced by
@@ -33,7 +31,7 @@ interface Configuration extends ResolverProvider
      * @return InstanceConfigurator
      * @see Injectable
      */
-    public function instanceClass(string $className): InstanceConfigurator;
+    public function class(string $className): InstanceConfigurator;
 
     /**
      * Creates a list configuration that can later be exposed under a given name
@@ -41,10 +39,14 @@ interface Configuration extends ResolverProvider
      * You can fill in the desired list contents using the parameters of this
      * method or calling configuring methods on the returned ListConfigurator
      *
-     * @param InstanceResolver|ListResolver ...$content
+     * When the configured list is resolved and injected it will result in an
+     * InstanceList object that lazily resolves its contents
+     *
+     * @param Resolvable ...$content
      * @return ListConfigurator
+     * @see InstanceList
      */
-    public function list(InstanceResolver|ListResolver ...$content): ListConfigurator;
+    public function list(Resolvable ...$content): ListConfigurator;
 
     /**
      * Allows to define the creation of an object on the fly instead of using
@@ -60,7 +62,7 @@ interface Configuration extends ResolverProvider
      * @param \Closure(Injector):object $generator
      * @return InstanceConfigurator
      */
-    public function instanceGenerator(\Closure $generator): InstanceConfigurator;
+    public function generator(\Closure $generator): InstanceConfigurator;
 
     /**
      * Allows to expose an already created object using the container without having
@@ -75,7 +77,45 @@ interface Configuration extends ResolverProvider
      *
      *
      * @param object $object
-     * @return InstanceExposer
+     * @return Exposable
      */
-    public function instanceObject(object $object): InstanceExposer;
+    public function object(object $object): Exposable;
+
+    /**
+     * Returns true if a service with the given id is registered
+     * @param string $id
+     * @return bool
+     */
+    public function has(string $id): bool;
+
+    /**
+     * Returns a resolvable object that can create the targeted service
+     * @param string $id
+     * @return Resolvable
+     */
+    public function get(string $id): Resolvable;
+
+    /**
+     * Exposes the provided Resolvable under the given id.
+     * This method is rarely called directly and should instead be called using the
+     * chained calling for configurations
+     *
+     * @param string $id
+     * @param Resolvable $resolvable
+     * @return self
+     * @see self::object()
+     * @see self::class()
+     * @see self::list()
+     * @see self::generator()
+     * @see Exposable::exposeAs()
+     */
+    public function expose(string $id, Resolvable $resolvable): self;
+
+    /**
+     * Creates a container instance that points to this configuration
+     *
+     * @param string|null $exposeContainerAs If provided the container will be exposed under the provided name
+     * @return Container
+     */
+    public function buildContainer(?string $exposeContainerAs = null): Container;
 }

@@ -10,21 +10,25 @@
 
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container\Contract\Instance;
+namespace Philiagus\Figment\Container\Contract;
+
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
  * Implementing classes are able to create objects based in their configuration
  */
-interface InstanceResolver
+interface Resolvable extends \Traversable
 {
     /**
      * Trigger this class to resolve its content and making available an instance
      * of the class as defined.
      *
-     * @param bool $disableSingleton If true the resolver will create a
      *                               new object instead of returning a
      *                               possibly already existing one
      * @return object
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
-    public function resolve(bool $disableSingleton = false): object;
+    public function resolve(): object;
 }

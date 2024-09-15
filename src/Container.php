@@ -12,9 +12,6 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
-use Philiagus\Figment\Container\Contract\Instance\InstanceResolver;
-use Philiagus\Figment\Container\Contract\List\ListResolver;
-
 readonly class Container implements Contract\Container
 {
 
@@ -25,27 +22,19 @@ readonly class Container implements Contract\Container
     {
         if ($exposeAs !== null)
             $this->configuration
-                ->instanceObject($this)
+                ->object($this)
                 ->exposeAs($exposeAs);
     }
 
-    public function list(string $name): Contract\List\InstanceList
+    /** @inheritDoc */
+    public function get(string $id)
     {
-        return $this->exposedList($name)->resolve();
+        return $this->configuration->get($id)->resolve();
     }
 
-    public function exposedList(string $name): ListResolver
+    /** @inheritDoc */
+    public function has(string $id): bool
     {
-        return $this->configuration->exposedList($name);
-    }
-
-    public function instance(string $name, bool $disableSingleton = false): object
-    {
-        return $this->exposedInstance($name)->resolve($disableSingleton);
-    }
-
-    public function exposedInstance(string $name): InstanceResolver
-    {
-        return $this->configuration->exposedInstance($name);
+        return $this->configuration->has($id);
     }
 }

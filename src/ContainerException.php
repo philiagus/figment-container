@@ -1,0 +1,31 @@
+<?php
+/*
+ * This file is part of philiagus/figment-container
+ *
+ * (c) Andreas Eicher <philiagus@philiagus.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+namespace Philiagus\Figment\Container;
+
+use Psr\Container\ContainerExceptionInterface;
+
+/**
+ * Implementation of the ContainerExceptionInterface used by PSR
+ *
+ * This class should never be targeted when building catch blocks.
+ * Always catch the corresponding interface
+ *
+ * @see ContainerExceptionInterface
+ * @internal
+ */
+class ContainerException
+    extends \RuntimeException
+    implements ContainerExceptionInterface
+{
+
+}

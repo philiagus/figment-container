@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract\List;
 
-use Philiagus\Figment\Container\Contract\Instance\InstanceResolver;
+use Philiagus\Figment\Container\Contract\Resolvable;
 
 /**
  * When requesting a list from the container the system will expose
@@ -23,17 +23,12 @@ use Philiagus\Figment\Container\Contract\Instance\InstanceResolver;
  *
  * The resolvers are accessible using the getResolvers method
  */
-interface InstanceList extends \ArrayAccess, \Countable, \IteratorAggregate
+interface InstanceList extends \ArrayAccess, \Countable, \Traversable
 {
 
     /**
      * Returns the raw list of resolvers from the instance list
-     * @return InstanceResolver[]
+     * @return Resolvable[]
      */
     public function resolvers(): array;
-
-    /**
-     * @inheritDoc
-     */
-    public function getIterator(bool $disableSingleton = false): \Traversable;
 }

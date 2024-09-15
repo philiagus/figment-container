@@ -15,9 +15,9 @@ $config = new Configuration();
 
 $config
     // target my class to be instantiable by the container
-    ->instanceClass(MyClass::class)
+    ->class(MyClass::class)
     // add some injectable data
-    ->setContext([
+    ->context([
         'someDirectory' => __DIR__ . '/../somewhere',
         'maxSomething' => 123,
         'url' => 'http://example.org'
@@ -32,9 +32,9 @@ $config
         // add the defined instance of MyClass to the list
         // the framework is lazy, so you could define this
         // dependency even before defining the MyClass 
-        $config->exposedInstance('myObject'),
+        $config->get('myObject'),
         // on the fly define OtherClass to be instantiable as well 
-        $config->instanceClass(OtherClass::class),
+        $config->class(OtherClass::class),
     )
     ->exposeAs('myList')
 
@@ -87,12 +87,12 @@ class CircularMe implements Injectable {
     public function __construct(Injector $injector) {
         $injector
             // inject exposed object named "circular" into me
-            ->instance('circular', $this->me);
+            ->inject('circular', $this->me);
     }
 }
 
 $config
-    ->instanceClass(CircularMe::class)
+    ->class(CircularMe::class)
     ->exposeAs('circular');
 ```
 

@@ -12,82 +12,71 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
-use Philiagus\Figment\Container\Instance\InstanceClass;
-use Philiagus\Figment\Container\Instance\InstanceGenerator;
-use Philiagus\Figment\Container\Instance\InstanceObject;
-use Philiagus\Figment\Container\List\LazyInstanceResolver;
-use Philiagus\Figment\Container\List\LazyListResolver;
-use Philiagus\Figment\Container\List\ListConfigurator;
+use Philiagus\Figment\Container\Contract\Resolvable;
+use Philiagus\Figment\Container\Resolvable\InstanceClass;
+use Philiagus\Figment\Container\Resolvable\InstanceGenerator;
+use Philiagus\Figment\Container\Resolvable\InstanceObject;
+use Philiagus\Figment\Container\Resolvable\ListConfigurator;
 
 class Configuration implements Contract\Configuration
 {
 
-    private array $lists = [];
-    private array $instances = [];
+    private array $exposed = [];
 
-    private readonly \Closure $instanceExposer;
-    private readonly \Closure $listExposer;
+    private array $lazies = [];
 
-    public function __construct()
+    /** @inheritDoc */
+    public function expose(string $id, Resolvable $resolvable): self
     {
-        $this->instanceExposer = function (string $name, Contract\Instance\InstanceResolver $resolver): void {
-            if (isset($this->instances[$name]))
-                throw new \LogicException(
-                    "Trying to expose an instance of name '$name' twice"
-                );
+        if (isset($this->exposed[$id]))
+            throw new \LogicException(
+                "Trying to expose under the name '$id', which is already in use"
+            );
 
-            $this->instances[$name] = $resolver;
-        };
+        $this->exposed[$id] = $resolvable;
 
-        $this->listExposer = function (string $name, Contract\List\ListResolver $resolver): void {
-            if (isset($this->lists[$name]))
-                throw new \LogicException(
-                    "Trying to expose a list of name '$name' twice"
-                );
-
-            $this->lists[$name] = $resolver;
-        };
+        return $this;
     }
 
-    public function instanceObject(object $object): Contract\Instance\InstanceResolver&Contract\Instance\InstanceExposer
+    /** @inheritDoc */
+    public function object(object $object): Contract\Resolvable&Contract\Exposable
     {
-        return new InstanceObject($this->instanceExposer, $object);
+        return new InstanceObject($this, $object);
     }
 
-    public function exposedList(string $name): Contract\List\ListResolver
+    /** @inheritDoc */
+    public function class(string $className): Contract\Instance\InstanceConfigurator
     {
-        return $this->lists[$name] ?? new LazyListResolver(
-            function () use ($name) {
-                return ($this->lists[$name] ?? throw new \OutOfBoundsException(
-                    "Instance of name '$name' is not exposed by the container"
-                ))->resolve();
-            }
-        );
+        return new InstanceClass($this, $className);
     }
 
-    public function exposedInstance(string $name): Contract\Instance\InstanceResolver
+    /** @inheritDoc */
+    public function list(Contract\Resolvable ...$content): Contract\List\ListConfigurator
     {
-        return $this->instances[$name] ?? new LazyInstanceResolver(
-            function (bool $disableSingleton) use ($name) {
-                return ($this->instances[$name] ?? throw new \OutOfBoundsException(
-                    "Instance of name '$name' is not exposed by the container"
-                ))->resolve($disableSingleton);
-            }
-        );
+        return new ListConfigurator($this, ...$content);
     }
 
-    public function instanceClass(string $className): Contract\Instance\InstanceConfigurator
+    /** @inheritDoc */
+    public function generator(\Closure $generator): Contract\Instance\InstanceConfigurator
     {
-        return new InstanceClass($this, $this->instanceExposer, $className);
+        return new InstanceGenerator($this, $generator);
     }
 
-    public function list(Contract\Instance\InstanceResolver|Contract\List\ListResolver ...$content): Contract\List\ListConfigurator
+    /** @inheritDoc */
+    public function has(string $id): bool
     {
-        return new ListConfigurator($this->listExposer, $content);
+        return isset($this->exposed[$id]);
     }
 
-    public function instanceGenerator(\Closure $generator): Contract\Instance\InstanceConfigurator
+    /** @inheritDoc */
+    public function get(string $id): Resolvable
     {
-        return new InstanceGenerator($this, $this->instanceExposer, $generator);
+        return $this->exposed[$id] ?? $this->lazies[$id] ??= new LazyResolvable($this, $id);
+    }
+
+    /** @inheritDoc */
+    public function buildContainer(?string $exposeContainerAs = null): Contract\Container
+    {
+        return new Container($this, $exposeContainerAs);
     }
 }

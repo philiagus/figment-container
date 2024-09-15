@@ -13,38 +13,28 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Contract\Instance;
 
 use Philiagus\Figment\Container\Contract\Context\Provider;
+use Philiagus\Figment\Container\Contract\Exposable;
 use Philiagus\Figment\Container\Contract\Injector;
-use Philiagus\Figment\Container\Contract\List\ListResolver;
+use Philiagus\Figment\Container\Contract\Resolvable;
 
 /**
  * Classes implementing this interface can be influenced in the way that they
  * instantiate objects
  */
-interface InstanceConfigurator extends InstanceExposer
+interface InstanceConfigurator extends Exposable
 {
 
     /**
-     * Configures to redirect the targeted instance to another instance when requesting it via
-     * Injector::instance.
+     * Configures to redirect the targeted to another instance when requesting it via
+     * Injector::inject.
      *
      * @param string $from
-     * @param InstanceResolver $to
+     * @param Resolvable $to
      *
      * @return $this
-     * @see Injector::instance()
+     * @see Injector::inject()
      */
-    public function redirectInstance(string $from, InstanceResolver $to): self;
-
-    /**
-     * Configures to redirect the targeted list to another list when requesting it via
-     * Injector::list
-     *
-     * @param string $from
-     * @param ListResolver $to
-     * @return $this
-     * @see Injector::list()
-     */
-    public function redirectList(string $from, ListResolver $to): self;
+    public function redirect(string $from, Resolvable $to): self;
 
     /**
      * Defines the provided array or context provider as the context for this instance.
@@ -54,6 +44,6 @@ interface InstanceConfigurator extends InstanceExposer
      * @see Injector::context()
      * @see Injector::parseContext()
      */
-    public function setContext(array|Provider $context): self;
+    public function context(array|Provider $context): self;
 
 }

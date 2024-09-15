@@ -10,16 +10,21 @@
 
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container\List;
+namespace Philiagus\Figment\Container\Resolvable;
 
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\Contract\Instance\InstanceResolver;
+use Philiagus\Figment\Container\Contract\Resolvable;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
-readonly class InstanceList implements Contract\List\InstanceList
+/**
+ * @internal
+ */
+readonly class InstanceList implements Contract\List\InstanceList, \IteratorAggregate
 {
 
     /**
-     * @param InstanceResolver[] $instanceResolvers
+     * @param Resolvable[] $instanceResolvers
      */
     public function __construct(
         private array $instanceResolvers
@@ -32,7 +37,7 @@ readonly class InstanceList implements Contract\List\InstanceList
         return isset($this->instanceResolvers[$offset]);
     }
 
-    public function offsetGet(mixed $offset): Contract\Instance\InstanceResolver
+    public function offsetGet(mixed $offset): Contract\Resolvable
     {
         return $this->instanceResolvers[$offset];
     }
@@ -58,9 +63,21 @@ readonly class InstanceList implements Contract\List\InstanceList
         return $this->instanceResolvers;
     }
 
-    public function getIterator(bool $disableSingleton = false): \Traversable
+    /**
+     * Iterates over the instances of this list
+     *
+     * Each iteration will call the resolve method of the list contents,
+     * this means that any re-iteration over this iterator that targets
+     * classes that have singleton disabled are re-instantiated in every
+     * loop
+     *
+     * @return \Traversable
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function getIterator(): \Traversable
     {
         foreach ($this->instanceResolvers as $index => $instanceResolver)
-            yield $index => $instanceResolver->resolve($disableSingleton);
+            yield $index => $instanceResolver->resolve();
     }
 }

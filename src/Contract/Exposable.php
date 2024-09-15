@@ -11,22 +11,22 @@
 declare(strict_types=1);
 
 
-namespace Philiagus\Figment\Container\Contract\Instance;
+namespace Philiagus\Figment\Container\Contract;
 
 /**
  * Classes implementing this interface can be exposed as instances by the container
  */
-interface InstanceExposer
+interface Exposable
 {
 
     /**
      * Exposes the instance under the given name to other Injectables.
      * No two services can be exposed under the same name at the same time!
      *
-     * @param string $name
-     * @return InstanceExposer
+     * @param string $id
+     * @return Exposable
      * @throws \LogicException
      */
-    public function exposeAs(string $name): InstanceExposer;
+    public function exposeAs(string $id): Exposable;
 
 }
