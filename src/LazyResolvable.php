@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
+use Philiagus\Figment\Container\Contract\Injectable;
+
 /**
  * Used to lazily resolve targeted ids
  * This is used by the framework to resolve get requests to the configuration
@@ -48,7 +50,11 @@ readonly class LazyResolvable implements Contract\Resolvable, \IteratorAggregate
             if ($resolvable instanceof LazyResolvable) {
                 // container still returns a lazy resolvable, so
                 // the targeted id has not been exposed against yet
-                throw new NotFoundException($this->id);
+                if(!is_a($this->id, Injectable::class, true)) {
+                    throw new NotFoundException($this->id);
+                }
+                $resolvable = $this->configuration->class($this->id);
+                $resolvable->exposeAs($this->id);
             }
             $this->resolvable = $resolvable;
         }

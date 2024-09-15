@@ -29,7 +29,6 @@ readonly class ArrayContext implements Provider
         private array $context
     )
     {
-
     }
 
     /** @inheritDoc */

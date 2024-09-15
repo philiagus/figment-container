@@ -42,6 +42,8 @@ class TestA implements Injectable
 
     private ?Container $container;
 
+    private ?RumsBums $rumsBums;
+
     private string $hallo = '';
 
     public function __construct(Injector $injector)
@@ -52,6 +54,7 @@ class TestA implements Injectable
             ->inject('std2', $this->std2)
             ->inject('list', $this->list)
             ->inject('container', $this->container)
+            ->inject(RumsBums::class, $this->rumsBums)
             ->parseContext(
                 'msg',
                 AssertString::new()->thenAssignTo($this->hallo)
@@ -61,12 +64,20 @@ class TestA implements Injectable
     public function babbabui(): void
     {
         echo PHP_EOL, PHP_EOL, PHP_EOL, PHP_EOL;
+        var_dump($this->rumsBums);
         foreach ($this->list as $index => $instance) {
             echo $index, ' --> ';
             var_dump($instance);
         }
     }
 
+}
+
+class RumsBums implements Injectable
+{
+    public function __construct(Injector $injector)
+    {
+    }
 }
 
 $config = new Configuration();
