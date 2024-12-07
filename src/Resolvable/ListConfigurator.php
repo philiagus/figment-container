@@ -41,6 +41,7 @@ class ListConfigurator implements Contract\List\ListConfigurator, IteratorAggreg
         $this->content = array_values($content);
     }
 
+    /** @inheritDoc */
     public function exposeAs(string ...$id): Contract\Exposable
     {
         $this->configuration->expose($this, ...$id);
@@ -48,6 +49,7 @@ class ListConfigurator implements Contract\List\ListConfigurator, IteratorAggreg
         return $this;
     }
 
+    /** @inheritDoc */
     public function append(Resolvable ...$instance): Contract\List\ListConfigurator
     {
         $this->content = [...$this->content, ...array_values($instance)];
@@ -55,11 +57,13 @@ class ListConfigurator implements Contract\List\ListConfigurator, IteratorAggreg
         return $this;
     }
 
+    /** @inheritDoc */
     public function resolve(): Contract\List\InstanceList
     {
         return new InstanceList($this->content);
     }
 
+    /** @inheritDoc */
     public function getIterator(): Traversable
     {
         yield from $this->content;

@@ -21,6 +21,10 @@ use Traversable;
 readonly class InstanceObject implements Contract\Resolvable, Contract\Exposable, \IteratorAggregate
 {
 
+    /**
+     * @param Contract\Configuration $configuration
+     * @param object $object
+     */
     public function __construct(
         private Contract\Configuration $configuration,
         private object                 $object
@@ -28,11 +32,13 @@ readonly class InstanceObject implements Contract\Resolvable, Contract\Exposable
     {
     }
 
+    /** @inheritDoc */
     public function resolve(): object
     {
         return $this->object;
     }
 
+    /** @inheritDoc */
     public function exposeAs(string ...$id): Contract\Exposable
     {
         $this->configuration->expose($this, ...$id);
@@ -40,6 +46,7 @@ readonly class InstanceObject implements Contract\Resolvable, Contract\Exposable
         return $this;
     }
 
+    /** @inheritDoc */
     public function getIterator(): Traversable
     {
         throw new \LogicException("Trying to iterate over a single object instance resolver");

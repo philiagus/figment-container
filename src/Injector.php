@@ -31,9 +31,11 @@ class Injector implements Contract\Injector
 
     private const int TYPE_INJECT = 1,
         TYPE_CONTEXT = 2,
-        TYPE_CONTEXT_PARSE = 3;
+        TYPE_CONTEXT_PARSE = 3,
+        TYPE_CONTEXT_DEFAULTED = 4,
+        TYPE_CONTEXT_PARSE_DEFAULTED = 5;
 
-    /** @var array<array{"0":int,"1":string,"2":mixed}> */
+    /** @var array<array{int,string,mixed,mixed}> */
     private array $injections = [];
 
     private bool $singletonEnabled = true;
@@ -41,7 +43,14 @@ class Injector implements Contract\Injector
     /** @inheritDoc */
     public function context(string $name, mixed &$target): Contract\Injector
     {
-        $this->injections[] = [self::TYPE_CONTEXT, $name, &$target];
+        $this->injections[] = [self::TYPE_CONTEXT, $name, &$target, null];
+
+        return $this;
+    }
+
+    public function contextDefaulted(string $name, mixed $default, mixed &$target): Contract\Injector
+    {
+        $this->injections[] = [self::TYPE_CONTEXT_DEFAULTED, $name, &$target, $default];
 
         return $this;
     }
@@ -49,7 +58,14 @@ class Injector implements Contract\Injector
     /** @inheritDoc */
     public function parseContext(string $name, Parser $parser): Contract\Injector
     {
-        $this->injections[] = [self::TYPE_CONTEXT_PARSE, $name, $parser];
+        $this->injections[] = [self::TYPE_CONTEXT_PARSE, $name, $parser, null];
+
+        return $this;
+    }
+
+    public function parseContextDefaulted(string $name, mixed $default, Parser $parser): Contract\Injector
+    {
+        $this->injections[] = [self::TYPE_CONTEXT_PARSE_DEFAULTED, $name, $parser, $default];
 
         return $this;
     }
@@ -66,14 +82,17 @@ class Injector implements Contract\Injector
      */
     public function execute(AbstractInstanceConfigurator $instanceConfiguration): void
     {
-        foreach ($this->injections as [$type, $name, &$target]) {
+        foreach ($this->injections as [$type, $name, &$target, $default]) {
             if ($type === self::TYPE_CONTEXT_PARSE) {
                 /** @var Parser $target */
                 $target->parse(Subject::default($instanceConfiguration->getContext($name), "Context '$name'"));
+                /** @var Parser $target */
+                $target->parse(Subject::default($instanceConfiguration->getContextDefaulted($name, $default), "Context '$name'"));
             } else {
                 $target = match ($type) {
                     self::TYPE_INJECT => $instanceConfiguration->get($name),
-                    self::TYPE_CONTEXT => $instanceConfiguration->getContext($name)
+                    self::TYPE_CONTEXT => $instanceConfiguration->getContext($name),
+                    self::TYPE_CONTEXT_DEFAULTED => $instanceConfiguration->getContextDefaulted($name, $default),
                 };
             }
         }
@@ -82,7 +101,7 @@ class Injector implements Contract\Injector
     /** @inheritDoc */
     public function inject(string $name, mixed &$target): Contract\Injector
     {
-        $this->injections[] = [self::TYPE_INJECT, $name, &$target];
+        $this->injections[] = [self::TYPE_INJECT, $name, &$target, null];
 
         return $this;
     }

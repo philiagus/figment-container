@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
+use Philiagus\Figment\Container\Contract\Context\Provider;
 use Philiagus\Figment\Container\Contract\Resolvable;
 use Philiagus\Figment\Container\Resolvable\InstanceClass;
 use Philiagus\Figment\Container\Resolvable\InstanceGenerator;
@@ -24,6 +25,10 @@ class Configuration implements Contract\Configuration
     private array $exposed = [];
 
     private array $lazies = [];
+
+    public function __construct(private readonly array|Provider $defaultContext = []) {
+
+    }
 
     /** @inheritDoc */
     public function expose(Resolvable $resolvable, string ...$id): self
@@ -49,7 +54,7 @@ class Configuration implements Contract\Configuration
     /** @inheritDoc */
     public function class(string $className): Contract\Instance\InstanceConfigurator
     {
-        return new InstanceClass($this, $className);
+        return new InstanceClass($this, $this->defaultContext, $className);
     }
 
     /** @inheritDoc */
@@ -61,7 +66,7 @@ class Configuration implements Contract\Configuration
     /** @inheritDoc */
     public function generator(\Closure $generator): Contract\Instance\InstanceConfigurator
     {
-        return new InstanceGenerator($this, $generator);
+        return new InstanceGenerator($this, $this->defaultContext, $generator);
     }
 
     /** @inheritDoc */

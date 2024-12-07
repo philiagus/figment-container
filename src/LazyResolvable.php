@@ -48,8 +48,12 @@ readonly class LazyResolvable implements Contract\Resolvable, \IteratorAggregate
         if (!isset($this->resolvable)) {
             $resolvable = $this->configuration->get($this->id);
             if ($resolvable instanceof LazyResolvable) {
-                // container still returns a lazy resolvable, so
-                // the targeted id has not been exposed against yet
+                /*
+                The container still returns a lazy resolvable, so
+                the targeted id has not been exposed against yet
+                If the call is targeting a class we can register, expose and resolve that
+                In any other case we throw a NotFoundException, as this cannot be resolved
+                */
                 if(!is_a($this->id, Injectable::class, true)) {
                     throw new NotFoundException($this->id);
                 }

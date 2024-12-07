@@ -23,35 +23,38 @@ use Psr\Container\NotFoundExceptionInterface;
 readonly class InstanceList implements Contract\List\InstanceList, \IteratorAggregate
 {
 
-    /**
-     * @param Resolvable[] $instanceResolvers
-     */
+    /** @param Resolvable[] $instanceResolvers */
     public function __construct(
         private array $instanceResolvers
     )
     {
     }
 
+    /** @inheritDoc */
     public function offsetExists(mixed $offset): bool
     {
         return isset($this->instanceResolvers[$offset]);
     }
 
+    /** @inheritDoc */
     public function offsetGet(mixed $offset): Contract\Resolvable
     {
         return $this->instanceResolvers[$offset];
     }
 
+    /** @inheritDoc */
     public function offsetSet(mixed $offset, mixed $value): void
     {
         throw new \LogicException("Offsets in ListResolverResult cannot be set");
     }
 
+    /** @inheritDoc */
     public function offsetUnset(mixed $offset): void
     {
         throw new \LogicException("Offsets in ListResolverResult cannot be unset");
     }
 
+    /** @inheritDoc */
     public function count(): int
     {
         return count($this->instanceResolvers);

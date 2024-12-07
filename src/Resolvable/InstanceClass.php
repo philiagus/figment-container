@@ -30,10 +30,11 @@ class InstanceClass extends AbstractInstanceConfigurator
 
     public function __construct(
         Contract\Configuration  $configuration,
-        private readonly string $className
+        array|Contract\Context\Provider $defaultContext,
+        private readonly string $className,
     )
     {
-        parent::__construct($configuration);
+        parent::__construct($configuration, $defaultContext);
     }
 
     /** @inheritDoc */
@@ -54,7 +55,7 @@ class InstanceClass extends AbstractInstanceConfigurator
 
             $this->running = true;
             try {
-                $injector = new Injector($this);
+                $injector = new Injector();
                 $instance = new ($this->className)($injector);
                 if ($injector->isSingletonEnabled()) {
                     $this->singleton = $instance;

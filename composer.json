@@ -17,7 +17,7 @@
     ],
     "require": {
         "php": ">=8.3",
-        "philiagus/parser": "dev-master",
+        "philiagus/parser": "v2.0.0-RC2",
         "psr/container": "~2.0.2"
     },
     "require-dev": {

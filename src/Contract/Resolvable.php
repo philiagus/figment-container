@@ -24,8 +24,6 @@ interface Resolvable extends \Traversable
      * Trigger this class to resolve its content and making available an instance
      * of the class as defined.
      *
-     *                               new object instead of returning a
-     *                               possibly already existing one
      * @return object
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface

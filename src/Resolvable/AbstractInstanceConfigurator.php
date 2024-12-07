@@ -27,10 +27,14 @@ abstract class AbstractInstanceConfigurator
 
     /** @var array<string, Contract\Resolvable> */
     private array $redirection = [];
-    private array|Contract\Context\Provider $context = [];
+
+    private array|Contract\Context\Provider $specificContext = [];
+
+    private bool $fallbackToDefault = false;
 
     protected function __construct(
         private readonly Contract\Configuration $configuration,
+        private readonly array|Contract\Context\Provider $defaultContext
     )
     {
     }
@@ -51,34 +55,107 @@ abstract class AbstractInstanceConfigurator
         return $this;
     }
 
-    public function getContext(string $name): mixed
+    public function getContextDefaulted(string $name, mixed $default): mixed
     {
-        if (is_array($this->context)) {
-            return array_key_exists($name, $this->context) ?
-                $this->context[$name] :
-                throw new \OutOfBoundsException("Trying to access undefined context '$name'");
+        $value = $this->readContext($name, $found);
+        if($found) {
+            return $value;
         }
-        return $this->context->get($name);
+
+        return $default;
     }
 
+    /**
+     * @param string $name
+     * @param null $found
+     * @return mixed
+     */
+    private function readContext(string $name, null &$found): mixed
+    {
+        $found = true;
+        if (is_array($this->specificContext)) {
+            if (array_key_exists($name, $this->specificContext)) {
+                return $this->specificContext[$name];
+            }
+        } else {
+            if ($this->specificContext->has($name)) {
+                return $this->specificContext->get($name);
+            }
+        }
+
+        if ($this->fallbackToDefault) {
+            if (is_array($this->defaultContext)) {
+                if (array_key_exists($name, $this->defaultContext)) {
+                    return $this->defaultContext[$name];
+                }
+            } else {
+                if ($this->defaultContext->has($name)) {
+                    return $this->defaultContext->get($name);
+                }
+            }
+        }
+
+        $found = false;
+        return null;
+    }
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function getContext(string $name): mixed
+    {
+        $this->readContext($name, $found);
+
+        if($found) {
+            return $name;
+        }
+
+        throw new \OutOfBoundsException("Trying to access undefined context '$name'");
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasContext(string $name): bool
+    {
+        $hasSpecific = is_array($this->specificContext) ?
+            array_key_exists($name, $this->specificContext) :
+            $this->specificContext->has($name);
+
+        if(!$hasSpecific && !$this->fallbackToDefault) {
+            return $hasSpecific;
+        }
+
+        return is_array($this->defaultContext) ?
+            array_key_exists($name, $this->defaultContext) :
+            $this->defaultContext->has($name);
+    }
+
+    /** @inheritDoc */
     public function get(string $id): object
     {
         $resolvable = $this->redirection[$id] ?? $this->configuration->get($id);
         return $resolvable->resolve();
     }
 
-    public function context(array|Contract\Context\Provider $context): self
+    /** @inheritDoc */
+    public function context(array|Contract\Context\Provider $context, bool $fallbackToDefault = false): self
     {
-        $this->context = $context;
+        $this->specificContext = $context;
+        $this->fallbackToDefault = $fallbackToDefault;
 
         return $this;
     }
 
+    /** @inheritDoc */
     public function has(string $id): bool
     {
         return isset($this->redirection[$id]) || $this->configuration->has($id);
     }
 
+    /** @inheritDoc */
     public function getIterator(): Traversable
     {
         throw new \LogicException("Trying to iterate over a single object instance resolver");

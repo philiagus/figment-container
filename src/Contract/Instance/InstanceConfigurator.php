@@ -40,10 +40,11 @@ interface InstanceConfigurator extends Exposable
      * Defines the provided array or context provider as the context for this instance.
      *
      * @param array|Provider $context
+     * @param bool $fallbackToDefault
      * @return $this
      * @see Injector::context()
      * @see Injector::parseContext()
      */
-    public function context(array|Provider $context): self;
+    public function context(array|Provider $context, bool $fallbackToDefault = false): self;
 
 }

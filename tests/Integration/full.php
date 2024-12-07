@@ -17,18 +17,8 @@ use Philiagus\Figment\Container\Container;
 use Philiagus\Figment\Container\Contract\Injectable;
 use Philiagus\Figment\Container\Contract\Injector;
 use Philiagus\Figment\Container\Contract\List\InstanceList;
-use Philiagus\Parser\Parser\Assert\AssertString;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
-
-foreach (glob(__DIR__ . '/../../src/**/*.php') as $file) {
-    try {
-        require_once $file;
-    } catch (\Throwable) {
-    }
-}
-
-$start = microtime(true);
 
 class TestA implements Injectable
 {
@@ -44,6 +34,7 @@ class TestA implements Injectable
     private ?RumsBums $rumsBums;
 
     private string $hallo = '';
+    private string $defaultContext = '';
 
     public function __construct(Injector $injector)
     {
@@ -54,10 +45,8 @@ class TestA implements Injectable
             ->inject('list', $this->list)
             ->inject('container', $this->container)
             ->inject(RumsBums::class, $this->rumsBums)
-            ->parseContext(
-                'msg',
-                AssertString::new()->thenAssignTo($this->hallo)
-            );
+            ->context('msg', $this->hallo)
+            ->context('default.config', $this->defaultContext);
     }
 
     public function babbabui(): void
@@ -79,37 +68,46 @@ class RumsBums implements Injectable
     }
 }
 
-$config = new Configuration();
+for ($loops = 0; $loops < 2; $loops++) {
+    echo PHP_EOL;
+    echo '==============================', PHP_EOL;
+    echo PHP_EOL;
+    $start = microtime(true);
 
-$config
-    ->class(TestA::class)
-    ->context(['msg' => 'Dies ist ein Context'])
-    ->redirect(
-        'list',
-        $config
-            ->list(
-                $config->get('std1'),
-                $config->get('std2'),
-                $config->object((object)['baba' => 'bui']),
-                ...$config->list($config->object((object)['the last child']))
-            )
-    )
-    ->exposeAs('self');
+    $config = new Configuration(['default.config' => 'yes, this is default']);
+    $config->list(
+        $config->object((object)['the last child'])
+    )->exposeAs('list');
 
-$config
-    ->generator(
-        static function (Injector $injector) {
-            $injector->disableSingleton();
-            return new \stdClass();
-        }
-    )
-    ->exposeAs('std1', 'std2');
+    $config
+        ->class(TestA::class)
+        ->context(['msg' => 'Dies ist ein Context'], true)
+        ->redirect(
+            'list',
+            $config
+                ->list(
+                    $config->get('std1'),
+                    $config->get('std2'),
+                    $config->object((object)['baba' => 'bui']),
+                    ...$config->get('list')
+                )
+        )
+        ->exposeAs('self');
 
-$container = new Container($config, 'container');
-echo "Container creation: ", microtime(true) - $start, PHP_EOL;
-$now = microtime(true);
-$instance = $container->get('self');
-echo "Resolve: ", microtime(true) - $now, PHP_EOL;
-$instance->babbabui();
+    $config
+        ->generator(
+            static function (Injector $injector) {
+                $injector->disableSingleton();
+                return new \stdClass();
+            }
+        )
+        ->exposeAs('std1', 'std2');
 
-echo "Full: ", microtime(true) - $start, PHP_EOL;
+    $container = new Container($config, 'container');
+    echo "Container creation: ", number_format(microtime(true) - $start, 5, '.', ''), PHP_EOL;
+    $now = microtime(true);
+    $instance = $container->get('self');
+    echo "Resolve: ", number_format(microtime(true) - $now, 5, '.', ''), PHP_EOL;
+    
+    echo "Full: ", microtime(true) - $start, PHP_EOL;
+}
