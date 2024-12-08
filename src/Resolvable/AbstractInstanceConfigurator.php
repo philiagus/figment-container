@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Resolvable;
 
 use Philiagus\Figment\Container\Contract;
-use Traversable;
 
 /**
  * @internal
@@ -33,14 +32,14 @@ abstract class AbstractInstanceConfigurator
     private bool $fallbackToDefault = false;
 
     protected function __construct(
-        private readonly Contract\Configuration $configuration,
+        private readonly Contract\Configuration          $configuration,
         private readonly array|Contract\Context\Provider $defaultContext
     )
     {
     }
 
 
-    public function redirect(string $from, Contract\Resolvable $to): self
+    public function redirect(string $from, Contract\Resolvable|string $to): self
     {
         $this->redirection[$from] = $to;
 
@@ -58,7 +57,7 @@ abstract class AbstractInstanceConfigurator
     public function getContextDefaulted(string $name, mixed $default): mixed
     {
         $value = $this->readContext($name, $found);
-        if($found) {
+        if ($found) {
             return $value;
         }
 
@@ -77,10 +76,8 @@ abstract class AbstractInstanceConfigurator
             if (array_key_exists($name, $this->specificContext)) {
                 return $this->specificContext[$name];
             }
-        } else {
-            if ($this->specificContext->has($name)) {
-                return $this->specificContext->get($name);
-            }
+        } elseif ($this->specificContext->has($name)) {
+            return $this->specificContext->get($name);
         }
 
         if ($this->fallbackToDefault) {
@@ -88,15 +85,28 @@ abstract class AbstractInstanceConfigurator
                 if (array_key_exists($name, $this->defaultContext)) {
                     return $this->defaultContext[$name];
                 }
-            } else {
-                if ($this->defaultContext->has($name)) {
-                    return $this->defaultContext->get($name);
-                }
+            } elseif ($this->defaultContext->has($name)) {
+                return $this->defaultContext->get($name);
             }
         }
 
         $found = false;
         return null;
+    }
+
+    /** @inheritDoc */
+    public function has(string $id): bool
+    {
+        return isset($this->redirection[$id]) || $this->configuration->has($id);
+    }
+
+    /** @inheritDoc */
+    public function get(string $id): object
+    {
+        $resolvable = $this->redirection[$id] ?? $this->configuration->get($id);
+        if (is_string($resolvable))
+            $resolvable = $this->configuration->get($resolvable);
+        return $resolvable->resolve();
     }
 
     /**
@@ -105,11 +115,9 @@ abstract class AbstractInstanceConfigurator
      */
     public function getContext(string $name): mixed
     {
-        $this->readContext($name, $found);
-
-        if($found) {
-            return $name;
-        }
+        $result = $this->readContext($name, $found);
+        if ($found)
+            return $result;
 
         throw new \OutOfBoundsException("Trying to access undefined context '$name'");
     }
@@ -124,20 +132,12 @@ abstract class AbstractInstanceConfigurator
             array_key_exists($name, $this->specificContext) :
             $this->specificContext->has($name);
 
-        if(!$hasSpecific && !$this->fallbackToDefault) {
+        if (!$hasSpecific && !$this->fallbackToDefault)
             return $hasSpecific;
-        }
 
         return is_array($this->defaultContext) ?
             array_key_exists($name, $this->defaultContext) :
             $this->defaultContext->has($name);
-    }
-
-    /** @inheritDoc */
-    public function get(string $id): object
-    {
-        $resolvable = $this->redirection[$id] ?? $this->configuration->get($id);
-        return $resolvable->resolve();
     }
 
     /** @inheritDoc */
@@ -150,14 +150,8 @@ abstract class AbstractInstanceConfigurator
     }
 
     /** @inheritDoc */
-    public function has(string $id): bool
+    public function getIterator(): \Traversable
     {
-        return isset($this->redirection[$id]) || $this->configuration->has($id);
-    }
-
-    /** @inheritDoc */
-    public function getIterator(): Traversable
-    {
-        throw new \LogicException("Trying to iterate over a single object instance resolver");
+        yield $this;
     }
 }

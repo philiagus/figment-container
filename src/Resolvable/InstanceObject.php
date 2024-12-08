@@ -49,6 +49,6 @@ readonly class InstanceObject implements Contract\Resolvable, Contract\Exposable
     /** @inheritDoc */
     public function getIterator(): Traversable
     {
-        throw new \LogicException("Trying to iterate over a single object instance resolver");
+        yield $this;
     }
 }
