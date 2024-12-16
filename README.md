@@ -87,7 +87,7 @@ class CircularMe implements Injectable {
     public function __construct(Injector $injector) {
         $injector
             // inject exposed object named "circular" into me
-            ->inject('circular', $this->me);
+            ->instance('circular', $this->me);
     }
 }
 

@@ -22,10 +22,10 @@ use Philiagus\Figment\Container\Contract\Injectable;
  *
  * @internal
  */
-readonly class LazyResolvable implements Contract\Resolvable, \IteratorAggregate
+readonly class LazyResolvable implements Contract\Resolver, \IteratorAggregate
 {
 
-    private Contract\Resolvable $resolvable;
+    private Contract\Resolver $resolvable;
 
     /**
      * @param Contract\Configuration $configuration
@@ -43,7 +43,7 @@ readonly class LazyResolvable implements Contract\Resolvable, \IteratorAggregate
         return $this->evaluate()->resolve();
     }
 
-    private function evaluate(): Contract\Resolvable
+    private function evaluate(): Contract\Resolver
     {
         if (!isset($this->resolvable)) {
             $resolvable = $this->configuration->get($this->id);
@@ -54,11 +54,8 @@ readonly class LazyResolvable implements Contract\Resolvable, \IteratorAggregate
                 If the call is targeting a class we can register, expose and resolve that
                 In any other case we throw a NotFoundException, as this cannot be resolved
                 */
-                if(!is_a($this->id, Injectable::class, true)) {
-                    throw new NotFoundException($this->id);
-                }
                 $resolvable = $this->configuration->class($this->id);
-                $resolvable->exposeAs($this->id);
+                $resolvable->registerAs($this->id);
             }
             $this->resolvable = $resolvable;
         }

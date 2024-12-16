@@ -1,7 +1,7 @@
 services:
-  test8_3:
+  test8_4:
     build:
       context: .
-      dockerfile: docker/8.3.Dockerfile
+      dockerfile: docker/8.4.Dockerfile
     volumes:
       - "./:/app"

@@ -16,25 +16,20 @@ readonly class Container implements Contract\Container
 {
 
     public function __construct(
-        private Contract\Configuration $configuration,
-        ?string                        $exposeAs = null
+        private Contract\Provider $provider
     )
     {
-        if ($exposeAs !== null)
-            $this->configuration
-                ->object($this)
-                ->exposeAs($exposeAs);
     }
 
     /** @inheritDoc */
     public function get(string $id)
     {
-        return $this->configuration->get($id)->resolve();
+        return $this->provider->get($id)->resolve();
     }
 
     /** @inheritDoc */
     public function has(string $id): bool
     {
-        return $this->configuration->has($id);
+        return $this->provider->has($id);
     }
 }
