@@ -12,7 +12,11 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract;
 
-interface Resolver
+interface InstanceConfigurator extends Registrable, Resolver, Provider
 {
-    public function resolve(): object;
+    public function setContext(Context|array $context, bool $fallbackToDefault = false): self;
+
+    public function redirect(string $id, Resolver|string $resolver): self;
+
+    public function constructorArguments(mixed ...$params): self;
 }

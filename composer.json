@@ -27,12 +27,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Philiagus\\Figment\\": "src/"
+            "Philiagus\\Figment\\Container\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Philiagus\\Figment\\Test\\": "tests/"
+            "Philiagus\\Figment\\Container\\Test\\": "tests/"
         }
     }
 }

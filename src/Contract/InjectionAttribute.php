@@ -14,5 +14,5 @@ namespace Philiagus\Figment\Container\Contract;
 
 interface InjectionAttribute
 {
-    public function resolve(Provider $provider, object $object): mixed;
+    public function resolve(Provider $provider, \ReflectionProperty $property, object $object): void;
 }

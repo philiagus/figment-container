@@ -17,8 +17,9 @@ use Philiagus\Figment\Container\Contract\Configuration;
 use Philiagus\Figment\Container\Contract\Provider;
 use Philiagus\Figment\Container\Contract\Registrable;
 use Philiagus\Figment\Container\Contract\Resolver;
+use Traversable;
 
-class InstanceGenerator implements Resolver, Registrable
+class InstanceGenerator implements Resolver, Registrable, \IteratorAggregate
 {
     private object $singleton;
     private bool $running = false;
@@ -64,5 +65,10 @@ class InstanceGenerator implements Resolver, Registrable
         $this->configuration->register($this, ...$id);
 
         return $this;
+    }
+
+    public function getIterator(): Traversable
+    {
+        yield $this;
     }
 }

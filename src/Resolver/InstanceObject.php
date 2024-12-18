@@ -15,8 +15,9 @@ namespace Philiagus\Figment\Container\Resolver;
 use Philiagus\Figment\Container\Contract\Configuration;
 use Philiagus\Figment\Container\Contract\Registrable;
 use Philiagus\Figment\Container\Contract\Resolver;
+use Traversable;
 
-class InstanceObject implements Resolver, Registrable
+class InstanceObject implements Resolver, Registrable, \IteratorAggregate
 {
 
     /**
@@ -39,5 +40,10 @@ class InstanceObject implements Resolver, Registrable
         $this->configuration->register($this, ...$id);
 
         return $this;
+    }
+
+    public function getIterator(): Traversable
+    {
+        yield $this;
     }
 }

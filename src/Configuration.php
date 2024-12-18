@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
-use Philiagus\Figment\Container\Contract\Instance\InstanceConfigurator;
+use Philiagus\Figment\Container\Contract\InstanceConfigurator;
+use Philiagus\Figment\Container\Contract\ListConfigurator;
 use Philiagus\Figment\Container\Resolver\InstanceClass;
+use Philiagus\Figment\Container\Resolver\Proxy\LazyResolvable;
 
 class Configuration implements Contract\Configuration
 {
@@ -44,7 +46,7 @@ class Configuration implements Contract\Configuration
      * @return InstanceConfigurator
      * @see Injectable
      */
-    public function class(string $className): Contract\Instance\InstanceConfigurator
+    public function class(string $className): Contract\InstanceConfigurator
     {
         return new InstanceClass($this, $this->context, $className);
     }
@@ -75,24 +77,43 @@ class Configuration implements Contract\Configuration
         return $container;
     }
 
-    private function object(object $object): Contract\Registrable
+    public function object(object $object): Contract\Registrable&Contract\Resolver
     {
         return new Resolver\InstanceObject($this, $object);
     }
 
-    /**
-     * @param \Closure(Contract\Provider): object $closure
-     * @return Contract\Registrable
-     */
-    public function generator(bool $useSingleton, \Closure $closure): Contract\Registrable
+    public function generator(bool $useSingleton, \Closure $closure): Contract\Registrable&Contract\Resolver
     {
         return new Resolver\InstanceGenerator($this, $useSingleton, $closure);
     }
 
-    public function register(Contract\Resolver $resolver, string ...$id)
+    public function register(Contract\Resolver $resolver, string ...$id): self
     {
         foreach ($id as $singleId) {
+            if(isset($this->registered[$singleId]) && $this->registered[$singleId] !== $resolver) {
+                throw new ContainerException("Trying to register two services with the same id '$singleId'");
+            }
             $this->registered[$singleId] = $resolver;
         }
+
+        return $this;
+    }
+
+    public function list(?string $id = null): ListConfigurator
+    {
+        if($id === null)
+            return new Resolver\ListConfiguration($this);
+
+        $registeredList = $this->registered[$id] ?? null;
+        if($registeredList === null) {
+            return $this->registered[$id] = new Resolver\ListConfiguration($this);
+        }
+        if($registeredList instanceof ListConfigurator) {
+            return $registeredList;
+        }
+
+        throw new ContainerException(
+            "Trying to access '$id' as list, which is already registered as not being a list"
+        );
     }
 }

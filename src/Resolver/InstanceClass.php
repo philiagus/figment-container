@@ -20,9 +20,11 @@ use Philiagus\Figment\Container\Contract\Context;
 use Philiagus\Figment\Container\Contract\Provider;
 use Philiagus\Figment\Container\Contract\Registrable;
 use Philiagus\Figment\Container\Contract\Resolver;
+use Philiagus\Figment\Container\ReflectionRegistry;
 use ReflectionAttribute;
+use Traversable;
 
-class InstanceClass implements Contract\Instance\InstanceConfigurator
+class InstanceClass implements Contract\InstanceConfigurator, \IteratorAggregate
 {
 
     private bool $running = false;
@@ -68,51 +70,19 @@ class InstanceClass implements Contract\Instance\InstanceConfigurator
             throw new \LogicException("Recursion detected!");
         }
 
-        $this->classReflection ??= new \ReflectionClass($this->className);
-        if (!isset($this->properties)) {
-            $constructor = null;
-            $properties = [];
-            $singletonDisabled = false;
-            $iterationClass = $this->classReflection;
-            do {
-                if ($iterationClass->getAttributes(DisableSingleton::class)) {
-                    $singletonDisabled = true;
-                }
-                $constructor ??= $iterationClass->getConstructor();
-                foreach ($iterationClass->getProperties() as $property) {
-                    $attributes = $property->getAttributes(
-                        Contract\InjectionAttribute::class,
-                        \ReflectionAttribute::IS_INSTANCEOF
-                    );
-                    if (!$attributes) {
-                        continue;
-                    }
-                    $properties[] = [
-                        $property,
-                        array_map(
-                            fn(ReflectionAttribute $o) => $o->newInstance(),
-                            $attributes
-                        )
-                    ];
-                }
-            } while ($iterationClass = $iterationClass->getParentClass());
-            $this->constructor = $constructor;
-            $this->isSingletonDisabled = $singletonDisabled;
-            $this->properties = $properties;
-        }
-
+        $reflection = ReflectionRegistry::getClassReflection($this->className);
 
         $this->running = true;
         try {
-            $instance = $this->classReflection->newLazyGhost(
-                function (object $object) {
-                    foreach ($this->properties as [$property, $attributes])
+            $instance = $reflection->class->newLazyGhost(
+                function (object $object) use ($reflection) {
+                    foreach ($reflection->properties as [$property, $attributes])
                         foreach ($attributes as $attribute)
-                            $property->setValue($object, $attribute->resolve($this, $object));
-                    $this->constructor?->invokeArgs($object, $this->constructorArguments);
+                            $attribute->resolve($this, $property, $object);
+                    $reflection->constructor?->invokeArgs($object, $this->constructorArguments);
                 }
             );
-            if (!$this->isSingletonDisabled) {
+            if (!$reflection->singletonDisabled) {
                 $this->singleton = $instance;
             }
             return $instance;
@@ -121,7 +91,7 @@ class InstanceClass implements Contract\Instance\InstanceConfigurator
         }
     }
 
-    public function setContext(Contract\Context|array $context, bool $fallbackToDefault = false): Contract\Instance\InstanceConfigurator
+    public function setContext(Contract\Context|array $context, bool $fallbackToDefault = false): Contract\InstanceConfigurator
     {
         if (!$context instanceof Contract\Context) {
             $context = new ArrayContext($context);
@@ -136,7 +106,7 @@ class InstanceClass implements Contract\Instance\InstanceConfigurator
         return $this;
     }
 
-    public function redirect(string $id, Contract\Resolver|string $resolver): Contract\Instance\InstanceConfigurator
+    public function redirect(string $id, Contract\Resolver|string $resolver): Contract\InstanceConfigurator
     {
         if ($resolver instanceof Contract\Resolver) {
             $this->redirection[$id] = $resolver;
@@ -159,10 +129,15 @@ class InstanceClass implements Contract\Instance\InstanceConfigurator
         return $this;
     }
 
-    public function constructorArguments(...$params): Contract\Instance\InstanceConfigurator
+    public function constructorArguments(...$params): Contract\InstanceConfigurator
     {
         $this->constructorArguments = $params;
 
         return $this;
+    }
+
+    public function getIterator(): Traversable
+    {
+        yield $this;
     }
 }

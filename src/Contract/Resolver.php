@@ -12,9 +12,13 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract;
 
-interface Configuration extends Provider
+/**
+ * @template ResolvesTo
+ */
+interface Resolver extends \Traversable
 {
-    public function buildContainer(): Container;
-
-    public function register(Resolver $resolver, string ...$id);
+    /**
+     * @return ResolvesTo
+     */
+    public function resolve(): object;
 }
