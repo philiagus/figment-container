@@ -15,22 +15,21 @@ namespace Philiagus\Figment\Container\Attribute;
 use Philiagus\Figment\Container\ContainerException;
 use Philiagus\Figment\Container\Contract;
 use Philiagus\Figment\Container\Resolver\ListConfiguration\InstanceList;
-use Philiagus\Figment\Container\Resolver\ListConfiguration\TypedInstanceList;
+use ReflectionParameter;
 use ReflectionProperty;
 
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
+#[\Attribute(\Attribute::TARGET_PARAMETER)]
 readonly class InjectList implements Contract\InjectionAttribute
 {
 
     public function __construct(
-        private string  $id,
-        private null|string|array|\Closure $typeCheck = null,
-        private bool    $emptyIfNotExists = false
+        private string $id,
+        private bool   $emptyIfNotExists = false
     )
     {
     }
 
-    public function resolve(Contract\Provider $provider, ReflectionProperty $property, object $object): void
+    public function resolve(Contract\Provider $provider, ReflectionProperty|ReflectionParameter $target, bool &$hasValue): mixed
     {
         if ($this->emptyIfNotExists && !$provider->has($this->id)) {
             $list = new InstanceList();
@@ -40,10 +39,9 @@ readonly class InjectList implements Contract\InjectionAttribute
                 throw new ContainerException("{$this->id} did not resolve to a list");
             }
 
-            $list = $this->typeCheck === null ?
-                $resolved :
-                new TypedInstanceList($resolved, $this->typeCheck);
+            $list = $resolved;
         }
-        $property->setValue($object, $list);
+        $hasValue = true;
+        return $list;
     }
 }

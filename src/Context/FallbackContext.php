@@ -27,12 +27,10 @@ readonly class FallbackContext implements Context {
 
     public function has(string $name): bool
     {
-        foreach($this->contexts as $context) {
-            if($context->has($name)) {
-                return true;
-            }
-        }
-        return false;
+        return array_any(
+            $this->contexts,
+            static fn($context) => $context->has($name)
+        );
     }
 
     public function get(string $name): mixed

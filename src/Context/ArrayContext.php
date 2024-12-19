@@ -18,7 +18,6 @@ use Philiagus\Figment\Container\UndefinedContextException;
 readonly class ArrayContext implements Contract\Context {
 
     public function __construct(private array $context) {
-
     }
 
     public function has(string $name): bool

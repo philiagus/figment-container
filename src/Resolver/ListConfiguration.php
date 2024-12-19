@@ -13,14 +13,14 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Resolver;
 
 use Philiagus\Figment\Container\Contract\Configuration;
-use Philiagus\Figment\Container\Contract\ListConfigurator;
-use Philiagus\Figment\Container\Contract\Registrable;
+use Philiagus\Figment\Container\Contract\Configuration\ListConfigurator;
+use Philiagus\Figment\Container\Contract\Configuration\Registrable;
 use Philiagus\Figment\Container\Contract\Resolver;
 use Traversable;
 
 class ListConfiguration implements ListConfigurator, \IteratorAggregate {
 
-    /** @var array{bool, Resolver} */
+    /** @var array<array<string|Resolver>> */
     private array $contents = [];
 
     public function __construct(

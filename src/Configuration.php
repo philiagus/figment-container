@@ -12,9 +12,10 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
-use Philiagus\Figment\Container\Contract\InstanceConfigurator;
-use Philiagus\Figment\Container\Contract\ListConfigurator;
-use Philiagus\Figment\Container\Resolver\InstanceClass;
+use Philiagus\Figment\Container\Contract\Configuration\ConstructedConfigurator;
+use Philiagus\Figment\Container\Contract\Configuration\InjectionConfigurator;
+use Philiagus\Figment\Container\Contract\Configuration\ListConfigurator;
+use Philiagus\Figment\Container\Resolver\InstanceInjected;
 use Philiagus\Figment\Container\Resolver\Proxy\LazyResolvable;
 
 class Configuration implements Contract\Configuration
@@ -43,12 +44,12 @@ class Configuration implements Contract\Configuration
      * interact with must implement the Injectable interface
      *
      * @param class-string $className
-     * @return InstanceConfigurator
+     * @return InjectionConfigurator
      * @see Injectable
      */
-    public function class(string $className): Contract\InstanceConfigurator
+    public function injected(string $className): Contract\Configuration\InjectionConfigurator
     {
-        return new InstanceClass($this, $this->context, $className);
+        return new InstanceInjected($this, $className);
     }
 
     /** @inheritDoc */
@@ -77,12 +78,12 @@ class Configuration implements Contract\Configuration
         return $container;
     }
 
-    public function object(object $object): Contract\Registrable&Contract\Resolver
+    public function object(object $object): Contract\Configuration\Registrable&Contract\Resolver
     {
         return new Resolver\InstanceObject($this, $object);
     }
 
-    public function generator(bool $useSingleton, \Closure $closure): Contract\Registrable&Contract\Resolver
+    public function generator(bool $useSingleton, \Closure $closure): Contract\Configuration\Registrable&Contract\Resolver
     {
         return new Resolver\InstanceGenerator($this, $useSingleton, $closure);
     }
@@ -115,5 +116,10 @@ class Configuration implements Contract\Configuration
         throw new ContainerException(
             "Trying to access '$id' as list, which is already registered as not being a list"
         );
+    }
+
+    public function constructed(string $className): ConstructedConfigurator
+    {
+        return new Resolver\InstanceConstructed($this, $className);
     }
 }

@@ -4,98 +4,45 @@ This is the implementation of the basic figment container, the DI and container 
 
 ## How to define dependencies?
 
-In order to create a figment configuration simply use the `\Philiagus\Figment\Container\Configuration` class and later hand it over to the container.
+Everything starts with a configuration class.
 
 ```php
 
 use Philiagus\Figment\Container\Configuration;
-use \Philiagus\Figment\Container\Container;
 
-$config = new Configuration();
-
-$config
-    // target my class to be instantiable by the container
-    ->class(MyClass::class)
-    // add some injectable data
-    ->context([
-        'someDirectory' => __DIR__ . '/../somewhere',
-        'maxSomething' => 123,
-        'url' => 'http://example.org'
-    ])
-    // expose the instance under this name
-    ->exposeAs('myObject');
+$config = new Configuration([
+    'pdo.dsn' => '<your dsn>',
+    'pdo.user' => '<your user>',
+    'pdo.pw' => '<your pw>'
+]);
 
 $config
-    // define a list of instances that can be injected as a list
-    // example: HTTP middlewares, CLI commands, etc...
-    ->list(
-        // add the defined instance of MyClass to the list
-        // the framework is lazy, so you could define this
-        // dependency even before defining the MyClass 
-        $config->get('myObject'),
-        // on the fly define OtherClass to be instantiable as well 
-        $config->class(OtherClass::class),
-    )
-    ->exposeAs('myList')
+    ->constructed(\PDO::class)
+    ->parameterConfig('dsn', 'pdo.dsn')
+    ->parameterConfig('user', 'pdo.user')
+    ->parameterConfig('password', 'pdo.pw')
+    ->registerAs('pdo_constructed');
 
-$container = new Container($config);
+$config
+    ->object(new \PDO('<your dsn>', '<your user>', '<your pw>'))
+    ->registerAs('pdo_object');
 
-$container->instance('myObject'); // will create an instance of MyClass
-```
+$config
+    ->generator(static function(\Philiagus\Figment\Container\Contract\Provider $provider) {
+        $context = $provider->context();
+        return new new \PDO(
+            $context->get('pdo.dsn'),
+            $context->get('pdo.user'),
+            $context->get('pdo.pw')
+        );
+    })
+    ->registerAs('pdo_generator');
 
-Now lets take a look at MyClass:
-```php
+class MyObject {
 
-use Philiagus\Figment\Container\Contract\Injectable;
-use Philiagus\Figment\Container\Contract\Injector;
-use Philiagus\Figment\Container\Contract\List\InstanceList;
-
-class MyClass implements
-    // any class that wants to be created by the container must implement this interface
-    Injectable { 
-
-    private ?InstanceList $myList;
-
-    public function __construct(Injector $injector) {
-        $injector
-            // configures an exposed list called "myList" to be injected
-            // into the private $myList property
-            // the property must be type-hinted as nullable due to
-            // PHP wanting to set it to null for this by-reference handling
-            ->list('myList', $this->myList);    
-        // the property is still null at this line!
-        // the injection takes place outside any constructors in order to
-        // ensure bug-fee behaviour for circular references
-    }
-}
-```
-
-Speaking of circular references, this is completely valid:
-
-```php
-
-use Philiagus\Figment\Container\Configuration;
-use Philiagus\Figment\Container\Contract\Injectable;
-use Philiagus\Figment\Container\Contract\Injector;
-
-$config = new Configuration();
-
-class CircularMe implements Injectable {
-    
-    private ?self $me;
-    
-    public function __construct(Injector $injector) {
-        $injector
-            // inject exposed object named "circular" into me
-            ->instance('circular', $this->me);
-    }
+    public function __construct(
+    #[\Philiagus\Figment\Container\Attribute\Inject('pdo_object')] \PDO $pdo
+    ) {}
 }
 
-$config
-    ->class(CircularMe::class)
-    ->exposeAs('circular');
 ```
-
-When requesting `circular` from the container this will create an object of class `CircularMe` that has itself injected into its private `$me`-property.
-
-This just goes to show that you can create circular references without any problems.

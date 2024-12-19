@@ -14,28 +14,24 @@ namespace Philiagus\Figment\Container\Attribute;
 
 use Philiagus\Figment\Container\Contract\InjectionAttribute;
 use Philiagus\Figment\Container\Contract\Provider;
-use Philiagus\Figment\Container\Resolver\Proxy\TypedInstanceProxy;
+use ReflectionParameter;
+use ReflectionProperty;
 
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
+#[\Attribute(\Attribute::TARGET_PARAMETER)]
 readonly class Inject implements InjectionAttribute
 {
 
     public function __construct(
-        private string                     $id,
-        private null|string|array|\Closure $typeCheck = null
+        private ?string $id = null
     )
     {
     }
 
-    public function resolve(Provider $provider, \ReflectionProperty $property, object $object): void
+    public function resolve(Provider $provider, ReflectionProperty|ReflectionParameter $target, bool &$hasValue): mixed
     {
-        $resolver = $provider->get($this->id);
-        if ($this->typeCheck !== null) {
-            $instance = new TypedInstanceProxy($resolver, $this->typeCheck)->resolve();
-        } else {
-            $instance = $resolver->resolve();
-        }
-
-        $property->setValue($object, $instance);
+        $id = $this->id ?? (string)$target->getType();
+        $instance = $provider->get($id)->resolve();
+        $hasValue = true;
+        return $instance;
     }
 }

@@ -15,17 +15,18 @@ namespace Philiagus\Figment\Container\Contract\List;
 use Philiagus\Figment\Container\Contract\Resolver;
 
 /**
- * @template Content
- * @template-implements \Traversable<Content>
+ * @template-covariant Content
+ * @implements \Traversable<int, Content>
  */
 interface InstanceList extends \Traversable, \Countable {
 
 
     /**
      * Iterates through the resolvers
-     * @return \Generator<Resolver<Content>>
+     * @param null|\Closure|class-string|class-string[] $type
+     * @return \Generator<int, Resolver<Content>>
      */
-    public function traverseResolvers(): \Generator;
+    public function traverseResolvers(null|\Closure|string|array $type = null): \Generator;
 
     /**
      * Traverses through the resolved instances of this list
@@ -33,8 +34,9 @@ interface InstanceList extends \Traversable, \Countable {
      * the instances
      *
      * This must also be the default \Traversable when iterating this object itself
-     * @return \Generator<Content>
+     * @param null|\Closure|class-string|class-string[] $type
+     * @return \Generator<int, Content>
      */
-    public function traverseInstances(): \Generator;
+    public function traverseInstances(null|\Closure|string|array $type = null): \Generator;
 
 }

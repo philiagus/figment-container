@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Resolver\Proxy;
 
-use Philiagus\Figment\Container\ContainerException;
 use Philiagus\Figment\Container\Contract;
+use Philiagus\Figment\Container\NotFoundException;
 
 /**
  * Used to lazily resolve targeted ids
@@ -52,15 +52,15 @@ readonly class LazyResolvable implements Contract\Resolver, \IteratorAggregate
                 /*
                 The container still returns a lazy resolvable, so
                 the targeted id has not been exposed against yet
-                If the call is targeting a class we can register, expose and resolve that
+                If the call is targeting a class: we can register, expose and resolve that
                 In any other case we throw a NotFoundException, as this cannot be resolved
                 */
-                if(!class_exists($this->id)) {
-                    throw new ContainerException(
+                if (!class_exists($this->id)) {
+                    throw new NotFoundException(
                         "Id '{$this->id}' is not registered to the container"
                     );
                 }
-                $resolvable = $this->configuration->class($this->id);
+                $resolvable = $this->configuration->injected($this->id);
                 $resolvable->registerAs($this->id);
             }
             $this->resolvable = $resolvable;
@@ -76,7 +76,7 @@ readonly class LazyResolvable implements Contract\Resolver, \IteratorAggregate
      *
      * This is used to lazy-expand lists to their contained Resolvable elements.
      *
-     * @return \Traversable<Contract\Resolver>
+     * @return \Traversable<int, Contract\Resolver>
      */
     public function getIterator(): \Traversable
     {

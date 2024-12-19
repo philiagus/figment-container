@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Resolver\ListConfiguration;
 
 use Philiagus\Figment\Container\Contract;
+use Philiagus\Figment\Container\Resolver\Proxy\TypedInstanceProxy;
 use Traversable;
 
 readonly class InstanceList implements Contract\List\InstanceList, \IteratorAggregate
@@ -28,14 +29,20 @@ readonly class InstanceList implements Contract\List\InstanceList, \IteratorAggr
         $this->resolvers = $resolvers;
     }
 
-    public function traverseResolvers(): \Generator
+    public function traverseResolvers(null|\Closure|string|array $type = null): \Generator
     {
-        yield from $this->resolvers;
+        if($type) {
+            foreach($this->resolvers as $resolver) {
+                yield new TypedInstanceProxy($resolver, $type);
+            }
+        } else {
+            yield from $this->resolvers;
+        }
     }
 
-    public function traverseInstances(): \Generator
+    public function traverseInstances(null|\Closure|string|array $type = null): \Generator
     {
-        foreach($this->resolvers as $resolver) {
+        foreach($this->traverseResolvers($type) as $resolver) {
             yield $resolver->resolve();
         }
     }

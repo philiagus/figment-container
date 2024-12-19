@@ -10,7 +10,9 @@
 
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container\Contract;
+namespace Philiagus\Figment\Container\Contract\Configuration;
+
+use Philiagus\Figment\Container\Contract\Resolver;
 
 interface ListConfigurator extends Registrable, Resolver {
 

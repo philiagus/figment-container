@@ -12,12 +12,21 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Context;
 
-readonly class EmptyContext extends ArrayContext
+use Philiagus\Figment\Container\Contract\Context;
+use Philiagus\Figment\Container\UndefinedContextException;
+
+readonly class EmptyContext implements Context
 {
 
-    public function __construct()
+    #[\Override]
+    public function has(string $name): bool
     {
-        parent::__construct([]);
+        return false;
     }
 
+    #[\Override]
+    public function get(string $name): mixed
+    {
+        throw new UndefinedContextException($name);
+    }
 }

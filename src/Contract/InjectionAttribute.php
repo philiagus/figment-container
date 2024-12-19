@@ -12,7 +12,10 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract;
 
+use ReflectionParameter;
+use ReflectionProperty;
+
 interface InjectionAttribute
 {
-    public function resolve(Provider $provider, \ReflectionProperty $property, object $object): void;
+    public function resolve(Provider $provider, ReflectionProperty|ReflectionParameter $target, bool &$hasValue): mixed;
 }

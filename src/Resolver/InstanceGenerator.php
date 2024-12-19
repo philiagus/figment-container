@@ -14,8 +14,8 @@ namespace Philiagus\Figment\Container\Resolver;
 
 use Closure;
 use Philiagus\Figment\Container\Contract\Configuration;
+use Philiagus\Figment\Container\Contract\Configuration\Registrable;
 use Philiagus\Figment\Container\Contract\Provider;
-use Philiagus\Figment\Container\Contract\Registrable;
 use Philiagus\Figment\Container\Contract\Resolver;
 use Traversable;
 

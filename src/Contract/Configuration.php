@@ -12,17 +12,24 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract;
 
+use Philiagus\Figment\Container\Contract\Configuration\ConstructedConfigurator;
+use Philiagus\Figment\Container\Contract\Configuration\InjectionConfigurator;
+use Philiagus\Figment\Container\Contract\Configuration\ListConfigurator;
+use Philiagus\Figment\Container\Contract\Configuration\Registrable;
+
 interface Configuration extends Provider
 {
     public function buildContainer(): Container;
 
     public function register(Resolver $resolver, string ...$id): self;
 
-    public function class(string $className): InstanceConfigurator;
+    public function injected(string $className): InjectionConfigurator;
 
-    public function generator(bool $useSingleton, \Closure $closure): Registrable;
+    public function constructed(string $className): ConstructedConfigurator;
 
-    public function object(object $object): Registrable;
+    public function generator(bool $useSingleton, \Closure $closure): Registrable&Resolver;
+
+    public function object(object $object): Registrable&Resolver;
 
     public function list(?string $id = null): ListConfigurator;
 }
