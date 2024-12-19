@@ -45,8 +45,8 @@ class InstanceConstructed
 
     public function resolve(): object
     {
-        if ($this->singleton)
-            return $this;
+        if (isset($this->singleton))
+            return $this->singleton;
 
         $reflection = ReflectionRegistry::getClassReflection($this->className);
         $instance = $reflection->ghostConstructed($this);

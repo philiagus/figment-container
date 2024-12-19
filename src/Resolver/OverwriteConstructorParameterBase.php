@@ -36,8 +36,8 @@ class OverwriteConstructorParameterBase
         foreach ($this->parameters as $name => [$type, $value]) {
             $realParameters[$name] = match ($type) {
                 self::IS_FIXED => $value,
-                self::IS_INJECTED => $value instanceof Resolver ? $value
-                    : $this->configuration->get($value),
+                self::IS_INJECTED => $value instanceof Resolver ? $value->resolve()
+                    : $this->configuration->get($value)->resolve(),
                 self::IS_CONFIG => $this->configuration->context()->get($value)
             };
         }
