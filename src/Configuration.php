@@ -13,27 +13,18 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container;
 
 use Philiagus\Figment\Container\Exception\ContainerException;
-use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 class Configuration implements Contract\Configuration
 {
 
-    private array $registered = [];
-
+    private array $registry = [];
     private array $lazies = [];
+    private Contract\Configuration\ReflectionProvider $reflectionProvider;
 
-    private readonly Contract\Context $context;
-
-    public function __construct(
-        Contract\Context|array $context = []
-    )
+    public function __construct(private readonly Contract\Context $context)
     {
-        if ($context instanceof Contract\Context) {
-            $this->context = $context;
-        } else {
-            $this->context = new Context\MapContext($context);
-        }
+        $this->reflectionProvider = new Configuration\ReflectionProvider();
 
         $this->generator(fn() => new Container($this))
             ->registerAs('container');
@@ -49,7 +40,7 @@ class Configuration implements Contract\Configuration
      */
     public function injected(string $className): Contract\Builder\InjectionBuilder
     {
-        return new Builder\InjectionBuilder($this, $className);
+        return new Builder\InjectionBuilder($this, $this->reflectionProvider, $className);
     }
 
     public function context(): Contract\Context
@@ -70,7 +61,7 @@ class Configuration implements Contract\Configuration
 
     public function get(string $id): Contract\Builder
     {
-        return $this->registered[$id] ?? $this->lazies[$id] ??= new Builder\LazyBuilder($this, $id);
+        return $this->registry[$id] ?? $this->lazies[$id] ??= new Builder\LazyBuilder($this, $id);
     }
 
     public function object(object $object): Contract\Builder\ObjectBuilder
@@ -81,10 +72,10 @@ class Configuration implements Contract\Configuration
     public function register(Contract\Builder $builder, string ...$id): self
     {
         foreach ($id as $singleId) {
-            if (isset($this->registered[$singleId]) && $this->registered[$singleId] !== $builder) {
+            if (isset($this->registry[$singleId]) && $this->registry[$singleId] !== $builder) {
                 throw new ContainerException("Trying to register two services with the same id '$singleId'");
             }
-            $this->registered[$singleId] = $builder;
+            $this->registry[$singleId] = $builder;
         }
 
         return $this;
@@ -95,9 +86,9 @@ class Configuration implements Contract\Configuration
         if ($id === null)
             return new Builder\ListBuilder($this);
 
-        $registeredList = $this->registered[$id] ?? null;
+        $registeredList = $this->registry[$id] ?? null;
         if ($registeredList === null) {
-            return $this->registered[$id] = new Builder\ListBuilder($this);
+            return $this->registry[$id] = new Builder\ListBuilder($this);
         }
         if ($registeredList instanceof Contract\Builder\ListBuilder) {
             return $registeredList;
@@ -110,11 +101,11 @@ class Configuration implements Contract\Configuration
 
     public function constructed(string $className): Contract\Builder\ConstructorBuilder
     {
-        return new Builder\ConstructorBuilder($this, $className);
+        return new Builder\ConstructorBuilder($this, $this->reflectionProvider, $className);
     }
 
     public function has(string $id): bool
     {
-        return isset($this->registered[$id]);
+        return isset($this->registry[$id]);
     }
 }

@@ -10,36 +10,32 @@
 
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container\ReflectionRegistry;
+namespace Philiagus\Figment\Container\Configuration;
 
 use Philiagus\Figment\Container\Attribute\DisableSingleton;
 use Philiagus\Figment\Container\Contract;
 use Philiagus\Figment\Container\Contract\Builder\OverwriteConstructorParameterProvider;
 use Philiagus\Figment\Container\Contract\Container;
-use ReflectionException;
 
 /**
  * @internal
  */
-class ClassReflection
+readonly class ClassReflection implements Contract\Configuration\ClassReflection
 {
 
-    /** @var array<string, self> */
-    private static array $cache = [];
-
-    public readonly bool $singletonDisabled;
-    private readonly \ReflectionClass $class;
-    private readonly ?\ReflectionMethod $constructor;
+    public bool $singletonDisabled;
+    private \ReflectionClass $class;
+    private ?\ReflectionMethod $constructor;
 
     /** @var array<string, array{\ReflectionParameter, Contract\InjectionAttribute[]}> */
-    private readonly array $constructorParameters;
+    private array $constructorParameters;
 
     /**
      * @param class-string $className
      * @throws \ReflectionException
      */
-    private function __construct(
-        private readonly string $className
+    public function __construct(
+        private string $className
     )
     {
         $this->class = new \ReflectionClass($className);
@@ -62,16 +58,6 @@ class ClassReflection
             }
         }
         $this->constructorParameters = $constructorParameters;
-    }
-
-    /**
-     * @param class-string $class
-     * @return self
-     * @throws ReflectionException
-     */
-    public static function get(string $class): self
-    {
-        return self::$cache[$class] ??= new self($class);
     }
 
     /**
@@ -107,13 +93,14 @@ class ClassReflection
 
     /**
      * @param OverwriteConstructorParameterProvider $parameterProvider
+     * @param string $forName
      * @return object
      */
     public function buildConstructed(OverwriteConstructorParameterProvider $parameterProvider, string $forName): object
     {
         if ($this->constructor) {
             return $this->class->newLazyGhost(
-                fn (object $object) => $this->constructor->invokeArgs(
+                fn(object $object) => $this->constructor->invokeArgs(
                     $object,
                     $parameterProvider->resolveOverwriteConstructorParameter($forName)
                 )

@@ -4,9 +4,7 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Builder;
 
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
-use Philiagus\Figment\Container\ReflectionRegistry;
 
 class ConstructorBuilder
     extends OverwriteConstructorParameterBase
@@ -25,6 +23,7 @@ class ConstructorBuilder
      */
     public function __construct(
         Contract\Configuration  $configuration,
+        private readonly Contract\Configuration\ReflectionProvider $reflectionProvider,
         private readonly string $className
     )
     {
@@ -54,7 +53,7 @@ class ConstructorBuilder
             throw new ContainerRecursionException($name);
         }
 
-        $reflection = ReflectionRegistry\ClassReflection::get($this->className);
+        $reflection = $this->reflectionProvider->get($this->className);
         $this->singletonDisabled = $this->singletonDisabled || $reflection->singletonDisabled;
 
         $this->running = true;

@@ -45,5 +45,4 @@ interface Configuration extends BuilderContainer
     public function object(object $object): ObjectBuilder;
 
     public function list(?string $id = null): ListBuilder;
-
 }

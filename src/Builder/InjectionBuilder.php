@@ -14,7 +14,6 @@ namespace Philiagus\Figment\Container\Builder;
 
 use Philiagus\Figment\Container\Contract;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
-use Philiagus\Figment\Container\ReflectionRegistry;
 
 class InjectionBuilder
     extends OverwriteConstructorParameterBase
@@ -31,6 +30,7 @@ class InjectionBuilder
      */
     public function __construct(
         Contract\Configuration  $configuration,
+        private readonly Contract\Configuration\ReflectionProvider $reflectionProvider,
         private readonly string $className
     )
     {
@@ -46,8 +46,7 @@ class InjectionBuilder
             throw new ContainerRecursionException($name);
         }
 
-        $reflection = ReflectionRegistry\ClassReflection::get($this->className);
-
+        $reflection = $this->reflectionProvider->get($this->className);
         $this->running = true;
         try {
             $instance = $reflection->buildInjected($this, $name);
