@@ -4,14 +4,14 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Context;
 
 use Philiagus\Figment\Container\Contract\Context;
-use Philiagus\Figment\Container\UndefinedContextException;
+use Philiagus\Figment\Container\Exception\UndefinedContextException;
 
 readonly class ArrayLookupContext implements Context
 {
-
     public function __construct(
         private array  $context,
-        private string $separator = '.')
+        private string $separator = '.'
+    )
     {
     }
 

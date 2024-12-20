@@ -12,13 +12,14 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract;
 
-interface InjectionAttribute
+interface Builder extends \Traversable
 {
     /**
-     * @param Container $container
-     * @param \ReflectionParameter $parameter
-     * @param bool $hasValue
-     * @return mixed
+     * Builds the targeted instance
+     * Name is a helpful identifier to help the consumer of any exception know which chain
+     * of instantiation might have caused any exception
+     * @param string $name
+     * @return object
      */
-    public function resolve(Container $container, \ReflectionParameter $parameter, bool &$hasValue): mixed;
+    public function build(string $name): object;
 }

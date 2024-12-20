@@ -12,24 +12,11 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract;
 
-interface Provider
+interface BuilderContainer
 {
 
-    /**
-     * @param string $id
-     * @return Resolver
-     */
-    public function get(string $id): Resolver;
+    public function get(string $id): Builder;
 
-    /**
-     * Returns true if this provider can provide
-     * @param string $id
-     * @return bool
-     */
     public function has(string $id): bool;
 
-    /**
-     * @return Context
-     */
-    public function context(): Context;
 }

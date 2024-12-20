@@ -28,7 +28,7 @@ $config
     ->registerAs('pdo_object');
 
 $config
-    ->generator(static function(\Philiagus\Figment\Container\Contract\Provider $provider) {
+    ->generator(static function(\Philiagus\Figment\Container\Contract\BuilderContainer $provider) {
         $context = $provider->context();
         return new new \PDO(
             $context->get('pdo.dsn'),

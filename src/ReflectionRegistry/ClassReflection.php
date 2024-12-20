@@ -14,19 +14,33 @@ namespace Philiagus\Figment\Container\ReflectionRegistry;
 
 use Philiagus\Figment\Container\Attribute\DisableSingleton;
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\Contract\Configuration\OverwriteConstructorParameterProvider;
+use Philiagus\Figment\Container\Contract\Builder\OverwriteConstructorParameterProvider;
+use Philiagus\Figment\Container\Contract\Container;
+use ReflectionException;
 
-readonly class ClassReflection
+/**
+ * @internal
+ */
+class ClassReflection
 {
 
-    public bool $singletonDisabled;
-    private \ReflectionClass $class;
-    private ?\ReflectionMethod $constructor;
+    /** @var array<string, self> */
+    private static array $cache = [];
+
+    public readonly bool $singletonDisabled;
+    private readonly \ReflectionClass $class;
+    private readonly ?\ReflectionMethod $constructor;
 
     /** @var array<string, array{\ReflectionParameter, Contract\InjectionAttribute[]}> */
-    private array $constructorParameters;
+    private readonly array $constructorParameters;
 
-    public function __construct(private string $className)
+    /**
+     * @param class-string $className
+     * @throws \ReflectionException
+     */
+    private function __construct(
+        private readonly string $className
+    )
     {
         $this->class = new \ReflectionClass($className);
         $this->constructor = $this->class->getConstructor();
@@ -50,12 +64,27 @@ readonly class ClassReflection
         $this->constructorParameters = $constructorParameters;
     }
 
-    public function ghostInjected(Contract\Provider&OverwriteConstructorParameterProvider $provider): object
+    /**
+     * @param class-string $class
+     * @return self
+     * @throws ReflectionException
+     */
+    public static function get(string $class): self
+    {
+        return self::$cache[$class] ??= new self($class);
+    }
+
+    /**
+     * @param Container&OverwriteConstructorParameterProvider $provider
+     * @param string $forName
+     * @return object
+     */
+    public function buildInjected(Contract\Container&OverwriteConstructorParameterProvider $provider, string $forName): object
     {
         return $this->class->newLazyGhost(
-            function (object $object) use ($provider) {
+            function (object $object) use ($provider, $forName) {
                 if ($this->constructor) {
-                    $constructorArguments = $provider->resolveOverwriteConstructorParameter();
+                    $constructorArguments = $provider->resolveOverwriteConstructorParameter($forName);
                     foreach ($this->constructorParameters as $name => [$parameter, $attributes]) {
                         if (array_key_exists($name, $constructorArguments)) {
                             continue;
@@ -76,12 +105,19 @@ readonly class ClassReflection
         );
     }
 
-    public function ghostConstructed(OverwriteConstructorParameterProvider $parameterProvider): object
+    /**
+     * @param OverwriteConstructorParameterProvider $parameterProvider
+     * @return object
+     */
+    public function buildConstructed(OverwriteConstructorParameterProvider $parameterProvider, string $forName): object
     {
         if ($this->constructor) {
-            return $this->class->newLazyGhost(function (object $object) use ($parameterProvider) {
-                $this->constructor->invokeArgs($object, $parameterProvider->resolveOverwriteConstructorParameter());
-            });
+            return $this->class->newLazyGhost(
+                fn (object $object) => $this->constructor->invokeArgs(
+                    $object,
+                    $parameterProvider->resolveOverwriteConstructorParameter($forName)
+                )
+            );
         }
         return new $this->className();
     }

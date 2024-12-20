@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container;
+namespace Philiagus\Figment\Container\Exception;
 
 use Psr\Container\NotFoundExceptionInterface;
 

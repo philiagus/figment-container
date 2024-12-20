@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Context;
 
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\UndefinedContextException;
+use Philiagus\Figment\Container\Exception\UndefinedContextException;
 
-readonly class ArrayContext implements Contract\Context {
+readonly class MapContext implements Contract\Context {
 
     public function __construct(private array $context) {
     }

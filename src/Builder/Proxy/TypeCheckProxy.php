@@ -10,28 +10,27 @@
 
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container\Resolver\Proxy;
+namespace Philiagus\Figment\Container\Builder\Proxy;
 
-use Philiagus\Figment\Container\ContainerException;
-use Philiagus\Figment\Container\Contract\Resolver;
-use Traversable;
+use Philiagus\Figment\Container\Contract\Builder;
+use Philiagus\Figment\Container\Exception\ContainerException;
 
-readonly class TypedInstanceProxy implements Resolver, \IteratorAggregate
+readonly class TypeCheckProxy implements Builder, \IteratorAggregate
 {
     /**
-     * @param Resolver $resolver
-     * @param \Closure|string $type
+     * @param Builder $resolver
+     * @param \Closure|class-string|class-string[] $type
      */
     public function __construct(
-        private Resolver              $resolver,
+        private Builder               $resolver,
         private \Closure|string|array $type
     )
     {
     }
 
-    public function resolve(): object
+    public function build(string $name): object
     {
-        $result = $this->resolver->resolve();
+        $result = $this->resolver->build($name);
         if ($this->type instanceof \Closure) {
             if (!($this->type)($result)) {
                 throw new ContainerException(
@@ -62,7 +61,7 @@ readonly class TypedInstanceProxy implements Resolver, \IteratorAggregate
 
     }
 
-    public function getIterator(): Traversable
+    public function getIterator(): \Traversable
     {
         yield $this;
     }

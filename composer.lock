@@ -4,63 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6353b92a9f6806543c8b2993c0ecbbe1",
+    "content-hash": "72f8fdc93292eaa7f4daaae536af2b20",
     "packages": [
-        {
-            "name": "philiagus/parser",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/philiagus/parser.git",
-                "reference": "3fb991f760ee7991da320f58bcc9812dda174872"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/philiagus/parser/zipball/3fb991f760ee7991da320f58bcc9812dda174872",
-                "reference": "3fb991f760ee7991da320f58bcc9812dda174872",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "ext-mbstring": "*",
-                "php": ">=8.3"
-            },
-            "require-dev": {
-                "ext-xdebug": "*",
-                "philiagus/dataprovider": "*",
-                "phpspec/prophecy-phpunit": "*",
-                "phpunit/phpunit": "*"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Philiagus\\Parser\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Andreas Eicher",
-                    "email": "philiagus@philiagus.de",
-                    "role": "lead"
-                }
-            ],
-            "description": "PHP converter classes for asserting, parsing and converting of inputs.",
-            "keywords": [
-                "parse",
-                "php",
-                "sanitize"
-            ],
-            "support": {
-                "issues": "https://github.com/philiagus/parser/issues",
-                "source": "https://github.com/philiagus/parser/tree/master"
-            },
-            "time": "2024-12-15T07:29:50+00:00"
-        },
         {
             "name": "psr/container",
             "version": "2.0.2",
@@ -2324,13 +2269,11 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "philiagus/parser": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.3"
+        "php": ">=8.4"
     },
     "platform-dev": {
         "ext-xdebug": "*"

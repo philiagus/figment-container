@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Context;
 
 use Philiagus\Figment\Container\Contract\Context;
-use Philiagus\Figment\Container\UndefinedContextException;
+use Philiagus\Figment\Container\Exception\UndefinedContextException;
 
 readonly class EmptyContext implements Context
 {

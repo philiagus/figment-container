@@ -12,10 +12,12 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Attribute;
 
+use Philiagus\Figment\Container\Contract\Container;
 use Philiagus\Figment\Container\Contract\InjectionAttribute;
-use Philiagus\Figment\Container\Contract\Provider;
+use Philiagus\Figment\Container\Contract\BuilderContainer;
 use ReflectionParameter;
 use ReflectionProperty;
+
 
 #[\Attribute(\Attribute::TARGET_PARAMETER)]
 readonly class Inject implements InjectionAttribute
@@ -27,10 +29,10 @@ readonly class Inject implements InjectionAttribute
     {
     }
 
-    public function resolve(Provider $provider, ReflectionProperty|ReflectionParameter $target, bool &$hasValue): mixed
+    public function resolve(Container $container, \ReflectionParameter $parameter, bool &$hasValue): object
     {
-        $id = $this->id ?? (string)$target->getType();
-        $instance = $provider->get($id)->resolve();
+        $id = $this->id ?? (string)$parameter->getType();
+        $instance = $container->get($id);
         $hasValue = true;
         return $instance;
     }

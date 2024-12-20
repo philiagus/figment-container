@@ -12,24 +12,29 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
+use Philiagus\Figment\Container\Contract\Context;
+
 readonly class Container implements Contract\Container
 {
 
-    public function __construct(
-        private Contract\Provider $provider
-    )
+    public function __construct(private Contract\Configuration $provider)
     {
     }
 
     /** @inheritDoc */
     public function get(string $id)
     {
-        return $this->provider->get($id)->resolve();
+        return $this->provider->get($id)->build($id);
     }
 
     /** @inheritDoc */
     public function has(string $id): bool
     {
         return $this->provider->has($id);
+    }
+
+    public function context(): Context
+    {
+        return $this->provider->context();
     }
 }

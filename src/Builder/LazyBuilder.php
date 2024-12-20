@@ -10,10 +10,10 @@
 
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container\Resolver\Proxy;
+namespace Philiagus\Figment\Container\Builder;
 
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\NotFoundException;
+use Philiagus\Figment\Container\Exception\NotFoundException;
 
 /**
  * Used to lazily resolve targeted ids
@@ -23,10 +23,10 @@ use Philiagus\Figment\Container\NotFoundException;
  *
  * @internal
  */
-readonly class LazyResolvable implements Contract\Resolver, \IteratorAggregate
+readonly class LazyBuilder implements Contract\Builder, \IteratorAggregate
 {
 
-    private Contract\Resolver $resolvable;
+    private Contract\Builder $builder;
 
     /**
      * @param Contract\Configuration $configuration
@@ -39,34 +39,28 @@ readonly class LazyResolvable implements Contract\Resolver, \IteratorAggregate
     {
     }
 
-    public function resolve(): object
+    public function build(string $name): object
     {
-        return $this->evaluate()->resolve();
+        return $this->evaluate()->build($name);
     }
 
-    private function evaluate(): Contract\Resolver
+    public function evaluate(): Contract\Builder
     {
-        if (!isset($this->resolvable)) {
-            $resolvable = $this->configuration->get($this->id);
-            if ($resolvable instanceof self) {
-                /*
-                The container still returns a lazy resolvable, so
-                the targeted id has not been exposed against yet
-                If the call is targeting a class: we can register, expose and resolve that
-                In any other case we throw a NotFoundException, as this cannot be resolved
-                */
+        if (!isset($this->builder)) {
+            if($this->configuration->has($this->id)) {
+                $this->builder = $this->configuration->get($this->id);
+            } else {
                 if (!class_exists($this->id)) {
                     throw new NotFoundException(
                         "Id '{$this->id}' is not registered to the container"
                     );
                 }
-                $resolvable = $this->configuration->injected($this->id);
-                $resolvable->registerAs($this->id);
+                $this->builder = $this->configuration->injected($this->id);
+                $this->builder->registerAs($this->id);
             }
-            $this->resolvable = $resolvable;
         }
 
-        return $this->resolvable;
+        return $this->builder;
     }
 
     /**
@@ -76,7 +70,7 @@ readonly class LazyResolvable implements Contract\Resolver, \IteratorAggregate
      *
      * This is used to lazy-expand lists to their contained Resolvable elements.
      *
-     * @return \Traversable<int, Contract\Resolver>
+     * @return \Traversable<int, Contract\Builder>
      */
     public function getIterator(): \Traversable
     {

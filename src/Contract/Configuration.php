@@ -12,24 +12,38 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract;
 
-use Philiagus\Figment\Container\Contract\Configuration\ConstructedConfigurator;
-use Philiagus\Figment\Container\Contract\Configuration\InjectionConfigurator;
-use Philiagus\Figment\Container\Contract\Configuration\ListConfigurator;
-use Philiagus\Figment\Container\Contract\Configuration\Registrable;
+use Philiagus\Figment\Container\Contract\Builder\ConstructorBuilder;
+use Philiagus\Figment\Container\Contract\Builder\GeneratorBuilder;
+use Philiagus\Figment\Container\Contract\Builder\InjectionBuilder;
+use Philiagus\Figment\Container\Contract\Builder\ListBuilder;
+use Philiagus\Figment\Container\Contract\Builder\ObjectBuilder;
 
-interface Configuration extends Provider
+interface Configuration extends BuilderContainer
 {
-    public function buildContainer(): Container;
 
-    public function register(Resolver $resolver, string ...$id): self;
+    public function register(Builder $builder, string ...$id): self;
 
-    public function injected(string $className): InjectionConfigurator;
+    /**
+     * Creates a configurator for a class that can be instanced by
+     * the container. Any class the container wants to instance or
+     * interact with must implement the Injectable interface
+     *
+     * @param class-string $className
+     * @return InjectionBuilder
+     * @see Injectable
+     */
+    public function injected(string $className): InjectionBuilder;
 
-    public function constructed(string $className): ConstructedConfigurator;
+    public function constructed(string $className): ConstructorBuilder;
 
-    public function generator(bool $useSingleton, \Closure $closure): Registrable&Resolver;
+    /**
+     * @param \Closure(Container $container): object $closure
+     * @return GeneratorBuilder
+     */
+    public function generator(\Closure $closure): GeneratorBuilder;
 
-    public function object(object $object): Registrable&Resolver;
+    public function object(object $object): ObjectBuilder;
 
-    public function list(?string $id = null): ListConfigurator;
+    public function list(?string $id = null): ListBuilder;
+
 }

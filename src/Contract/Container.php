@@ -16,5 +16,8 @@ use Psr\Container\ContainerInterface;
 
 interface Container extends ContainerInterface
 {
-
+    /**
+     * @return Context
+     */
+    public function context(): Context;
 }

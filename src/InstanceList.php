@@ -10,30 +10,31 @@
 
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container\Resolver\ListConfiguration;
+namespace Philiagus\Figment\Container;
 
-use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\Resolver\Proxy\TypedInstanceProxy;
-use Traversable;
+use Philiagus\Figment\Container\Builder\Proxy\TypeCheckProxy;
 
-readonly class InstanceList implements Contract\List\InstanceList, \IteratorAggregate
+readonly class InstanceList implements Contract\InstanceList, \IteratorAggregate
 {
 
     private array $resolvers;
 
     /**
-     * @param Contract\Resolver ...$resolvers
+     * @param Contract\Builder ...$resolvers
      */
-    public function __construct(Contract\Resolver ...$resolvers)
+    public function __construct(
+        private string $name,
+        Contract\Builder ...$resolvers
+    )
     {
         $this->resolvers = $resolvers;
     }
 
-    public function traverseResolvers(null|\Closure|string|array $type = null): \Generator
+    public function traverseBuilders(null|\Closure|string|array $type = null): \Generator
     {
         if($type) {
             foreach($this->resolvers as $resolver) {
-                yield new TypedInstanceProxy($resolver, $type);
+                yield new TypeCheckProxy($resolver, $type);
             }
         } else {
             yield from $this->resolvers;
@@ -42,12 +43,12 @@ readonly class InstanceList implements Contract\List\InstanceList, \IteratorAggr
 
     public function traverseInstances(null|\Closure|string|array $type = null): \Generator
     {
-        foreach($this->traverseResolvers($type) as $resolver) {
-            yield $resolver->resolve();
+        foreach($this->traverseBuilders($type) as $index => $resolver) {
+            yield $resolver->build("{$this->name}#$index");
         }
     }
 
-    public function getIterator(): Traversable
+    public function getIterator(): \Traversable
     {
         yield from $this->traverseInstances();
     }

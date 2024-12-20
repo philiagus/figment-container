@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container\Contract\Configuration;
+namespace Philiagus\Figment\Container\Contract\Builder;
 
 interface Registrable {
 

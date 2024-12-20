@@ -12,11 +12,10 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Attribute;
 
-use Philiagus\Figment\Container\ContainerException;
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\Resolver\ListConfiguration\InstanceList;
-use ReflectionParameter;
-use ReflectionProperty;
+use Philiagus\Figment\Container\Contract\Container;
+use Philiagus\Figment\Container\Exception\ContainerException;
+use Philiagus\Figment\Container\InstanceList;
 
 #[\Attribute(\Attribute::TARGET_PARAMETER)]
 readonly class InjectList implements Contract\InjectionAttribute
@@ -29,19 +28,18 @@ readonly class InjectList implements Contract\InjectionAttribute
     {
     }
 
-    public function resolve(Contract\Provider $provider, ReflectionProperty|ReflectionParameter $target, bool &$hasValue): mixed
+    public function resolve(Container $container, \ReflectionParameter $parameter, bool &$hasValue): mixed
     {
-        if ($this->emptyIfNotExists && !$provider->has($this->id)) {
-            $list = new InstanceList();
-        } else {
-            $resolved = $provider->get($this->id)->resolve();
-            if (!$resolved instanceof Contract\List\InstanceList) {
-                throw new ContainerException("{$this->id} did not resolve to a list");
-            }
-
-            $list = $resolved;
+        if ($this->emptyIfNotExists && !$container->has($this->id)) {
+            $hasValue = true;
+            return new InstanceList('');
         }
+        $resolved = $container->get($this->id);
+        if (!$resolved instanceof Contract\InstanceList) {
+            throw new ContainerException("{$this->id} did not resolve to a list");
+        }
+
         $hasValue = true;
-        return $list;
+        return $resolved;
     }
 }

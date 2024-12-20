@@ -12,11 +12,9 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
-use Philiagus\Figment\Container\Contract\Configuration\ConstructedConfigurator;
-use Philiagus\Figment\Container\Contract\Configuration\InjectionConfigurator;
-use Philiagus\Figment\Container\Contract\Configuration\ListConfigurator;
-use Philiagus\Figment\Container\Resolver\InstanceInjected;
-use Philiagus\Figment\Container\Resolver\Proxy\LazyResolvable;
+use Philiagus\Figment\Container\Exception\ContainerException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class Configuration implements Contract\Configuration
 {
@@ -34,34 +32,24 @@ class Configuration implements Contract\Configuration
         if ($context instanceof Contract\Context) {
             $this->context = $context;
         } else {
-            $this->context = new Context\ArrayContext($context);
+            $this->context = new Context\MapContext($context);
         }
+
+        $this->generator(fn() => new Container($this))
+            ->registerAs('container');
+    }
+
+    public function generator(\Closure $closure): Contract\Builder\GeneratorBuilder
+    {
+        return new Builder\GeneratorBuilder($this, $closure);
     }
 
     /**
-     * Creates a configurator for a class that can be instanced by
-     * the container. Any class the container wants to instance or
-     * interact with must implement the Injectable interface
-     *
-     * @param class-string $className
-     * @return InjectionConfigurator
-     * @see Injectable
+     * @inheritDoc
      */
-    public function injected(string $className): Contract\Configuration\InjectionConfigurator
+    public function injected(string $className): Contract\Builder\InjectionBuilder
     {
-        return new InstanceInjected($this, $className);
-    }
-
-    /** @inheritDoc */
-    public function has(string $id): bool
-    {
-        return isset($this->registered[$id]);
-    }
-
-    /** @inheritDoc */
-    public function get(string $id): Contract\Resolver
-    {
-        return $this->registered[$id] ?? $this->lazies[$id] ??= new LazyResolvable($this, $id);
+        return new Builder\InjectionBuilder($this, $className);
     }
 
     public function context(): Contract\Context
@@ -69,47 +57,49 @@ class Configuration implements Contract\Configuration
         return $this->context;
     }
 
-    public function buildContainer(): Contract\Container
+    /**
+     * @return Contract\Container
+     * @throws NotFoundExceptionInterface
+     */
+    public function getContainer(): Contract\Container
     {
-        $container = new Container($this);
-        $this
-            ->object($container)
-            ->registerAs('container');
+        /** @var Contract\Container $container */
+        $container = $this->get('container')->build('container');
         return $container;
     }
 
-    public function object(object $object): Contract\Configuration\Registrable&Contract\Resolver
+    public function get(string $id): Contract\Builder
     {
-        return new Resolver\InstanceObject($this, $object);
+        return $this->registered[$id] ?? $this->lazies[$id] ??= new Builder\LazyBuilder($this, $id);
     }
 
-    public function generator(bool $useSingleton, \Closure $closure): Contract\Configuration\Registrable&Contract\Resolver
+    public function object(object $object): Contract\Builder\ObjectBuilder
     {
-        return new Resolver\InstanceGenerator($this, $useSingleton, $closure);
+        return new Builder\ObjectBuilder($this, $object);
     }
 
-    public function register(Contract\Resolver $resolver, string ...$id): self
+    public function register(Contract\Builder $builder, string ...$id): self
     {
         foreach ($id as $singleId) {
-            if(isset($this->registered[$singleId]) && $this->registered[$singleId] !== $resolver) {
+            if (isset($this->registered[$singleId]) && $this->registered[$singleId] !== $builder) {
                 throw new ContainerException("Trying to register two services with the same id '$singleId'");
             }
-            $this->registered[$singleId] = $resolver;
+            $this->registered[$singleId] = $builder;
         }
 
         return $this;
     }
 
-    public function list(?string $id = null): ListConfigurator
+    public function list(?string $id = null): Contract\Builder\ListBuilder
     {
-        if($id === null)
-            return new Resolver\ListConfiguration($this);
+        if ($id === null)
+            return new Builder\ListBuilder($this);
 
         $registeredList = $this->registered[$id] ?? null;
-        if($registeredList === null) {
-            return $this->registered[$id] = new Resolver\ListConfiguration($this);
+        if ($registeredList === null) {
+            return $this->registered[$id] = new Builder\ListBuilder($this);
         }
-        if($registeredList instanceof ListConfigurator) {
+        if ($registeredList instanceof Contract\Builder\ListBuilder) {
             return $registeredList;
         }
 
@@ -118,8 +108,13 @@ class Configuration implements Contract\Configuration
         );
     }
 
-    public function constructed(string $className): ConstructedConfigurator
+    public function constructed(string $className): Contract\Builder\ConstructorBuilder
     {
-        return new Resolver\InstanceConstructed($this, $className);
+        return new Builder\ConstructorBuilder($this, $className);
+    }
+
+    public function has(string $id): bool
+    {
+        return isset($this->registered[$id]);
     }
 }

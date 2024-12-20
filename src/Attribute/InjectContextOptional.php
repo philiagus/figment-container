@@ -12,8 +12,9 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Attribute;
 
+use Philiagus\Figment\Container\Contract\Container;
 use Philiagus\Figment\Container\Contract\InjectionAttribute;
-use Philiagus\Figment\Container\Contract\Provider;
+use Philiagus\Figment\Container\Contract\BuilderContainer;
 use ReflectionParameter;
 use ReflectionProperty;
 
@@ -27,9 +28,9 @@ readonly class InjectContextOptional implements InjectionAttribute
     {
     }
 
-    public function resolve(Provider $provider, ReflectionProperty|ReflectionParameter $target, bool &$hasValue): mixed
+    public function resolve(Container $container, \ReflectionParameter $parameter, bool &$hasValue): mixed
     {
-        $context = $provider->context();
+        $context = $container->context();
         $hasValue = $context->has($this->name);
         return $hasValue ?
             $context->get($this->name) :

@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container;
+namespace Philiagus\Figment\Container\Exception;
 
 use Psr\Container\ContainerExceptionInterface;
 
@@ -24,7 +24,7 @@ use Psr\Container\ContainerExceptionInterface;
  * @internal
  */
 class ContainerException
-    extends \RuntimeException
+    extends \LogicException
     implements ContainerExceptionInterface
 {
 

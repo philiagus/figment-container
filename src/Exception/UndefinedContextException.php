@@ -10,15 +10,12 @@
 
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container\Contract;
+namespace Philiagus\Figment\Container\Exception;
 
-/**
- * @template-covariant ResolvesTo
- */
-interface Resolver extends \Traversable
-{
-    /**
-     * @return ResolvesTo
-     */
-    public function resolve(): object;
+class UndefinedContextException extends \LogicException {
+
+    public function __construct(string $contextName) {
+        parent::__construct("The context '$contextName' is not registered");
+    }
+
 }
