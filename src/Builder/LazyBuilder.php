@@ -51,9 +51,7 @@ readonly class LazyBuilder implements Contract\Builder, \IteratorAggregate
                 $this->builder = $this->configuration->get($this->id);
             } else {
                 if (!class_exists($this->id)) {
-                    throw new NotFoundException(
-                        "Id '{$this->id}' is not registered to the container"
-                    );
+                    throw new NotFoundException($this->id);
                 }
                 $this->builder = $this->configuration->injected($this->id);
                 $this->builder->registerAs($this->id);

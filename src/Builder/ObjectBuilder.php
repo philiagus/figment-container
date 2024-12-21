@@ -13,13 +13,13 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Builder;
 
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\Contract\Configuration;
+use Philiagus\Figment\Container\Contract\Factory;
 
 readonly class ObjectBuilder implements Contract\Builder\ObjectBuilder, \IteratorAggregate
 {
 
     /**
-     * @param Configuration $configuration
+     * @param Contract\Configuration $configuration
      * @param object $object
      */
     public function __construct(

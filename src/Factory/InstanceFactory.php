@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container\Configuration;
+namespace Philiagus\Figment\Container\Factory;
 
 use Philiagus\Figment\Container\Attribute\DisableSingleton;
 use Philiagus\Figment\Container\Attribute\EagerInstantiation;
@@ -23,7 +23,7 @@ use ReflectionException;
 /**
  * @internal
  */
-readonly class InstanceFactory implements Contract\Configuration\InstanceFactory
+readonly class InstanceFactory implements Contract\Factory\InstanceFactory
 {
 
     public bool $singletonDisabled;
@@ -45,9 +45,12 @@ readonly class InstanceFactory implements Contract\Configuration\InstanceFactory
     )
     {
         $this->class = new \ReflectionClass($className);
+        if(!$this->class->isInstantiable()) {
+            throw new ContainerException("Class {$this->className} is not instantiable");
+        }
         $this->constructor = $this->class->getConstructor();
         $this->singletonDisabled = !empty($this->class->getAttributes(DisableSingleton::class));
-        $this->eagerInstantiation = !empty($this->class->getAttributes(EagerInstantiation::class));
+        $this->eagerInstantiation = $this->class->isInternal() || !empty($this->class->getAttributes(EagerInstantiation::class));
         $constructorParameters = [];
         if ($this->constructor) foreach ($this->constructor->getParameters() as $parameter) {
             $attributes = $parameter->getAttributes(

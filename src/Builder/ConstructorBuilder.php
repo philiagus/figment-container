@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Builder;
 
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\Contract\Configuration;
-use Philiagus\Figment\Container\Contract\Configuration\FactoryProvider;
+use Philiagus\Figment\Container\Contract\Factory;
+use Philiagus\Figment\Container\Contract\Factory\FactoryProvider;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 
 class ConstructorBuilder
@@ -20,14 +20,14 @@ class ConstructorBuilder
     private bool $running = false;
 
     /**
-     * @param Configuration $configuration
+     * @param Contract\Configuration $configuration
      * @param FactoryProvider $reflectionProvider
      * @param class-string $className
      */
     public function __construct(
-        Contract\Configuration                                  $configuration,
-        private readonly Contract\Configuration\FactoryProvider $reflectionProvider,
-        private readonly string                                 $className
+        Contract\Configuration                            $configuration,
+        private readonly Contract\Factory\FactoryProvider $reflectionProvider,
+        private readonly string                           $className
     )
     {
         parent::__construct($configuration);

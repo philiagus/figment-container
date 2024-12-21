@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
+use Philiagus\Figment\Container\Context\EmptyContext;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -20,11 +21,13 @@ class Configuration implements Contract\Configuration
 
     private array $registry = [];
     private array $lazies = [];
-    private Contract\Configuration\FactoryProvider $reflectionProvider;
+    private Contract\Factory\FactoryProvider $reflectionProvider;
 
-    public function __construct(private readonly Contract\Context $context)
+    public function __construct(
+        private readonly Contract\Context $context = new EmptyContext()
+    )
     {
-        $this->reflectionProvider = new Configuration\FactoryProvider();
+        $this->reflectionProvider = new Factory\FactoryProvider();
 
         $this->generator(fn() => new Container($this))
             ->registerAs('container');
