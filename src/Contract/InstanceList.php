@@ -18,8 +18,9 @@ interface InstanceList extends \Traversable, \Countable
 
     /**
      * Iterates through the resolvers
+     * @template TResult as object
      * @param null|\Closure|class-string|class-string[] $type
-     * @return \Generator<int, Builder>
+     * @return \Generator<int, TResult>
      */
     public function traverseBuilders(null|\Closure|string|array $type = null): \Generator;
 
@@ -31,8 +32,9 @@ interface InstanceList extends \Traversable, \Countable
      * This must also be the default \Traversable when iterating this object itself
      * with $type = null
      *
-     * @param null|\Closure|class-string|class-string[] $type
-     * @return \Generator<int, object>
+     * @template TResult as object
+     * @param null|\Closure|class-string<TResult>|class-string[] $type
+     * @return \Generator<int, TResult>
      */
     public function traverseInstances(null|\Closure|string|array $type = null): \Generator;
 
