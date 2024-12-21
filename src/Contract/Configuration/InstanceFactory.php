@@ -6,7 +6,7 @@ namespace Philiagus\Figment\Container\Contract\Configuration;
 use Philiagus\Figment\Container\Contract\Builder\OverwriteConstructorParameterProvider;
 use Philiagus\Figment\Container\Contract;
 
-interface ClassReflection
+interface InstanceFactory
 {
     public function buildInjected(Contract\Container&OverwriteConstructorParameterProvider $provider, string $forName): object;
 

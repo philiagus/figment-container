@@ -20,11 +20,11 @@ class Configuration implements Contract\Configuration
 
     private array $registry = [];
     private array $lazies = [];
-    private Contract\Configuration\ReflectionProvider $reflectionProvider;
+    private Contract\Configuration\FactoryProvider $reflectionProvider;
 
     public function __construct(private readonly Contract\Context $context)
     {
-        $this->reflectionProvider = new Configuration\ReflectionProvider();
+        $this->reflectionProvider = new Configuration\FactoryProvider();
 
         $this->generator(fn() => new Container($this))
             ->registerAs('container');
@@ -99,11 +99,13 @@ class Configuration implements Contract\Configuration
         );
     }
 
+    /** @inheritDoc */
     public function constructed(string $className): Contract\Builder\ConstructorBuilder
     {
         return new Builder\ConstructorBuilder($this, $this->reflectionProvider, $className);
     }
 
+    /** @inheritDoc */
     public function has(string $id): bool
     {
         return isset($this->registry[$id]);
