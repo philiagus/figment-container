@@ -5,6 +5,7 @@ namespace Philiagus\Figment\Container\Test\Attribute;
 
 use Philiagus\Figment\Container\Attribute\Instance;
 use Philiagus\Figment\Container\Contract\Container;
+use Philiagus\Figment\Container\Exception\NotFoundException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -24,10 +25,13 @@ class InstanceTest extends TestCase
     #[DataProvider('provideCases')]
     public function testResolve(?object $instance)
     {
-        $hasInstance  = $instance !== null;
+        $hasInstance = $instance !== null;
         $container = $this->prophesize(Container::class);
-        $container->has('targetId')->willReturn($hasInstance);
-        $container->get('targetId')->willReturn($instance);
+        if (!$hasInstance) {
+            $container->get('targetId')->willThrow(new NotFoundException('targetId'));
+        } else {
+            $container->get('targetId')->willReturn($instance);
+        }
         $container = $container->reveal();
         $parameter = $this->prophesize(\ReflectionParameter::class)->reveal();
         $hasValue = false;

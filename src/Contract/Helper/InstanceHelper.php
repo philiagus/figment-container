@@ -6,6 +6,9 @@ namespace Philiagus\Figment\Container\Contract\Helper;
 use Philiagus\Figment\Container\Contract\Builder\OverwriteConstructorParameterProvider;
 use Philiagus\Figment\Container\Contract;
 
+/**
+ * @internal
+ */
 interface InstanceHelper
 {
     public function buildInjected(Contract\Container&OverwriteConstructorParameterProvider $provider, string $forName): object;

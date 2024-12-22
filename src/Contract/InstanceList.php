@@ -22,7 +22,7 @@ interface InstanceList extends \Traversable, \Countable
      *
      * @template TResult as object
      *
-     * @param null|\Closure|class-string<TResult>|class-string[] $type
+     * @param null|class-string<TResult>|class-string[]|\Closure(object $object): bool $type
      *
      * @return \Iterator<int, Builder<TResult>>
      */
@@ -37,7 +37,7 @@ interface InstanceList extends \Traversable, \Countable
      * with $type = null
      *
      * @template TResult as object
-     * @param null|\Closure|class-string<TResult>|class-string[] $type
+     * @param null|class-string<TResult>|class-string[]|\Closure(object $object): bool $type
      * @return \Iterator<int, TResult>
      */
     public function traverseInstances(null|\Closure|string|array $type = null): \Traversable;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Builder;
 
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\Contract\Helper;
 use Philiagus\Figment\Container\Contract\Helper\HelperProvider;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 

@@ -5,6 +5,9 @@ namespace Philiagus\Figment\Container\Helper;
 
 use Philiagus\Figment\Container\Contract;
 
+/**
+ * @internal
+ */
 class HelperProvider implements Contract\Helper\HelperProvider
 {
 

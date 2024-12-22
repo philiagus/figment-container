@@ -18,11 +18,11 @@ use Philiagus\Figment\Container\Exception\ContainerException;
 readonly class TypeCheckProxy implements Builder, \IteratorAggregate
 {
     /**
-     * @param Builder $resolver
-     * @param \Closure|class-string|class-string[] $type
+     * @param Builder $builder
+     * @param class-string|class-string[]|\Closure(object $object): bool $type
      */
     public function __construct(
-        private Builder               $resolver,
+        private Builder               $builder,
         private \Closure|string|array $type
     )
     {
@@ -30,7 +30,7 @@ readonly class TypeCheckProxy implements Builder, \IteratorAggregate
 
     public function build(string $name): object
     {
-        $result = $this->resolver->build($name);
+        $result = $this->builder->build($name);
         if ($this->type instanceof \Closure) {
             if (!($this->type)($result)) {
                 throw new ContainerException(

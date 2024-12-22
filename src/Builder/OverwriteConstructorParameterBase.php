@@ -41,7 +41,7 @@ abstract class OverwriteConstructorParameterBase
                 self::IS_INJECTED => $value instanceof Contract\Builder ? $value->build("$forName parameter $name")
                     : $this->configuration->get($value)->build("$forName parameter $name"),
                 self::IS_CONFIG => $this->configuration->context()->get($value),
-                self::IS_GENERATED => $value($selfAsContainer),
+                self::IS_GENERATED => $value($selfAsContainer, $forName),
             };
         }
         return $realParameters;
@@ -49,12 +49,7 @@ abstract class OverwriteConstructorParameterBase
 
     public function get(string $id)
     {
-        return $this->getBuilder($id)->build($id);
-    }
-
-    protected function getBuilder(string $id): Contract\Builder
-    {
-        return $this->configuration->get($id);
+        return $this->configuration->get($id)->build($id);
     }
 
     public function context(): Contract\Context

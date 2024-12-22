@@ -60,22 +60,34 @@ class InjectionBuilder
         }
     }
 
+    public function get(string $id)
+    {
+        $redirection = $this->redirection[$id] ?? null;
+        if ($redirection === null) {
+            return parent::get($id);
+        }
+        return $redirection instanceof Contract\Builder
+            ? $redirection
+            : $this->configuration->get($redirection);
+    }
+
     public function redirect(string $id, Contract\Builder|string $to): static
     {
         $this->redirection[$id] = $to instanceof Contract\Builder
             ? $to
             : $this->configuration->get($id);
 
-
         return $this;
     }
 
-    protected function getBuilder(string $id): Contract\Builder
+    public function has(string $id): bool
     {
-        $target = $this->redirection[$id] ?? $id;
-        return $target instanceof Contract\Builder
-            ? $target
-            : $this->configuration->get($target);
+        $redirection = $this->redirection[$id] ?? null;
+        if ($redirection === null) {
+            return $this->configuration->has($id);
+        }
+        return $redirection instanceof Contract\Builder
+            || $this->configuration->has($redirection);
     }
 
     public function registerAs(string ...$id): Contract\Builder\Registrable

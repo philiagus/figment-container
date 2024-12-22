@@ -20,7 +20,7 @@ use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggregate
 {
     private object $singleton;
-    private bool $running = false;
+    private array $running = [];
 
     private bool $useSingleton = true;
 
@@ -40,10 +40,10 @@ class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggreg
         if (isset($this->singleton)) {
             return $this->singleton;
         }
-        if ($this->running) {
+        if ($this->running[$name] ?? false) {
             throw new ContainerRecursionException($name);
         }
-        $this->running = true;
+        $this->running[$name] = true;
         try {
             $container = new \Philiagus\Figment\Container\Container($this->configuration);
             $result = ($this->generator)($container, $name);
@@ -53,12 +53,12 @@ class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggreg
             if ($this->useSingleton) {
                 $this->singleton = $result;
             }
+            return $result;
         } catch (ContainerRecursionException $e) {
             $e->prepend($name);
         } finally {
-            $this->running = false;
+            $this->running[$name] = false;
         }
-        return $result;
     }
 
     public function registerAs(string ...$id): Contract\Builder\Registrable
