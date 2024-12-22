@@ -8,6 +8,10 @@ use Philiagus\Figment\Container\Contract\Builder;
 interface OverwriteConstructorParameterReceiver
 {
     public function parameterSet(string $name, mixed $value): static;
+
     public function parameterInject(string $name, string|Builder $injection): static;
-    public function parameterConfig(string $name): static;
+
+    public function parameterContext(string $name, string $context): static;
+
+    public function parameterGenerate(string $name, \Closure $generator): static;
 }

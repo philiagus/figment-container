@@ -17,7 +17,7 @@ use Philiagus\Figment\Container\Contract\Container;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 
-class GeneratorBuilder implements Contract\Builder\GeneratorBuilder, \IteratorAggregate
+class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggregate
 {
     private object $singleton;
     private bool $running = false;
@@ -26,7 +26,7 @@ class GeneratorBuilder implements Contract\Builder\GeneratorBuilder, \IteratorAg
 
     /**
      * @param Contract\Configuration $configuration
-     * @param \Closure(Container $container): object $generator
+     * @param \Closure(Container $container, string $name): object $generator
      */
     public function __construct(
         private readonly Contract\Configuration $configuration,
@@ -46,7 +46,7 @@ class GeneratorBuilder implements Contract\Builder\GeneratorBuilder, \IteratorAg
         $this->running = true;
         try {
             $container = new \Philiagus\Figment\Container\Container($this->configuration);
-            $result = ($this->generator)($container);
+            $result = ($this->generator)($container, $name);
             if (!is_object($result)) {
                 throw new ContainerException("Generator did not result in an object");
             }

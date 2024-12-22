@@ -14,7 +14,7 @@ namespace Philiagus\Figment\Container\Contract;
 
 use Psr\Container\NotFoundExceptionInterface;
 
-interface BuilderContainer
+interface BuilderContainer extends ContextProvider
 {
 
     /**

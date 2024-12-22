@@ -14,10 +14,6 @@ namespace Philiagus\Figment\Container\Contract;
 
 use Psr\Container\ContainerInterface;
 
-interface Container extends ContainerInterface
+interface Container extends ContainerInterface, ContextProvider
 {
-    /**
-     * @return Context
-     */
-    public function context(): Context;
 }

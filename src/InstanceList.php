@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
+use Iterator;
 use Philiagus\Figment\Container\Builder\Proxy\TypeCheckProxy;
 
 readonly class InstanceList implements Contract\InstanceList, \IteratorAggregate
@@ -30,7 +31,7 @@ readonly class InstanceList implements Contract\InstanceList, \IteratorAggregate
         $this->resolvers = $resolvers;
     }
 
-    public function traverseBuilders(null|\Closure|string|array $type = null): \Generator
+    public function traverseBuilders(null|\Closure|string|array $type = null): \Traversable
     {
         if($type) {
             foreach($this->resolvers as $resolver) {
@@ -41,7 +42,7 @@ readonly class InstanceList implements Contract\InstanceList, \IteratorAggregate
         }
     }
 
-    public function traverseInstances(null|\Closure|string|array $type = null): \Generator
+    public function traverseInstances(null|\Closure|string|array $type = null): \Traversable
     {
         foreach($this->traverseBuilders($type) as $index => $resolver) {
             yield $resolver->build("{$this->name}#$index");

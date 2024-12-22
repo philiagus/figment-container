@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container;
 
 use Philiagus\Figment\Container\Context\EmptyContext;
+use Philiagus\Figment\Container\Contract\Builder\FactoryBuilder;
+use Philiagus\Figment\Container\Contract\Factory;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -21,21 +23,21 @@ class Configuration implements Contract\Configuration
 
     private array $registry = [];
     private array $lazies = [];
-    private Contract\Factory\FactoryProvider $reflectionProvider;
+    private Contract\Helper\HelperProvider $reflectionProvider;
 
     public function __construct(
         private readonly Contract\Context $context = new EmptyContext()
     )
     {
-        $this->reflectionProvider = new Factory\FactoryProvider();
+        $this->reflectionProvider = new Helper\HelperProvider();
 
-        $this->generator(fn() => new Container($this))
+        $this->closure(fn() => new Container($this))
             ->registerAs('container');
     }
 
-    public function generator(\Closure $closure): Contract\Builder\GeneratorBuilder
+    public function closure(\Closure $closure): Contract\Builder\ClosureBuilder
     {
-        return new Builder\GeneratorBuilder($this, $closure);
+        return new Builder\ClosureBuilder($this, $closure);
     }
 
     /**
@@ -112,5 +114,11 @@ class Configuration implements Contract\Configuration
     public function has(string $id): bool
     {
         return isset($this->registry[$id]);
+    }
+
+    /** @inheritDoc */
+    public function factory(Factory|string $factory): Contract\Builder\FactoryBuilder
+    {
+        return new Builder\FactoryBuilder($this, $factory);
     }
 }

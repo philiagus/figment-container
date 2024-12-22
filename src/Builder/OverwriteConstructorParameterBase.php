@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Builder;
 
-use Philiagus\Figment\Container\Context\MapContext;
+use Philiagus\Figment\Container\Container;
 use Philiagus\Figment\Container\Context\FallbackContext;
 use Philiagus\Figment\Container\Contract;
 
@@ -17,7 +17,8 @@ abstract class OverwriteConstructorParameterBase
 
     private const int IS_FIXED = 1,
         IS_INJECTED = 2,
-        IS_CONFIG = 3;
+        IS_CONFIG = 3,
+        IS_GENERATED = 4;
 
     /** @var array<string, array{int, mixed}> */
     private array $parameters = [];
@@ -33,25 +34,27 @@ abstract class OverwriteConstructorParameterBase
     public function resolveOverwriteConstructorParameter(string $forName): array
     {
         $realParameters = [];
+        $selfAsContainer = new Container($this->configuration);
         foreach ($this->parameters as $name => [$type, $value]) {
             $realParameters[$name] = match ($type) {
                 self::IS_FIXED => $value,
                 self::IS_INJECTED => $value instanceof Contract\Builder ? $value->build("$forName parameter $name")
                     : $this->configuration->get($value)->build("$forName parameter $name"),
-                self::IS_CONFIG => $this->configuration->context()->get($value)
+                self::IS_CONFIG => $this->configuration->context()->get($value),
+                self::IS_GENERATED => $value($selfAsContainer),
             };
         }
         return $realParameters;
     }
 
-    protected function getBuilder(string $id): Contract\Builder
-    {
-        return $this->configuration->get($id);
-    }
-
     public function get(string $id)
     {
         return $this->getBuilder($id)->build($id);
+    }
+
+    protected function getBuilder(string $id): Contract\Builder
+    {
+        return $this->configuration->get($id);
     }
 
     public function context(): Contract\Context
@@ -73,9 +76,16 @@ abstract class OverwriteConstructorParameterBase
         return $this;
     }
 
-    public function parameterConfig(string $name): static
+    public function parameterContext(string $name, string $context): static
     {
-        $this->parameters[$name] = [self::IS_CONFIG, $name];
+        $this->parameters[$name] = [self::IS_CONFIG, $context];
+
+        return $this;
+    }
+
+    public function parameterGenerate(string $name, \Closure $generator): static
+    {
+        $this->parameters[$name] = [self::IS_GENERATED, $generator];
 
         return $this;
     }

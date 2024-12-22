@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract;
 
+/**
+ * @template-covariant TResult as object
+ */
 interface Builder extends \Traversable
 {
     /**
@@ -19,7 +22,7 @@ interface Builder extends \Traversable
      * Name is a helpful identifier to help the consumer of any exception know which chain
      * of instantiation might have caused any exception
      * @param string $name
-     * @return object
+     * @return TResult
      */
     public function build(string $name): object;
 }

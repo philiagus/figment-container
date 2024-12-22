@@ -29,9 +29,9 @@ class InjectionBuilder
      * @param class-string $className
      */
     public function __construct(
-        Contract\Configuration                            $configuration,
-        private readonly Contract\Factory\FactoryProvider $reflectionProvider,
-        private readonly string                           $className
+        Contract\Configuration                          $configuration,
+        private readonly Contract\Helper\HelperProvider $reflectionProvider,
+        private readonly string                         $className
     )
     {
         parent::__construct($configuration);

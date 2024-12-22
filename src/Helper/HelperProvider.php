@@ -1,0 +1,18 @@
+<?php
+declare(strict_types=1);
+
+namespace Philiagus\Figment\Container\Helper;
+
+use Philiagus\Figment\Container\Contract;
+
+class HelperProvider implements Contract\Helper\HelperProvider
+{
+
+    /** @var array<string, Contract\Helper\InstanceHelper> */
+    private array $cache = [];
+
+    public function get(string $className): InstanceHelper
+    {
+        return $this->cache[$className] ??= new InstanceHelper($className);
+    }
+}

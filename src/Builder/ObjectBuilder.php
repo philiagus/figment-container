@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Builder;
 
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\Contract\Factory;
+use Philiagus\Figment\Container\Contract\Helper;
 
 readonly class ObjectBuilder implements Contract\Builder\ObjectBuilder, \IteratorAggregate
 {

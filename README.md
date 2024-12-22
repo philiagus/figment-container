@@ -18,9 +18,9 @@ $config = new Configuration([
 
 $config
     ->constructed(\PDO::class)
-    ->parameterConfig('dsn', 'pdo.dsn')
-    ->parameterConfig('user', 'pdo.user')
-    ->parameterConfig('password', 'pdo.pw')
+    ->parameterContext('dsn', 'pdo.dsn')
+    ->parameterContext('user', 'pdo.user')
+    ->parameterContext('password', 'pdo.pw')
     ->registerAs('pdo_constructed');
 
 $config
@@ -28,7 +28,7 @@ $config
     ->registerAs('pdo_object');
 
 $config
-    ->generator(static function(\Philiagus\Figment\Container\Contract\BuilderContainer $provider) {
+    ->closure(static function(\Philiagus\Figment\Container\Contract\BuilderContainer $provider) {
         $context = $provider->context();
         return new new \PDO(
             $context->get('pdo.dsn'),
@@ -41,7 +41,7 @@ $config
 class MyObject {
 
     public function __construct(
-    #[\Philiagus\Figment\Container\Attribute\Inject('pdo_object')] \PDO $pdo
+    #[\Philiagus\Figment\Container\Attribute\Instance('pdo_object')] \PDO $pdo
     ) {}
 }
 

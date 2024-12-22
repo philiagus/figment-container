@@ -14,20 +14,28 @@ namespace Philiagus\Figment\Container\Attribute;
 
 use Philiagus\Figment\Container\Contract\Container;
 use Philiagus\Figment\Container\Contract\InjectionAttribute;
-use Philiagus\Figment\Container\Contract\BuilderContainer;
-use ReflectionParameter;
-use ReflectionProperty;
 
 #[\Attribute(\Attribute::TARGET_PARAMETER)]
-readonly class InjectContext implements InjectionAttribute {
+readonly class Context implements InjectionAttribute
+{
 
     public function __construct(
         private string $name
-    ) {}
-
-    public function resolve(Container $container, \ReflectionParameter $parameter, bool &$hasValue): mixed
+    )
     {
+    }
+
+    public function resolve(
+        Container            $container,
+        \ReflectionParameter $parameter,
+        false                &$hasValue
+    ): mixed
+    {
+        $context = $container->context();
+        if (!$context->has($this->name)) {
+            return null;
+        }
         $hasValue = true;
-        return $container->context()->get($this->name);
+        return $context->get($this->name);
     }
 }

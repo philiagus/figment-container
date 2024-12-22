@@ -12,17 +12,21 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract;
 
+
 interface InstanceList extends \Traversable, \Countable
 {
 
 
     /**
-     * Iterates through the resolvers
+     * Iterates through the builders
+     *
      * @template TResult as object
-     * @param null|\Closure|class-string|class-string[] $type
-     * @return \Generator<int, TResult>
+     *
+     * @param null|\Closure|class-string<TResult>|class-string[] $type
+     *
+     * @return \Iterator<int, Builder<TResult>>
      */
-    public function traverseBuilders(null|\Closure|string|array $type = null): \Generator;
+    public function traverseBuilders(null|\Closure|string|array $type = null): \Traversable;
 
     /**
      * Traverses through the resolved instances of this list
@@ -34,8 +38,8 @@ interface InstanceList extends \Traversable, \Countable
      *
      * @template TResult as object
      * @param null|\Closure|class-string<TResult>|class-string[] $type
-     * @return \Generator<int, TResult>
+     * @return \Iterator<int, TResult>
      */
-    public function traverseInstances(null|\Closure|string|array $type = null): \Generator;
+    public function traverseInstances(null|\Closure|string|array $type = null): \Traversable;
 
 }

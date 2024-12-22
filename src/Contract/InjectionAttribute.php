@@ -12,13 +12,26 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract;
 
+use ReflectionParameter;
+
+/**
+ * @internal
+ */
 interface InjectionAttribute
 {
     /**
+     * Resolves the injection attribute, using the container and hints from the
+     * parameter information
+     *
      * @param Container $container
-     * @param \ReflectionParameter $parameter
-     * @param bool $hasValue
+     * @param ReflectionParameter $parameter
+     * @param bool $hasValue Will be set to true if the parameter has a value
+     *
      * @return mixed
      */
-    public function resolve(Container $container, \ReflectionParameter $parameter, bool &$hasValue): mixed;
+    public function resolve(
+        Container            $container,
+        \ReflectionParameter $parameter,
+        false                &$hasValue
+    ): mixed;
 }

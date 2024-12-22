@@ -14,25 +14,34 @@ namespace Philiagus\Figment\Container\Contract;
 
 use Philiagus\Figment\Container\Attribute\DisableSingleton;
 use Philiagus\Figment\Container\Attribute\EagerInstantiation;
-use Philiagus\Figment\Container\Contract\Builder\ConstructorBuilder;
-use Philiagus\Figment\Container\Contract\Builder\GeneratorBuilder;
-use Philiagus\Figment\Container\Contract\Builder\InjectionBuilder;
-use Philiagus\Figment\Container\Contract\Builder\ListBuilder;
-use Philiagus\Figment\Container\Contract\Builder\ObjectBuilder;
+use Philiagus\Figment\Container\Contract\Builder\Registrable;
 
 interface Configuration extends BuilderContainer
 {
 
+    /**
+     * Registers the provided builder under the list of given IDs.
+     *
+     * This method will most likely never be called directly, but instead by the
+     * registerAs method of the builders.
+     *
+     * @param Builder $builder
+     * @param string ...$id
+     *
+     * @return self
+     * @see Registrable::registerAs()
+     */
     public function register(Builder $builder, string ...$id): self;
 
     /**
-     * Provides a builder that will create the class using its constructor
+     * Provides a builder that will create the class using its constructor with
+     * default parameter values taken via Attributes
      *
      * @param class-string $className
      *
-     * @return InjectionBuilder
+     * @return Builder\InjectionBuilder
      */
-    public function injected(string $className): InjectionBuilder;
+    public function injected(string $className): Builder\InjectionBuilder;
 
     /**
      * Provides a builder that will use the constructor (if exists) of the
@@ -45,27 +54,61 @@ interface Configuration extends BuilderContainer
      *
      * @param class-string $className
      *
-     * @return ConstructorBuilder
+     * @return Builder\ConstructorBuilder
      * @see self::injected()
      * @see DisableSingleton
      * @see EagerInstantiation
-     * @see ConstructorBuilder
+     * @see Builder\ConstructorBuilder
      */
-    public function constructed(string $className): ConstructorBuilder;
+    public function constructed(string $className): Builder\ConstructorBuilder;
 
     /**
      * Provides a builder that will use the provided closure in order to create
-     * the required service
+     * the required instance
      *
-     * @param \Closure(Container $container): object $closure
+     * @param \Closure(Container $container, string $name): object $closure
      *
-     * @return GeneratorBuilder
+     * @return Builder\ClosureBuilder
      *
-     * @see GeneratorBuilder
+     * @see Builder\ClosureBuilder
      */
-    public function generator(\Closure $closure): GeneratorBuilder;
+    public function closure(\Closure $closure): Builder\ClosureBuilder;
 
-    public function object(object $object): ObjectBuilder;
+    /**
+     * Provides a builder that will use the provided Factory to create the
+     * required instance.
+     *
+     * If the provided factory is a string, the container will resolve that
+     * string as $id, requesting the instance from the container, which must
+     * yield a Factory
+     *
+     * @param string|Factory $factory
+     *
+     * @return Builder\FactoryBuilder
+     */
+    public function factory(string|Factory $factory): Builder\FactoryBuilder;
 
-    public function list(?string $id = null): ListBuilder;
+    /**
+     * Provides a Builder that can register the provided object in the container
+     *
+     * @param object $object
+     *
+     * @return Builder\ObjectBuilder
+     */
+    public function object(object $object): Builder\ObjectBuilder;
+
+    /**
+     * Provides a builder that allows you to create and expose a list under the
+     * provided name.
+     *
+     * If the $id is provided, the Builder will make sure the list is registered
+     * under the given $id. If such a list already exists the returned builder
+     * will be a builder of that list to make it easier to add values to lists
+     * from any parts of the configuration code.
+     *
+     * @param null|string $id
+     *
+     * @return Builder\ListBuilder
+     */
+    public function list(?string $id = null): Builder\ListBuilder;
 }

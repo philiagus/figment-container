@@ -17,7 +17,7 @@ use Philiagus\Figment\Container\Contract\Context;
 readonly class Container implements Contract\Container
 {
 
-    public function __construct(private Contract\Configuration $provider)
+    public function __construct(private Contract\BuilderContainer $provider)
     {
     }
 

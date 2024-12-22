@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container\Contract\Factory;
+namespace Philiagus\Figment\Container\Contract\Helper;
 
 use Philiagus\Figment\Container\Contract\Builder\OverwriteConstructorParameterProvider;
 use Philiagus\Figment\Container\Contract;
 
-interface InstanceFactory
+interface InstanceHelper
 {
     public function buildInjected(Contract\Container&OverwriteConstructorParameterProvider $provider, string $forName): object;
 

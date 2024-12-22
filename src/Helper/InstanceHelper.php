@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Philiagus\Figment\Container\Factory;
+namespace Philiagus\Figment\Container\Helper;
 
 use Philiagus\Figment\Container\Attribute\DisableSingleton;
 use Philiagus\Figment\Container\Attribute\EagerInstantiation;
@@ -23,13 +23,11 @@ use ReflectionException;
 /**
  * @internal
  */
-readonly class InstanceFactory implements Contract\Factory\InstanceFactory
+readonly class InstanceHelper implements Contract\Helper\InstanceHelper
 {
 
     public bool $singletonDisabled;
-
     private bool $eagerInstantiation;
-
     private \ReflectionClass $class;
     private ?\ReflectionMethod $constructor;
 
@@ -38,6 +36,7 @@ readonly class InstanceFactory implements Contract\Factory\InstanceFactory
 
     /**
      * @param class-string $className
+     *
      * @throws \ReflectionException
      */
     public function __construct(
@@ -45,7 +44,7 @@ readonly class InstanceFactory implements Contract\Factory\InstanceFactory
     )
     {
         $this->class = new \ReflectionClass($className);
-        if(!$this->class->isInstantiable()) {
+        if (!$this->class->isInstantiable()) {
             throw new ContainerException("Class {$this->className} is not instantiable");
         }
         $this->constructor = $this->class->getConstructor();
@@ -53,19 +52,16 @@ readonly class InstanceFactory implements Contract\Factory\InstanceFactory
         $this->eagerInstantiation = $this->class->isInternal() || !empty($this->class->getAttributes(EagerInstantiation::class));
         $constructorParameters = [];
         if ($this->constructor) foreach ($this->constructor->getParameters() as $parameter) {
-            $attributes = $parameter->getAttributes(
-                Contract\InjectionAttribute::class,
-                \ReflectionAttribute::IS_INSTANCEOF
-            );
-            if ($attributes) {
-                $constructorParameters[$parameter->getName()] = [
-                    $parameter,
-                    array_map(
-                        static fn(\ReflectionAttribute $o) => $o->newInstance(),
-                        $attributes
+            $constructorParameters[$parameter->getName()] = [
+                $parameter,
+                array_map(
+                    static fn(\ReflectionAttribute $o) => $o->newInstance(),
+                    $parameter->getAttributes(
+                        Contract\InjectionAttribute::class,
+                        \ReflectionAttribute::IS_INSTANCEOF
                     )
-                ];
-            }
+                )
+            ];
         }
         $this->constructorParameters = $constructorParameters;
     }
@@ -73,6 +69,7 @@ readonly class InstanceFactory implements Contract\Factory\InstanceFactory
     /**
      * @param Container&OverwriteConstructorParameterProvider $provider
      * @param string $forName
+     *
      * @return object
      * @throws ReflectionException
      */
@@ -92,23 +89,34 @@ readonly class InstanceFactory implements Contract\Factory\InstanceFactory
     /**
      * @param OverwriteConstructorParameterProvider&Container $provider
      * @param string $forName
+     *
      * @return array<string, mixed>
      */
     private function buildInjectionConstructorParameters(Contract\Container&OverwriteConstructorParameterProvider $provider, string $forName): array
     {
         $arguments = $provider->resolveOverwriteConstructorParameter($forName);
+        /**
+         * @var string $name
+         * @var \ReflectionParameter $parameter
+         * @var Contract\InjectionAttribute[] $attributes
+         */
         foreach ($this->constructorParameters as $name => [$parameter, $attributes]) {
             if (array_key_exists($name, $arguments)) {
                 continue;
             }
-            /** @var Contract\InjectionAttribute $attribute */
+            $hasValue = false;
             foreach ($attributes as $attribute) {
-                $hasValue = false;
                 $value = $attribute->resolve($provider, $parameter, $hasValue);
                 if ($hasValue) {
                     $arguments[$name] = $value;
                     break;
                 }
+            }
+
+            if (!$hasValue && !$parameter->isDefaultValueAvailable()) {
+                throw new ContainerException(
+                    "Could not create parameter value for not-defaulted constructor parameter $name of $forName"
+                );
             }
         }
         return $arguments;
@@ -117,6 +125,7 @@ readonly class InstanceFactory implements Contract\Factory\InstanceFactory
     /**
      * @param OverwriteConstructorParameterProvider $parameterProvider
      * @param string $forName
+     *
      * @return object
      * @throws ContainerException
      */
