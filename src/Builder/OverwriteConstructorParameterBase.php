@@ -11,7 +11,6 @@ abstract class OverwriteConstructorParameterBase
     implements
     Contract\Builder\OverwriteConstructorParameterReceiver,
     Contract\Builder\OverwriteConstructorParameterProvider,
-    Contract\Container,
     Contract\Override\OverridableContext
 {
 
@@ -47,9 +46,9 @@ abstract class OverwriteConstructorParameterBase
         return $realParameters;
     }
 
-    public function get(string $id)
+    public function get(string $id): Contract\Builder
     {
-        return $this->configuration->get($id)->build($id);
+        return $this->configuration->get($id);
     }
 
     public function context(): Contract\Context

@@ -14,9 +14,9 @@ namespace Philiagus\Figment\Container\Helper;
 
 use Philiagus\Figment\Container\Attribute\DisableSingleton;
 use Philiagus\Figment\Container\Attribute\EagerInstantiation;
+use Philiagus\Figment\Container\Container;
 use Philiagus\Figment\Container\Contract;
 use Philiagus\Figment\Container\Contract\Builder\OverwriteConstructorParameterProvider;
-use Philiagus\Figment\Container\Contract\Container;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use ReflectionException;
 
@@ -67,33 +67,34 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
     }
 
     /**
-     * @param Container&OverwriteConstructorParameterProvider $provider
+     * @param OverwriteConstructorParameterProvider $builder
      * @param string $forName
      *
      * @return object
      * @throws ReflectionException
      */
-    public function buildInjected(Contract\Container&OverwriteConstructorParameterProvider $provider, string $forName): object
+    public function buildInjected(OverwriteConstructorParameterProvider $builder, string $forName): object
     {
         if ($this->eagerInstantiation) {
-            $params = $this->buildInjectionConstructorParameters($provider, $forName);
+            $params = $this->buildInjectionConstructorParameters($builder, $forName);
             return $this->class->newInstanceArgs($params);
         }
 
         return $this->class->newLazyGhost(
             fn(object $object) => $this->constructor
-                ?->invokeArgs($object, $this->buildInjectionConstructorParameters($provider, $forName))
+                ?->invokeArgs($object, $this->buildInjectionConstructorParameters($builder, $forName))
         );
     }
 
     /**
-     * @param OverwriteConstructorParameterProvider&Container $provider
+     * @param OverwriteConstructorParameterProvider $provider
      * @param string $forName
      *
      * @return array<string, mixed>
      */
-    private function buildInjectionConstructorParameters(Contract\Container&OverwriteConstructorParameterProvider $provider, string $forName): array
+    private function buildInjectionConstructorParameters(OverwriteConstructorParameterProvider $provider, string $forName): array
     {
+        $container = new Container($provider);
         $arguments = $provider->resolveOverwriteConstructorParameter($forName);
         /**
          * @var string $name
@@ -106,7 +107,7 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
             }
             $hasValue = false;
             foreach ($attributes as $attribute) {
-                $value = $attribute->resolve($provider, $parameter, $hasValue);
+                $value = $attribute->resolve($container, $parameter, $hasValue);
                 if ($hasValue) {
                     $arguments[$name] = $value;
                     break;

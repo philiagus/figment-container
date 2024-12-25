@@ -20,7 +20,7 @@ class InjectionBuilder
     implements Contract\Builder\InjectionBuilder, \IteratorAggregate
 {
 
-    private bool $running = false;
+    private array $running = [];
     private array $redirection = [];
     private object $singleton;
 
@@ -42,12 +42,12 @@ class InjectionBuilder
         if (isset($this->singleton)) {
             return $this->singleton;
         }
-        if ($this->running) {
+        if ($this->running[$name] ?? false) {
             throw new ContainerRecursionException($name);
         }
 
         $reflection = $this->reflectionProvider->get($this->className);
-        $this->running = true;
+        $this->running[$name] = true;
         try {
             $instance = $reflection->buildInjected($this, $name);
             if (!$reflection->singletonDisabled)
@@ -56,11 +56,11 @@ class InjectionBuilder
         } catch (ContainerRecursionException $e) {
             $e->prepend($name);
         } finally {
-            $this->running = false;
+            $this->running[$name] = false;
         }
     }
 
-    public function get(string $id)
+    public function get(string $id): Contract\Builder
     {
         $redirection = $this->redirection[$id] ?? null;
         if ($redirection === null) {

@@ -16,16 +16,16 @@ class ConstructorBuilder
     private object $singleton;
     private bool $singletonDisabled = false;
 
-    private bool $running = false;
+    private array $running = [];
 
     /**
      * @param Contract\Configuration $configuration
-     * @param HelperProvider $reflectionProvider
+     * @param HelperProvider $helperProvider
      * @param class-string $className
      */
     public function __construct(
         Contract\Configuration                          $configuration,
-        private readonly Contract\Helper\HelperProvider $reflectionProvider,
+        private readonly Contract\Helper\HelperProvider $helperProvider,
         private readonly string                         $className
     )
     {
@@ -51,14 +51,14 @@ class ConstructorBuilder
         if (isset($this->singleton))
             return $this->singleton;
 
-        if($this->running) {
+        if($this->running[$name] ?? false) {
             throw new ContainerRecursionException($name);
         }
 
-        $reflection = $this->reflectionProvider->get($this->className);
+        $reflection = $this->helperProvider->get($this->className);
         $this->singletonDisabled = $this->singletonDisabled || $reflection->singletonDisabled;
 
-        $this->running = true;
+        $this->running[$name] = true;
         try {
             $instance = $reflection->buildConstructed($this, $name);
             if (!$this->singletonDisabled)
@@ -67,7 +67,7 @@ class ConstructorBuilder
         } catch (ContainerRecursionException $e) {
             $e->prepend($name);
         } finally {
-            $this->running = false;
+            $this->running[$name] = false;
         }
     }
 

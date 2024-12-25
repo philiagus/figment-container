@@ -11,7 +11,7 @@ use Philiagus\Figment\Container\Contract;
  */
 interface InstanceHelper
 {
-    public function buildInjected(Contract\Container&OverwriteConstructorParameterProvider $provider, string $forName): object;
+    public function buildInjected(OverwriteConstructorParameterProvider $builder, string $forName): object;
 
     public function buildConstructed(OverwriteConstructorParameterProvider $parameterProvider, string $forName): object;
 }

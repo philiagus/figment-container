@@ -8,14 +8,13 @@ use Philiagus\Figment\Container\Contract;
 use Philiagus\Figment\Container\Contract\Builder\Registrable;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
-use Philiagus\Figment\Container\Exception\NotFoundException;
 use Psr\Container\ContainerExceptionInterface;
 use Traversable;
 
 class FactoryBuilder implements Contract\Builder\FactoryBuilder, \IteratorAggregate
 {
 
-    private array $runningFor = [];
+    private array $running = [];
 
     public function __construct(
         private readonly Contract\Configuration  $configuration,
@@ -27,10 +26,10 @@ class FactoryBuilder implements Contract\Builder\FactoryBuilder, \IteratorAggreg
     public function build(string $name): object
     {
         $container = new Container($this->configuration);
-        if ($this->runningFor[$name] ?? false) {
+        if ($this->running[$name] ?? false) {
             throw new ContainerRecursionException($name);
         }
-        $this->runningFor[$name] = true;
+        $this->running[$name] = true;
         try {
             if ($this->factory instanceof Contract\Factory) {
                 $factory = $this->factory;
@@ -50,7 +49,7 @@ class FactoryBuilder implements Contract\Builder\FactoryBuilder, \IteratorAggreg
 
             return $factory->create($container, $name);
         } finally {
-            $this->runningFor[$name] = false;
+            $this->running[$name] = false;
         }
     }
 
