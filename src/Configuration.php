@@ -23,15 +23,15 @@ class Configuration implements Contract\Configuration
 
     private array $registry = [];
     private array $lazies = [];
-    private Contract\Helper\HelperProvider $reflectionProvider;
+    private Contract\Helper\HelperProvider $helperProvider;
 
     public function __construct(
         private readonly Contract\Context $context = new EmptyContext()
     )
     {
-        $this->reflectionProvider = new Helper\HelperProvider();
+        $this->helperProvider = new Helper\HelperProvider();
 
-        $this->closure(fn() => new Container($this))
+        $this->object(new Container($this))
             ->registerAs('container');
     }
 
@@ -45,7 +45,7 @@ class Configuration implements Contract\Configuration
      */
     public function injected(string $className): Contract\Builder\InjectionBuilder
     {
-        return new Builder\InjectionBuilder($this, $this->reflectionProvider, $className);
+        return new Builder\InjectionBuilder($this, $this->helperProvider, $className);
     }
 
     public function context(): Contract\Context
@@ -107,7 +107,7 @@ class Configuration implements Contract\Configuration
     /** @inheritDoc */
     public function constructed(string $className): Contract\Builder\ConstructorBuilder
     {
-        return new Builder\ConstructorBuilder($this, $this->reflectionProvider, $className);
+        return new Builder\ConstructorBuilder($this, $this->helperProvider, $className);
     }
 
     /** @inheritDoc */

@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Builder;
 
 use Philiagus\Figment\Container\Contract;
+use Philiagus\Figment\Container\Contract\Configuration;
+use Philiagus\Figment\Container\Contract\Helper\HelperProvider;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 
 class InjectionBuilder
@@ -25,12 +27,13 @@ class InjectionBuilder
     private object $singleton;
 
     /**
-     * @param Contract\Configuration $configuration
+     * @param Configuration $configuration
+     * @param HelperProvider $helperProvider
      * @param class-string $className
      */
     public function __construct(
         Contract\Configuration                          $configuration,
-        private readonly Contract\Helper\HelperProvider $reflectionProvider,
+        private readonly Contract\Helper\HelperProvider $helperProvider,
         private readonly string                         $className
     )
     {
@@ -46,11 +49,11 @@ class InjectionBuilder
             throw new ContainerRecursionException($name);
         }
 
-        $reflection = $this->reflectionProvider->get($this->className);
+        $helper = $this->helperProvider->get($this->className);
         $this->running[$name] = true;
         try {
-            $instance = $reflection->buildInjected($this, $name);
-            if (!$reflection->singletonDisabled)
+            $instance = $helper->buildInjected($this, $name);
+            if (!$helper->singletonDisabled)
                 $this->singleton = $instance;
             return $instance;
         } catch (ContainerRecursionException $e) {

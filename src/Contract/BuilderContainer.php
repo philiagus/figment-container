@@ -36,4 +36,15 @@ interface BuilderContainer extends ContextProvider
      */
     public function has(string $id): bool;
 
+    /**
+     * Returns a container instance that encapsulates this Configuration
+     * In the context of this framework a container is simply a wrapper around
+     * a configuration that allows easy access to objects created by the
+     * builders within the configuration
+     *
+     *
+     * @return Container
+     */
+    public function getContainer(): Container;
+
 }

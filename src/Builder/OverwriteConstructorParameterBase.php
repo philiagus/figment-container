@@ -33,7 +33,7 @@ abstract class OverwriteConstructorParameterBase
     public function resolveOverwriteConstructorParameter(string $forName): array
     {
         $realParameters = [];
-        $selfAsContainer = new Container($this->configuration);
+        $selfAsContainer = $this->getContainer();
         foreach ($this->parameters as $name => [$type, $value]) {
             $realParameters[$name] = match ($type) {
                 self::IS_FIXED => $value,
@@ -98,5 +98,13 @@ abstract class OverwriteConstructorParameterBase
         }
 
         return $this;
+    }
+
+    /**
+     * @return Contract\Container
+     */
+    public function getContainer(): Contract\Container
+    {
+        return new Container($this);
     }
 }

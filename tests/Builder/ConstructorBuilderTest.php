@@ -17,10 +17,13 @@ class ConstructorBuilderTest extends TestCase
 {
     use ProphecyTrait;
 
-    #[TestWith([true], 'Singleton enabled')]
-    #[TestWith([false], 'Singleton disabled')]
-    public function testBuild(bool $singleton)
+    #[TestWith([true, false], 'Singleton enabled')]
+    #[TestWith([false, false], 'Singleton disabled')]
+    #[TestWith([true, true], 'Singleton enabled but disabled by reflection')]
+    #[TestWith([false, true], 'Singleton disabled by both')]
+    public function testBuild(bool $singleton, bool $singletonDisabledByReflection = false)
     {
+        $singletonEvaluatesEnabled = $singleton && !$singletonDisabledByReflection;
         $object1 = new \stdClass();
         $object2 = new \stdClass();
         $configuration = $this->prophesize(Contract\Configuration::class);
@@ -46,13 +49,14 @@ class ConstructorBuilderTest extends TestCase
             ),
             'test'
         )
-            ->shouldBeCalledTimes($singleton ? 1 : 2)
+            ->shouldBeCalledTimes($singletonEvaluatesEnabled ? 1 : 2)
             ->willReturn($object1, $object2);
+        $helper->singletonDisabled = $singletonDisabledByReflection;
         $helper = $helper->reveal();
 
 
         $helperProvider = $this->prophesize(Contract\Helper\HelperProvider::class);
-        $helperProvider->get('className')->shouldBeCalledTimes($singleton ? 1 : 2)->willReturn($helper);
+        $helperProvider->get('className')->shouldBeCalledTimes($singletonEvaluatesEnabled ? 1 : 2)->willReturn($helper);
         $helperProvider = $helperProvider->reveal();
 
         $builder = new ConstructorBuilder(
@@ -68,7 +72,7 @@ class ConstructorBuilderTest extends TestCase
         }
 
         self::assertSame($object1, $builder->build('test'));
-        if($singleton) {
+        if($singleton && !$singletonDisabledByReflection) {
             self::assertSame($object1, $builder->build('test'));
         } else {
             self::assertSame($object2, $builder->build('test'));

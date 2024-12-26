@@ -51,16 +51,16 @@ class ConstructorBuilder
         if (isset($this->singleton))
             return $this->singleton;
 
-        if($this->running[$name] ?? false) {
+        if ($this->running[$name] ?? false) {
             throw new ContainerRecursionException($name);
         }
 
-        $reflection = $this->helperProvider->get($this->className);
-        $this->singletonDisabled = $this->singletonDisabled || $reflection->singletonDisabled;
+        $helper = $this->helperProvider->get($this->className);
+        $this->singletonDisabled = $this->singletonDisabled || $helper->singletonDisabled;
 
         $this->running[$name] = true;
         try {
-            $instance = $reflection->buildConstructed($this, $name);
+            $instance = $helper->buildConstructed($this, $name);
             if (!$this->singletonDisabled)
                 $this->singleton = $instance;
             return $instance;

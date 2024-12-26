@@ -94,7 +94,7 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
      */
     private function buildInjectionConstructorParameters(OverwriteConstructorParameterProvider $provider, string $forName): array
     {
-        $container = new Container($provider);
+        $container = $provider->getContainer();
         $arguments = $provider->resolveOverwriteConstructorParameter($forName);
         /**
          * @var string $name

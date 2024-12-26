@@ -25,7 +25,7 @@ class FactoryBuilder implements Contract\Builder\FactoryBuilder, \IteratorAggreg
 
     public function build(string $name): object
     {
-        $container = new Container($this->configuration);
+        $container = $this->configuration->getContainer();
         if ($this->running[$name] ?? false) {
             throw new ContainerRecursionException($name);
         }
