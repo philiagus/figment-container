@@ -84,6 +84,7 @@ class ConstructorBuilderTest extends TestCase
         $configuration = $configuration->reveal();
 
         $helper = $this->prophesize(Contract\Helper\InstanceHelper::class);
+        $helper->singletonDisabled = false;
         $helper->buildConstructed(
             Argument::that(
                 function (object $b) use (&$builder) {

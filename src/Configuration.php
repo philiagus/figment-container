@@ -13,17 +13,17 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container;
 
 use Philiagus\Figment\Container\Context\EmptyContext;
-use Philiagus\Figment\Container\Contract\Builder\FactoryBuilder;
 use Philiagus\Figment\Container\Contract\Factory;
 use Philiagus\Figment\Container\Exception\ContainerException;
-use Psr\Container\NotFoundExceptionInterface;
 
 class Configuration implements Contract\Configuration
 {
 
     private array $registry = [];
     private array $lazies = [];
-    private Contract\Helper\HelperProvider $helperProvider;
+    private readonly Contract\Helper\HelperProvider $helperProvider;
+
+    private readonly Contract\Container $container;
 
     public function __construct(
         private readonly Contract\Context $context = new EmptyContext()
@@ -31,8 +31,14 @@ class Configuration implements Contract\Configuration
     {
         $this->helperProvider = new Helper\HelperProvider();
 
-        $this->object(new Container($this))
+        $this->container = new Container($this);
+        $this->object($this->container)
             ->registerAs('container');
+    }
+
+    public function object(object $object): Contract\Builder\ObjectBuilder
+    {
+        return new Builder\ObjectBuilder($this, $object);
     }
 
     public function closure(\Closure $closure): Contract\Builder\ClosureBuilder
@@ -55,23 +61,15 @@ class Configuration implements Contract\Configuration
 
     /**
      * @return Contract\Container
-     * @throws NotFoundExceptionInterface
      */
     public function getContainer(): Contract\Container
     {
-        /** @var Contract\Container $container */
-        $container = $this->get('container')->build('container');
-        return $container;
+        return $this->container;
     }
 
     public function get(string $id): Contract\Builder
     {
         return $this->registry[$id] ?? $this->lazies[$id] ??= new Builder\LazyBuilder($this, $id);
-    }
-
-    public function object(object $object): Contract\Builder\ObjectBuilder
-    {
-        return new Builder\ObjectBuilder($this, $object);
     }
 
     public function register(Contract\Builder $builder, string ...$id): self

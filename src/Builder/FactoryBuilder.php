@@ -48,6 +48,8 @@ class FactoryBuilder implements Contract\Builder\FactoryBuilder, \IteratorAggreg
             }
 
             return $factory->create($container, $name);
+        } catch (ContainerRecursionException $e) {
+            $e->prepend($name);
         } finally {
             $this->running[$name] = false;
         }
