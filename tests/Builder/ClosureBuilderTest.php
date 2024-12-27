@@ -5,6 +5,7 @@ namespace Philiagus\Figment\Container\Test\Builder;
 
 use Philiagus\Figment\Container\Builder\ClosureBuilder;
 use Philiagus\Figment\Container\Contract;
+use Philiagus\Figment\Container\Enum\SingletonMode;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -12,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 #[CoversClass(ClosureBuilder::class)]
 class ClosureBuilderTest extends TestCase
@@ -22,7 +24,7 @@ class ClosureBuilderTest extends TestCase
      * @param bool $singleton
      *
      * @return void
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     #[TestWith([false], 'No singleton')]
     #[TestWith([true], 'Singleton')]
@@ -64,8 +66,8 @@ class ClosureBuilderTest extends TestCase
                 return (object)['a' => $resultObject];
             }
         );
-        if(!$singleton) {
-            $instance->disableSingleton();
+        if (!$singleton) {
+            $instance->singletonMode(SingletonMode::DISABLED);
         }
         self::assertSame([$instance], iterator_to_array($instance));
         $instance->registerAs('id1', 'id2');
@@ -74,7 +76,7 @@ class ClosureBuilderTest extends TestCase
         self::assertSame($resultObject, $result1->a);
         // call singleton
         self::assertSame($resultObject, $result2->a);
-        if($singleton) {
+        if ($singleton) {
             self::assertSame($result1, $result2);
         } else {
             self::assertNotSame($result1, $result2);
@@ -85,16 +87,16 @@ class ClosureBuilderTest extends TestCase
     {
         $config = $this->prophesize(Contract\Configuration::class);
         $config->get(Argument::any())->will(
-            function() use (&$instance) {
+            function () use (&$instance) {
                 return $instance;
             }
         );
         $config = $config->reveal();
         $instance = new ClosureBuilder(
             $config,
-            function(Contract\Container $container, string $name) {
+            function (Contract\Container $container, string $name) {
                 return $container->get(
-                    match($name) {
+                    match ($name) {
                         'a' => 'b',
                         'b' => 'c',
                         'c' => 'a'
@@ -105,6 +107,7 @@ class ClosureBuilderTest extends TestCase
         $this->expectException(ContainerRecursionException::class);
         $instance->build('a');
     }
+
     public function testErrorOnNonObjectResult(): void
     {
         $config = $this->prophesize(Contract\Configuration::class);

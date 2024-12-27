@@ -40,7 +40,7 @@ readonly class LazyBuilder implements Contract\Builder, \IteratorAggregate
      */
     public function __construct(
         private Contract\Configuration $configuration,
-        private string                 $id
+        private string $id
     )
     {
     }

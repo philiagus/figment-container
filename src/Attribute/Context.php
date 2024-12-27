@@ -24,10 +24,10 @@ readonly class Context implements InjectionAttribute
     }
 
     public function resolve(
-        Container            $container,
+        Container $container,
         \ReflectionParameter $parameter,
-        string               $id,
-        false                &$hasValue
+        string $id,
+        false &$hasValue
     ): mixed
     {
         $context = $container->context();

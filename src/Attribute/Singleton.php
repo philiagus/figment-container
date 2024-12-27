@@ -12,7 +12,17 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Attribute;
 
+use Philiagus\Figment\Container\Enum\SingletonMode;
+
+/**
+ * Allows to set the default singleton mode used for this class
+ * If this attribute is not defined a singleton mode per builder is assumed
+ */
 #[\Attribute(\Attribute::TARGET_CLASS)]
-class DisableSingleton
+readonly class Singleton
 {
+
+    public function __construct(public SingletonMode $mode)
+    {
+    }
 }

@@ -69,7 +69,7 @@ $config
         $config->closure(
             fn(Contract\Container $container, string $id) => new InfoDTO($id, 'CLOSURE')
         )
-        ->disableSingleton(),
+            ->singletonMode(Container\Enum\SingletonMode::DISABLED),
         $config->factory(new Factory())
     )
     ->registerAs('protoList');
@@ -80,7 +80,6 @@ $config->list('list')
     )
     ->merge(
         $config->list('protoList')
-    )
-;
+    );
 
 return $config;

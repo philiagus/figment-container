@@ -9,7 +9,7 @@ use Philiagus\Figment\Container\Exception\UndefinedContextException;
 readonly class ArrayLookupContext implements Context
 {
     public function __construct(
-        private array  $context,
+        private array $context,
         private string $separator = '.'
     )
     {

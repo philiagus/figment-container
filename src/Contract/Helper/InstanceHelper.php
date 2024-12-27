@@ -5,6 +5,7 @@ namespace Philiagus\Figment\Container\Contract\Helper;
 
 use Philiagus\Figment\Container\Contract\Builder\OverwriteConstructorParameterProvider;
 use Philiagus\Figment\Container\Contract\ContainerTraceException;
+use Philiagus\Figment\Container\Enum\SingletonMode;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 use Philiagus\Figment\Container\Exception\NotFoundException;
@@ -17,6 +18,15 @@ use Psr\Container\NotFoundExceptionInterface;
  */
 interface InstanceHelper
 {
+    /**
+     * Returns the singleton mode set for the class by its attributes
+     * If no such attribute exists, the singleton mode "BY_BUILDER" is implied
+     *
+     * @return SingletonMode
+     * @see SingletonMode
+     */
+    public function getSingletonMode(): SingletonMode;
+
     /**
      * @param OverwriteConstructorParameterProvider $builder
      * @param string $id

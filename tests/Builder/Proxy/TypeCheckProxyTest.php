@@ -61,9 +61,9 @@ class TypeCheckProxyTest extends TestCase
 
     #[DataProvider('provideCases')]
     public function testBuild(
-        object                $builderResult,
+        object $builderResult,
         \Closure|array|string $type,
-        bool                  $expectSuccess
+        bool $expectSuccess
     ): void
     {
         $name = 'name';

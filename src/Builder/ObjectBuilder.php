@@ -23,7 +23,7 @@ readonly class ObjectBuilder implements Contract\Builder\ObjectBuilder, \Iterato
      */
     public function __construct(
         private Contract\Configuration $configuration,
-        private object                 $object
+        private object $object
     )
     {
     }

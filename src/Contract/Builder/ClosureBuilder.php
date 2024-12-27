@@ -5,7 +5,7 @@ namespace Philiagus\Figment\Container\Contract\Builder;
 
 use Philiagus\Figment\Container\Contract;
 
-interface ClosureBuilder extends Contract\Builder, Registrable
+interface ClosureBuilder
+    extends Contract\Builder, Registrable, OverwriteSingletonMode
 {
-    public function disableSingleton(): static;
 }

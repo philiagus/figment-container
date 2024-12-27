@@ -5,6 +5,7 @@ namespace Philiagus\Figment\Container\Test\Builder;
 
 use Philiagus\Figment\Container\Builder\ConstructorBuilder;
 use Philiagus\Figment\Container\Contract;
+use Philiagus\Figment\Container\Enum\SingletonMode;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -51,12 +52,16 @@ class ConstructorBuilderTest extends TestCase
         )
             ->shouldBeCalledTimes($singletonEvaluatesEnabled ? 1 : 2)
             ->willReturn($object1, $object2);
-        $helper->singletonDisabled = $singletonDisabledByReflection;
+        $helper->getSingletonMode()->willReturn(
+            $singletonDisabledByReflection ?
+                SingletonMode::DISABLED :
+                SingletonMode::BY_BUILDER
+        );
         $helper = $helper->reveal();
 
 
         $helperProvider = $this->prophesize(Contract\Helper\HelperProvider::class);
-        $helperProvider->get('className')->shouldBeCalledTimes($singletonEvaluatesEnabled ? 1 : 2)->willReturn($helper);
+        $helperProvider->get('className')->shouldBeCalledTimes(2)->willReturn($helper);
         $helperProvider = $helperProvider->reveal();
 
         $builder = new ConstructorBuilder(
@@ -68,23 +73,24 @@ class ConstructorBuilderTest extends TestCase
         self::assertSame([$builder], iterator_to_array($builder));
 
         if (!$singleton) {
-            $builder->disableSingleton();
+            $builder->singletonMode(SingletonMode::DISABLED);
         }
 
         self::assertSame($object1, $builder->build('test'));
-        if($singleton && !$singletonDisabledByReflection) {
+        if ($singleton && !$singletonDisabledByReflection) {
             self::assertSame($object1, $builder->build('test'));
         } else {
             self::assertSame($object2, $builder->build('test'));
         }
     }
+
     public function testBuildRecursionProtection()
     {
         $configuration = $this->prophesize(Contract\Configuration::class);
         $configuration = $configuration->reveal();
 
         $helper = $this->prophesize(Contract\Helper\InstanceHelper::class);
-        $helper->singletonDisabled = false;
+        $helper->getSingletonMode()->willReturn(SingletonMode::BY_BUILDER);
         $helper->buildConstructed(
             Argument::that(
                 function (object $b) use (&$builder) {
@@ -94,7 +100,7 @@ class ConstructorBuilderTest extends TestCase
             'test'
         )
             ->will(
-                function() use (&$builder) {
+                function () use (&$builder) {
                     $builder->build('test2');
                 }
             );
@@ -107,7 +113,7 @@ class ConstructorBuilderTest extends TestCase
             'test2'
         )
             ->will(
-                function() use (&$builder) {
+                function () use (&$builder) {
                     $builder->build('test');
                 }
             );

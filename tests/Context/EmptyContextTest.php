@@ -11,7 +11,8 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(EmptyContext::class)]
 class EmptyContextTest extends TestCase
 {
-    public function testFull() {
+    public function testFull()
+    {
         $context = new EmptyContext();
         self::assertFalse($context->has('anything'));
         $this->expectException(UndefinedContextException::class);

@@ -5,9 +5,8 @@ namespace Philiagus\Figment\Container\Builder\Proxy;
 
 use Philiagus\Figment\Container\Contract;
 use Philiagus\Figment\Container\Helper\TypeCheckTrait;
-use Traversable;
 
-readonly class InstanceProxy implements Contract\Builder, \IteratorAggregate
+readonly class TypeCheckObjectProxy implements Contract\Builder, \IteratorAggregate
 {
     use TypeCheckTrait;
 
@@ -16,8 +15,9 @@ readonly class InstanceProxy implements Contract\Builder, \IteratorAggregate
      * @param null|class-string[]|Closure|string $type
      */
     public function __construct(
-        private object                     $result,
-        private null|array|\Closure|string $type)
+        private object $result,
+        private null|array|\Closure|string $type
+    )
     {
     }
 
@@ -29,7 +29,7 @@ readonly class InstanceProxy implements Contract\Builder, \IteratorAggregate
         return $this->result;
     }
 
-    public function getIterator(): Traversable
+    public function getIterator(): \Traversable
     {
         yield $this;
     }

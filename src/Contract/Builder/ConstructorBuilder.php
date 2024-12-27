@@ -5,7 +5,7 @@ namespace Philiagus\Figment\Container\Contract\Builder;
 
 use Philiagus\Figment\Container\Contract\Builder;
 
-interface ConstructorBuilder extends Builder, Registrable, OverwriteConstructorParameterReceiver
+interface ConstructorBuilder
+    extends Builder, Registrable, OverwriteConstructorParameterReceiver, OverwriteSingletonMode
 {
-    public function disableSingleton(): self;
 }

@@ -36,15 +36,45 @@ class AllInjectionsTest extends TestCase
         $this->assertContextRedirected($container);
     }
 
-    private function assertContextRedirected(Contract\Container $container): void
+    private function assertList(Contract\InstanceList $list): void
     {
-        /** @var InjectedFull $obj */
-        $obj = $container->get('injected.context-redirected');
-        self::assertSame(['altered context'], $obj->context);
-        self::assertSame('altered other', $obj->otherContext);
-        self::assertSame('injected.context-redirected', $obj->id);
-    }
+        $expectedListContent = [
+            [InfoDTO::class, null],
+            'INJECTED',
+            ['NoId', 'OBJECT'],
+            'CONSTRUCTED',
+            'CLOSURE',
+            'FACTORY',
+            [InfoDTO::class, null],
+            'INJECTED',
+            ['NoId', 'OBJECT'],
+            'CONSTRUCTED',
+            'CLOSURE',
+            'FACTORY',
+        ];
+        self::assertSame(count($expectedListContent), $list->count());
+        self::assertSame(count($list), $list->count());
 
+        /**
+         * @var int $index
+         * @var InfoDTO $expectedInfo
+         */
+        foreach ($list as $index => $listContent) {
+            $expectedInfo = $expectedListContent[$index];
+            if (is_array($expectedInfo)) {
+                [$expectedId, $expectedInfo] = $expectedInfo;
+            } else {
+                $expectedId = "list#$index";
+            }
+            self::assertSame($expectedId, $listContent->id);
+            self::assertSame($expectedInfo, $listContent->info, "Mismatch for index $index");
+        }
+
+        self::assertEquals(
+            iterator_to_array($list->traverseInstances()),
+            iterator_to_array($list->traverseInstances(InfoDTO::class))
+        );
+    }
 
     private function assertOverwritten(Contract\Container $container): void
     {
@@ -70,7 +100,7 @@ class AllInjectionsTest extends TestCase
 
         $objects = iterator_to_array($obj->list);
         self::assertSame([$obj], $objects);
-        foreach(
+        foreach (
             [
                 null,
                 InjectedFull::class,
@@ -79,7 +109,7 @@ class AllInjectionsTest extends TestCase
             ] as $type
         ) {
             $objects = [];
-            foreach($obj->list->traverseBuilders($type) as $builder) {
+            foreach ($obj->list->traverseBuilders($type) as $builder) {
                 $objects[] = $builder->build('does not matter');
             }
             self::assertSame([$obj], $objects);
@@ -91,44 +121,13 @@ class AllInjectionsTest extends TestCase
         }
     }
 
-    private function assertList(Contract\InstanceList $list): void
+    private function assertContextRedirected(Contract\Container $container): void
     {
-        $expectedListContent = [
-            [InfoDTO::class, null],
-            'INJECTED',
-            ['NoId', 'OBJECT'],
-            'CONSTRUCTED',
-            'CLOSURE',
-            'FACTORY',
-            [InfoDTO::class, null],
-            'INJECTED',
-            ['NoId', 'OBJECT'],
-            'CONSTRUCTED',
-            'CLOSURE',
-            'FACTORY',
-        ];
-        self::assertSame(count($expectedListContent), $list->count());
-        self::assertSame(count($list), $list->count());
-
-        /**
-         * @var int $index
-         * @var InfoDTO $expectedInfo
-         */
-        foreach($list as $index => $listContent) {
-            $expectedInfo = $expectedListContent[$index];
-            if(is_array($expectedInfo)) {
-                [$expectedId, $expectedInfo] = $expectedInfo;
-            } else {
-                $expectedId = "list#$index";
-            }
-            self::assertSame($expectedId, $listContent->id);
-            self::assertSame($expectedInfo, $listContent->info, "Mismatch for index $index");
-        }
-
-        self::assertEquals(
-            iterator_to_array($list->traverseInstances()),
-            iterator_to_array($list->traverseInstances(InfoDTO::class))
-        );
+        /** @var InjectedFull $obj */
+        $obj = $container->get('injected.context-redirected');
+        self::assertSame(['altered context'], $obj->context);
+        self::assertSame('altered other', $obj->otherContext);
+        self::assertSame('injected.context-redirected', $obj->id);
     }
 
 }

@@ -38,10 +38,10 @@ readonly class Instance implements InjectionAttribute
 
     /** @inheritDoc */
     public function resolve(
-        Container            $container,
+        Container $container,
         \ReflectionParameter $parameter,
-        string               $id,
-        false                &$hasValue
+        string $id,
+        false &$hasValue
     ): ?object
     {
         $targetId = $this->id ?? (string)$parameter->getType();

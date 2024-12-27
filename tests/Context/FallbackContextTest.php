@@ -16,8 +16,9 @@ class FallbackContextTest extends TestCase
 {
     use ProphecyTrait;
 
-    public function testFull() {
-        $result =new \stdClass();
+    public function testFull()
+    {
+        $result = new \stdClass();
 
         $context1 = $this->prophesize(Context::class);
         $context1->has(Argument::any())->willReturn(false);

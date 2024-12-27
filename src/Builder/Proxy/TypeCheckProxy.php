@@ -24,7 +24,7 @@ readonly class TypeCheckProxy implements Builder, \IteratorAggregate
      * @param class-string|class-string[]|\Closure(object $object): bool $type
      */
     public function __construct(
-        private Builder               $builder,
+        private Builder $builder,
         private \Closure|string|array $type
     )
     {

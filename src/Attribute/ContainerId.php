@@ -15,6 +15,18 @@ namespace Philiagus\Figment\Container\Attribute;
 use Philiagus\Figment\Container\Contract\Container;
 use Philiagus\Figment\Container\Contract\InjectionAttribute;
 
+/**
+ * Will inject the current id of the builder into the created instance as string
+ * Please be aware that any class that is not singleton disabled will only be
+ * instantiated once, even if it is registered under multiple ids so you cannot
+ * relly on the created instance only being used under the received id.
+ *
+ * Singletons are handled on builder level. If you want to ensure a class is
+ * only used on per-id basis please either disable singleton or set it to the
+ * appropriate singleton mode
+ *
+ * @see Singleton
+ */
 #[\Attribute(\Attribute::TARGET_PARAMETER)]
 readonly class ContainerId implements InjectionAttribute
 {
@@ -24,10 +36,10 @@ readonly class ContainerId implements InjectionAttribute
     }
 
     public function resolve(
-        Container            $container,
+        Container $container,
         \ReflectionParameter $parameter,
-        string               $id,
-        false                &$hasValue
+        string $id,
+        false &$hasValue
     ): string
     {
         $hasValue = true;

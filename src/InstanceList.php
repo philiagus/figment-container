@@ -30,7 +30,7 @@ readonly final class InstanceList implements Contract\InstanceList, \IteratorAgg
      * @param Contract\Builder ...$builders
      */
     public function __construct(
-        private string   $name,
+        private string $name,
         Contract\Builder ...$builders
     )
     {

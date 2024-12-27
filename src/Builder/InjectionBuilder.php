@@ -27,7 +27,9 @@ class InjectionBuilder
 
     /** @var array<string, Proxy\RedirectionProxy> */
     private array $redirection = [];
-    private object $singleton;
+
+    /** @var array<string, object> */
+    private array $singleton = [];
 
     /**
      * @param Configuration $configuration
@@ -35,9 +37,9 @@ class InjectionBuilder
      * @param class-string $className
      */
     public function __construct(
-        Contract\Configuration                          $configuration,
+        Contract\Configuration $configuration,
         private readonly Contract\Helper\HelperProvider $helperProvider,
-        private readonly string                         $className
+        private readonly string $className
     )
     {
         parent::__construct($configuration);
@@ -46,19 +48,21 @@ class InjectionBuilder
     /** @inheritDoc */
     public function build(string $id): object
     {
-        if (isset($this->singleton)) {
-            return $this->singleton;
+        $helper = $this->helperProvider->get($this->className);
+        $singletonMode = $this->singletonMode ?? $helper->getSingletonMode();
+        $singleton = $singletonMode->resolve($id);
+        if ($singleton !== null && isset($this->singleton[$singleton])) {
+            return $this->singleton[$singleton];
         }
         if ($this->running[$id] ?? false) {
             throw new ContainerRecursionException($id);
         }
 
-        $helper = $this->helperProvider->get($this->className);
         $this->running[$id] = true;
         try {
             $instance = $helper->buildInjected($this, $id);
-            if (!$helper->singletonDisabled)
-                $this->singleton = $instance;
+            if ($singleton !== null)
+                $this->singleton[$singleton] = $instance;
             return $instance;
         } catch (Contract\ContainerTraceException $e) {
             $e->prependContainerTrace($id);

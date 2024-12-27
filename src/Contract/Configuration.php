@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract;
 
-use Philiagus\Figment\Container\Attribute\DisableSingleton;
 use Philiagus\Figment\Container\Attribute\EagerInstantiation;
+use Philiagus\Figment\Container\Attribute\Singleton;
 use Philiagus\Figment\Container\Contract\Builder\Registrable;
 
 interface Configuration extends BuilderContainer
@@ -56,7 +56,7 @@ interface Configuration extends BuilderContainer
      *
      * @return Builder\ConstructorBuilder
      * @see self::injected()
-     * @see DisableSingleton
+     * @see Singleton
      * @see EagerInstantiation
      * @see Builder\ConstructorBuilder
      */

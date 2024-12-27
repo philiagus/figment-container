@@ -14,15 +14,16 @@ namespace Philiagus\Figment\Container\Builder;
 
 use Philiagus\Figment\Container\Contract;
 use Philiagus\Figment\Container\Contract\Container;
+use Philiagus\Figment\Container\Enum\SingletonMode;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 
 class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggregate
 {
-    private object $singleton;
+    /** @var array<string, object> */
+    private array|object $singleton;
     private array $running = [];
-
-    private bool $useSingleton = true;
+    private SingletonMode $singletonMode = SingletonMode::BY_BUILDER;
 
     /**
      * @param Contract\Configuration $configuration
@@ -30,15 +31,16 @@ class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggreg
      */
     public function __construct(
         private readonly Contract\Configuration $configuration,
-        private readonly \Closure               $generator
+        private readonly \Closure $generator
     )
     {
     }
 
     public function build(string $id): object
     {
-        if (isset($this->singleton)) {
-            return $this->singleton;
+        $singleton = $this->singletonMode->resolve($id);
+        if ($singleton !== null && isset($this->singleton[$singleton])) {
+            return $this->singleton[$singleton];
         }
         if ($this->running[$id] ?? false) {
             throw new ContainerRecursionException($id);
@@ -50,8 +52,8 @@ class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggreg
             if (!is_object($result)) {
                 throw new ContainerException("Generator did not result in an object");
             }
-            if ($this->useSingleton) {
-                $this->singleton = $result;
+            if ($singleton !== null) {
+                $this->singleton[$singleton] = $result;
             }
             return $result;
         } catch (Contract\ContainerTraceException $e) {
@@ -73,9 +75,9 @@ class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggreg
         yield $this;
     }
 
-    public function disableSingleton(): static
+    public function singletonMode(SingletonMode $mode): static
     {
-        $this->useSingleton = false;
+        $this->singletonMode = $mode;
 
         return $this;
     }

@@ -12,32 +12,32 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Helper;
 
-use Philiagus\Figment\Container\Attribute\DisableSingleton;
 use Philiagus\Figment\Container\Attribute\EagerInstantiation;
+use Philiagus\Figment\Container\Attribute\Singleton;
 use Philiagus\Figment\Container\Contract;
 use Philiagus\Figment\Container\Contract\Builder\OverwriteConstructorParameterProvider;
 use Philiagus\Figment\Container\Contract\ContainerTraceException;
+use Philiagus\Figment\Container\Enum\SingletonMode;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 use Philiagus\Figment\Container\Exception\NotFoundException;
 use Philiagus\Figment\Container\Exception\UndefinedContextException;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use ReflectionException;
 
 /**
  * @internal
  */
 readonly class InstanceHelper implements Contract\Helper\InstanceHelper
 {
-
-    public bool $singletonDisabled;
     private bool $eagerInstantiation;
     private \ReflectionClass $class;
     private ?\ReflectionMethod $constructor;
 
     /** @var array<string, array{\ReflectionParameter, Contract\InjectionAttribute[]}> */
     private array $constructorParameters;
+
+    private SingletonMode $singletonMode;
 
     /**
      * @param class-string $className
@@ -54,7 +54,12 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
                 throw new ContainerException("Class $this->className is not instantiable");
             }
             $this->constructor = $this->class->getConstructor();
-            $this->singletonDisabled = !empty($this->class->getAttributes(DisableSingleton::class));
+            $singletonBehaviour = $this->class->getAttributes(Singleton::class);
+            if ($singletonBehaviour) {
+                $this->singletonMode = $singletonBehaviour[0]->newInstance()->mode;
+            } else {
+                $this->singletonMode = SingletonMode::BY_BUILDER;
+            }
             $this->eagerInstantiation = $this->class->isInternal() || !empty($this->class->getAttributes(EagerInstantiation::class));
             $constructorParameters = [];
             if ($this->constructor) foreach ($this->constructor->getParameters() as $parameter) {
@@ -191,5 +196,10 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
                 $parameterProvider->resolveOverwriteConstructorParameter($id)
             )
         );
+    }
+
+    public function getSingletonMode(): SingletonMode
+    {
+        return $this->singletonMode;
     }
 }

@@ -12,13 +12,13 @@ readonly class InjectedFull
 {
 
     public function __construct(
-        #[Context('values')] public array             $context,
-        #[Context('other')] public string             $otherContext,
-        #[Instance] public InjectedFull               $selfByClass,
+        #[Context('values')] public array $context,
+        #[Context('other')] public string $otherContext,
+        #[Instance] public InjectedFull $selfByClass,
         #[Instance('injected.default')] public object $selfById,
-        #[ContainerId] public string                  $id,
-        #[Instance('list')] public InstanceList       $list,
-        #[Instance('redirectMe')] public ?object      $selfByRedirect = null,
+        #[ContainerId] public string $id,
+        #[Instance('list')] public InstanceList $list,
+        #[Instance('redirectMe')] public ?object $selfByRedirect = null,
     )
     {
     }

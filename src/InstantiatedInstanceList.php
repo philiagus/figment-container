@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container;
 
 use Philiagus\Figment\Container\Helper\TypeCheckTrait;
-use Traversable;
 
 readonly final class InstantiatedInstanceList implements Contract\InstanceList, \IteratorAggregate
 {
@@ -28,7 +27,7 @@ readonly final class InstantiatedInstanceList implements Contract\InstanceList, 
     public function traverseBuilders(array|string|\Closure|null $type = null): \Traversable
     {
         foreach ($this->content as $content) {
-            yield new Builder\Proxy\InstanceProxy($content, $type);
+            yield new Builder\Proxy\TypeCheckObjectProxy($content, $type);
         }
     }
 
@@ -42,7 +41,7 @@ readonly final class InstantiatedInstanceList implements Contract\InstanceList, 
         }
     }
 
-    public function getIterator(): Traversable
+    public function getIterator(): \Traversable
     {
         yield from $this->content;
     }

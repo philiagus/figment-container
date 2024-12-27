@@ -6,6 +6,11 @@ namespace Philiagus\Figment\Container\Exception;
 use Philiagus\Figment\Container\Contract\ContainerTraceException;
 use Psr\Container\ContainerExceptionInterface;
 
+/**
+ * Exception thrown when the resolution of a container leads to a full recursion
+ *
+ * @iternal
+ */
 class ContainerRecursionException
     extends \LogicException
     implements ContainerExceptionInterface, ContainerTraceException

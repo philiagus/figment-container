@@ -4,14 +4,13 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Builder\Proxy;
 
 use Philiagus\Figment\Container\Contract;
-use Traversable;
 
 readonly class RedirectionProxy implements Contract\Builder, \IteratorAggregate
 {
 
     public function __construct(
         private Contract\BuilderContainer $builderContainer,
-        private string|Contract\Builder   $target
+        private string|Contract\Builder $target
     )
     {
     }
@@ -33,7 +32,7 @@ readonly class RedirectionProxy implements Contract\Builder, \IteratorAggregate
         }
     }
 
-    public function getIterator(): Traversable
+    public function getIterator(): \Traversable
     {
         yield $this;
     }
