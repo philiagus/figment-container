@@ -13,7 +13,7 @@ class CircularTest extends TestCase
 
     public static function provideCases(): \Generator
     {
-        $list = ['a', 'child redirected to b', 'b', 'c', 'd', 'child redirected to e', 'e', 'f'];
+        $list = ['a', 'child redirected to b', 'b', 'c', 'd', 'child redirected to nameless builder', 'child', 'f'];
 
         foreach ($list as $index => $element) {
             if (strlen($element) !== 1) continue;

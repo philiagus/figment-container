@@ -23,12 +23,12 @@ $config
 
 $config
     ->injected(MockClass::class)
-    ->redirect('child', 'e')
+    ->redirect(
+        'child',
+        $config
+            ->factory(new TargetedFactory('f'))
+    )
     ->registerAs('d');
-
-$config
-    ->factory(new TargetedFactory('f'))
-    ->registerAs('e');
 
 $config
     ->closure(fn(Container $container) => $container->get('a'))

@@ -21,7 +21,7 @@ readonly class RedirectionProxy implements Contract\Builder, \IteratorAggregate
             try {
                 return $this->target->build($id);
             } catch (Contract\ContainerTraceException $e) {
-                $e->prependContainerTrace("$id -redirect-> nameless builder");
+                $e->prependContainerTrace("$id redirected to nameless builder");
             }
         }
 

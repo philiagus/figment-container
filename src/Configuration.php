@@ -1,10 +1,10 @@
 <?php
 /*
  * This file is part of philiagus/figment-container
- *  
+ *
  * (c) Andreas Eicher <philiagus@philiagus.de>
  *
- * For the full copyright and license information, please view the LICENSE 
+ * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
@@ -14,6 +14,7 @@ namespace Philiagus\Figment\Container;
 
 use Philiagus\Figment\Container\Context\EmptyContext;
 use Philiagus\Figment\Container\Contract\Factory;
+use Philiagus\Figment\Container\Exception\ContainerConfigurationException;
 use Philiagus\Figment\Container\Exception\ContainerException;
 
 final class Configuration implements Contract\Configuration
@@ -75,8 +76,14 @@ final class Configuration implements Contract\Configuration
     public function register(Contract\Builder $builder, string ...$id): self
     {
         foreach ($id as $singleId) {
-            if (isset($this->registry[$singleId]) && $this->registry[$singleId] !== $builder) {
-                throw new ContainerException("Trying to register two services with the same id '$singleId'");
+            if (
+                isset($this->registry[$singleId]) &&
+                $this->registry[$singleId] !== $builder
+            ) {
+                throw new ContainerConfigurationException(
+                    "Trying to register two services with " .
+                    "the same id '$singleId'"
+                );
             }
             $this->registry[$singleId] = $builder;
         }

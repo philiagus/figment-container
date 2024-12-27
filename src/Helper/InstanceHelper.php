@@ -44,9 +44,7 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
      *
      * @throws ContainerException
      */
-    public function __construct(
-        private string $className
-    )
+    public function __construct(private string $className)
     {
         try {
             $this->class = new \ReflectionClass($className);
@@ -75,6 +73,8 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
                 ];
             }
             $this->constructorParameters = $constructorParameters;
+        } catch (ContainerException $e) {
+            throw $e;
         } catch (\Throwable $e) {
             throw new ContainerException(
                 "Exception while trying to inspect class $this->className",
@@ -106,7 +106,7 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
             } catch (\Throwable $e) {
                 throw new ContainerException(
                     "New instance of class $this->className " .
-                    "for id $id could not be created",
+                    "for id '$id' could not be created",
                     previous: $e
                 );
             }
@@ -134,6 +134,10 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
      */
     private function buildInjectionConstructorParameters(OverwriteConstructorParameterProvider $provider, string $forId): array
     {
+        if (empty($this->constructorParameters)) {
+            return [];
+        }
+
         $container = $provider->getContainer();
         $arguments = $provider->resolveOverwriteConstructorParameter($forId);
         /**
@@ -156,7 +160,7 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
 
             if (!$hasValue && !$parameter->isOptional()) {
                 throw new ContainerException(
-                    "Could not create parameter value for not-optional constructor parameter $name of $forId"
+                    "Could not create parameter value for not-optional constructor parameter '$name' of '$forId'"
                 );
             }
         }
@@ -186,7 +190,9 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
                 );
             } catch (\Throwable $e) {
                 throw new ContainerException(
-                    "Could not create new instance of class $this->className", previous: $e
+                    "New instance of class $this->className " .
+                    "for id '$id' could not be created",
+                    previous: $e
                 );
             }
         }

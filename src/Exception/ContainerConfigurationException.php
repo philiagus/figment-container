@@ -8,7 +8,7 @@ namespace Philiagus\Figment\Container\Exception;
  *
  * @internal
  */
-class ConfigurationException extends \LogicException
+class ContainerConfigurationException extends \LogicException
 {
 
 }

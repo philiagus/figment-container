@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Contract\Builder;
 
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\Exception\ConfigurationException;
+use Philiagus\Figment\Container\Exception\ContainerConfigurationException;
 
 interface OverwriteConstructorParameterReceiver
 {
@@ -16,7 +16,7 @@ interface OverwriteConstructorParameterReceiver
      *
      * @return $this
      *
-     * @throws ConfigurationException
+     * @throws ContainerConfigurationException
      */
     public function parameterSet(string $name, mixed $value): static;
 
@@ -32,7 +32,7 @@ interface OverwriteConstructorParameterReceiver
      *
      * @return $this
      *
-     * @throws ConfigurationException
+     * @throws ContainerConfigurationException
      */
     public function parameterInject(string $name, string|Contract\Builder $injection): static;
 
@@ -44,7 +44,7 @@ interface OverwriteConstructorParameterReceiver
      *
      * @return $this
      *
-     * @throws ConfigurationException
+     * @throws ContainerConfigurationException
      */
     public function parameterContext(string $name, string $contextName): static;
 
@@ -56,7 +56,7 @@ interface OverwriteConstructorParameterReceiver
      *
      * @return $this
      *
-     * @throws ConfigurationException
+     * @throws ContainerConfigurationException
      */
     public function parameterId(string $name): static;
 

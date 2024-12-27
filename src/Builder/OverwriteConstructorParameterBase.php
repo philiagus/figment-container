@@ -6,7 +6,7 @@ namespace Philiagus\Figment\Container\Builder;
 use Philiagus\Figment\Container\Container;
 use Philiagus\Figment\Container\Context\FallbackContext;
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\Exception\ConfigurationException;
+use Philiagus\Figment\Container\Exception\ContainerConfigurationException;
 
 abstract class OverwriteConstructorParameterBase
     implements
@@ -81,17 +81,21 @@ abstract class OverwriteConstructorParameterBase
      *
      * @return $this
      *
-     * @throws ConfigurationException
+     * @throws ContainerConfigurationException
      */
-    private function parameter(string $name, int $type, mixed $definition = null): static
+    private function parameter(
+        string $name, int $type, mixed $definition = null
+    ): static
     {
-        if (preg_match('^\d++$', $name)) {
-            throw new ConfigurationException(
-                "The parameter '$name' consists only of numbers. Parameter names must be provided as name, not index"
+        if (empty($name) || preg_match('~^\d++$~', $name)) {
+            throw new ContainerConfigurationException(
+                "The parameter '$name' does not match the requested pattern. " .
+                "Parameter names must be provided as name, not index and" .
+                " must not be empty"
             );
         }
         if (isset($this->parameters[$name])) {
-            throw new ConfigurationException(
+            throw new ContainerConfigurationException(
                 "Trying to overwrite parameter '$name' twice"
             );
         }
