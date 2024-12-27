@@ -16,10 +16,10 @@ use Philiagus\Figment\Container\Contract\Container;
 use Philiagus\Figment\Container\Contract\InjectionAttribute;
 
 #[\Attribute(\Attribute::TARGET_PARAMETER)]
-readonly class Context implements InjectionAttribute
+readonly class ContainerId implements InjectionAttribute
 {
 
-    public function __construct(private string $name)
+    public function __construct()
     {
     }
 
@@ -28,13 +28,9 @@ readonly class Context implements InjectionAttribute
         \ReflectionParameter $parameter,
         string               $id,
         false                &$hasValue
-    ): mixed
+    ): string
     {
-        $context = $container->context();
-        if (!$context->has($this->name)) {
-            return null;
-        }
         $hasValue = true;
-        return $context->get($this->name);
+        return $id;
     }
 }

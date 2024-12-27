@@ -3,26 +3,25 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Exception;
 
+use Philiagus\Figment\Container\Contract\ContainerTraceException;
 use Psr\Container\ContainerExceptionInterface;
 
 class ContainerRecursionException
     extends \LogicException
-    implements ContainerExceptionInterface
+    implements ContainerExceptionInterface, ContainerTraceException
 {
 
-    private array $path;
-
-    public function __construct(string ...$path)
+    public function __construct(string $id)
     {
-        $this->path = $path;
         parent::__construct(
-            "Creation of instance caused attempt at recursive instantiation: " . implode(' -> ', $path)
+            "$id: Creation of instance caused attempt at recursive instantiation"
         );
     }
 
-    public function prepend(string $path): never
+    public function prependContainerTrace(string $traceElement): never
     {
-        throw new self($path, ...$this->path);
+        $this->message = "$traceElement -> $this->message";
+        throw $this;
     }
 
 }

@@ -14,10 +14,11 @@ namespace Philiagus\Figment\Container\Contract\Builder;
 
 use Philiagus\Figment\Container\Contract\Builder;
 
-interface ListBuilder extends Registrable, Builder {
+interface ListBuilder extends Registrable, Builder
+{
 
-    public function append(Builder|string ...$resolver): static;
+    public function append(Builder|string ...$builder): static;
 
-    public function merge(Builder $listConfigurator): static;
+    public function merge(Builder ...$builder): static;
 
 }

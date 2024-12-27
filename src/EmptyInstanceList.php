@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
-class EmptyInstanceList implements Contract\InstanceList, \IteratorAggregate {
+readonly final class EmptyInstanceList implements Contract\InstanceList, \IteratorAggregate
+{
 
     public function count(): int
     {

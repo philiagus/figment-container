@@ -16,7 +16,7 @@ use Philiagus\Figment\Container\Context\EmptyContext;
 use Philiagus\Figment\Container\Contract\Factory;
 use Philiagus\Figment\Container\Exception\ContainerException;
 
-class Configuration implements Contract\Configuration
+final class Configuration implements Contract\Configuration
 {
 
     private array $registry = [];

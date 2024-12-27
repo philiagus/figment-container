@@ -5,6 +5,7 @@ namespace Philiagus\Figment\Container\Contract\Builder;
 
 use Philiagus\Figment\Container\Contract;
 
-interface ObjectBuilder extends Contract\Builder, Registrable {
+interface ObjectBuilder extends Contract\Builder, Registrable
+{
 
 }

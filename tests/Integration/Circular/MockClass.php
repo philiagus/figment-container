@@ -8,10 +8,10 @@ use Philiagus\Figment\Container\Attribute\EagerInstantiation;
 use Philiagus\Figment\Container\Attribute\Instance;
 
 #[EagerInstantiation]
-class MockA {
+class MockClass {
 
     public function __construct(
-        #[Instance('b')] object $child
+        #[Instance('child')] object $child
     ) {
 
     }

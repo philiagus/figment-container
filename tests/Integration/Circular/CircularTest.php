@@ -12,13 +12,13 @@ class CircularTest extends TestCase {
 
     public static function provideCases(): \Generator
     {
-        $list = ['a', 'b', 'c', 'd', 'e', 'f'];
+        $list = ['a', 'child redirected to b', 'b', 'c', 'd', 'child redirected to e', 'e', 'f'];
 
         foreach($list as $index => $element) {
+            if(strlen($element) !== 1) continue;
             $left = array_slice($list, 0, $index);
             $right = array_slice($list, $index);
-            $string = implode(' -> ', [...$right, ...$left, $element]);
-            yield [$element, $string];
+            yield "Start from $element" => [$element, implode(' -> ', [...$right, ...$left, $element])];
         }
 
     }
@@ -31,7 +31,7 @@ class CircularTest extends TestCase {
         $container = $config->getContainer();
         self::assertTrue($container->has($startPoint));
         $this->expectException(ContainerRecursionException::class);
-        $this->expectExceptionMessage("Creation of instance caused attempt at recursive instantiation: $expectedPath");
+        $this->expectExceptionMessage("$expectedPath: Creation of instance caused attempt at recursive instantiation");
         $container->get($startPoint);
     }
 

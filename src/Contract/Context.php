@@ -23,13 +23,16 @@ interface Context
      * what value this path contains.
      *
      * @param string $name
+     *
      * @return bool
      */
     public function has(string $name): bool;
 
     /**
      * Returns the value of the context as defined by the name
+     *
      * @param string $name
+     *
      * @return mixed
      * @throws UndefinedContextException
      */

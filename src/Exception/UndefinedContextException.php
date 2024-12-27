@@ -12,10 +12,19 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Exception;
 
-class UndefinedContextException extends \LogicException {
+use Philiagus\Figment\Container\Contract\ContainerTraceException;
 
-    public function __construct(string $contextName) {
+class UndefinedContextException extends \LogicException implements ContainerTraceException
+{
+
+    public function __construct(string $contextName)
+    {
         parent::__construct("The context '$contextName' is not registered");
     }
 
+    public function prependContainerTrace(string $traceElement): never
+    {
+        $this->message = "$traceElement -> $this->message";
+        throw $this;
+    }
 }

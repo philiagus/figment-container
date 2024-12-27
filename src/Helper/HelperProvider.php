@@ -14,6 +14,7 @@ class HelperProvider implements Contract\Helper\HelperProvider
     /** @var array<string, Contract\Helper\InstanceHelper> */
     private array $cache = [];
 
+    /** @inheritDoc */
     public function get(string $className): InstanceHelper
     {
         return $this->cache[$className] ??= new InstanceHelper($className);

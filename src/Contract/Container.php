@@ -12,8 +12,45 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract;
 
+use Philiagus\Figment\Container\Exception\ContainerException;
+use Philiagus\Figment\Container\Exception\ContainerRecursionException;
+use Philiagus\Figment\Container\Exception\NotFoundException;
+use Philiagus\Figment\Container\Exception\UndefinedContextException;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 interface Container extends ContainerInterface, ContextProvider
 {
+
+    /**
+     * @param string $id
+     *
+     * @return mixed
+     *
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerTraceException
+     * @throws ContainerException
+     * @throws ContainerRecursionException
+     * @throws NotFoundException
+     * @throws UndefinedContextException
+     */
+    public function get(string $id): object;
+
+    /**
+     * @param string $id
+     *
+     * @return bool
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerTraceException
+     * @throws ContainerException
+     * @throws ContainerRecursionException
+     * @throws NotFoundException
+     * @throws UndefinedContextException
+     */
+    public function has(string $id): bool;
+
 }

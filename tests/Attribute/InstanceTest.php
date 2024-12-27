@@ -37,7 +37,7 @@ class InstanceTest extends TestCase
         $hasValue = false;
 
         $inject = new Instance('targetId');
-        $result = $inject->resolve($container, $parameter, $hasValue);
+        $result = $inject->resolve($container, $parameter, 'id', $hasValue);
         self::assertSame($instance, $result);
         self::assertSame($hasInstance, $hasValue);
     }

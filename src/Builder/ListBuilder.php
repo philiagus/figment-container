@@ -27,21 +27,21 @@ class ListBuilder implements Contract\Builder\ListBuilder, \IteratorAggregate
     {
     }
 
-    public function build(string $name): object
+    public function build(string $id): object
     {
-        return new InstanceList($name, ...$this);
+        return new InstanceList($id, ...$this);
     }
 
-    public function append(Contract\Builder|string ...$resolver): static
+    public function append(Contract\Builder|string ...$builder): static
     {
-        $this->contents[] = $resolver;
+        $this->contents[] = $builder;
 
         return $this;
     }
 
-    public function merge(Contract\Builder ...$resolver): static
+    public function merge(Contract\Builder ...$builder): static
     {
-        foreach ($resolver as $singleResolver) {
+        foreach ($builder as $singleResolver) {
             $this->contents[] = $singleResolver;
         }
 
@@ -60,7 +60,7 @@ class ListBuilder implements Contract\Builder\ListBuilder, \IteratorAggregate
         foreach ($this->contents as $content) {
             foreach ($content as $element) {
                 if (is_string($element)) {
-                    yield $this->configuration->get($element);
+                    yield new Proxy\RedirectionProxy($this->configuration, $element);
                 } else {
                     yield $element;
                 }

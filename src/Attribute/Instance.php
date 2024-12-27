@@ -40,12 +40,13 @@ readonly class Instance implements InjectionAttribute
     public function resolve(
         Container            $container,
         \ReflectionParameter $parameter,
+        string               $id,
         false                &$hasValue
     ): ?object
     {
-        $id = $this->id ?? (string)$parameter->getType();
+        $targetId = $this->id ?? (string)$parameter->getType();
         try {
-            $instance = $container->get($id);
+            $instance = $container->get($targetId);
         } catch (NotFoundException) {
             return null;
         }

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Builder;
 
-use Philiagus\Figment\Container\Container;
 use Philiagus\Figment\Container\Contract;
 use Philiagus\Figment\Container\Contract\Builder\Registrable;
 use Philiagus\Figment\Container\Exception\ContainerException;
@@ -23,13 +22,13 @@ class FactoryBuilder implements Contract\Builder\FactoryBuilder, \IteratorAggreg
     {
     }
 
-    public function build(string $name): object
+    public function build(string $id): object
     {
         $container = $this->configuration->getContainer();
-        if ($this->running[$name] ?? false) {
-            throw new ContainerRecursionException($name);
+        if ($this->running[$id] ?? false) {
+            throw new ContainerRecursionException($id);
         }
-        $this->running[$name] = true;
+        $this->running[$id] = true;
         try {
             if ($this->factory instanceof Contract\Factory) {
                 $factory = $this->factory;
@@ -37,21 +36,21 @@ class FactoryBuilder implements Contract\Builder\FactoryBuilder, \IteratorAggreg
                 try {
                     $factory = $container->get($this->factory);
                 } catch (ContainerExceptionInterface $exception) {
-                    throw new ContainerException("Factory {$this->factory} could not be instantiated", previous: $exception);
+                    throw new ContainerException("Factory $this->factory could not be instantiated", previous: $exception);
                 }
             }
 
             if (!$factory instanceof Contract\Factory) {
                 throw new ContainerException(
-                    "Trying to instantiate $name using factory $this->factory, which is not a Factory instance"
+                    "Trying to instantiate $id using factory $this->factory, which is not a Factory instance"
                 );
             }
 
-            return $factory->create($container, $name);
-        } catch (ContainerRecursionException $e) {
-            $e->prepend($name);
+            return $factory->create($container, $id);
+        } catch (Contract\ContainerTraceException $e) {
+            $e->prependContainerTrace($id);
         } finally {
-            $this->running[$name] = false;
+            $this->running[$id] = false;
         }
     }
 

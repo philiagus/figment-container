@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Builder;
 
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\Contract\Helper;
 
 readonly class ObjectBuilder implements Contract\Builder\ObjectBuilder, \IteratorAggregate
 {
@@ -29,7 +28,7 @@ readonly class ObjectBuilder implements Contract\Builder\ObjectBuilder, \Iterato
     {
     }
 
-    public function build(string $name): object
+    public function build(string $id): object
     {
         return $this->object;
     }

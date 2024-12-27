@@ -61,14 +61,14 @@ class TypeCheckProxyTest extends TestCase
 
     #[DataProvider('provideCases')]
     public function testBuild(
-        object                $resolverResult,
+        object                $builderResult,
         \Closure|array|string $type,
         bool                  $expectSuccess
     ): void
     {
         $name = 'name';
         $builder = $this->prophesize(Builder::class);
-        $builder->build($name)->shouldBeCalledOnce()->willReturn($resolverResult);
+        $builder->build($name)->shouldBeCalledOnce()->willReturn($builderResult);
         $builder = $builder->reveal();
 
         $instance = new TypeCheckProxy($builder, $type);
@@ -77,6 +77,6 @@ class TypeCheckProxyTest extends TestCase
             $this->expectException(ContainerExceptionInterface::class);
         }
         $result = $instance->build($name);
-        self::assertSame($resolverResult, $result);
+        self::assertSame($builderResult, $result);
     }
 }

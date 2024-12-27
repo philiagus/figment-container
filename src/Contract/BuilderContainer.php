@@ -22,7 +22,9 @@ interface BuilderContainer extends ContextProvider
      *
      * Throws a NotFoundExceptionInterface if the provided ID has
      * not been registered to the configuration
+     *
      * @param string $id
+     *
      * @return Builder
      * @throws NotFoundExceptionInterface
      */
@@ -32,6 +34,7 @@ interface BuilderContainer extends ContextProvider
      * Returns true if a builder has already been registered to the provided id
      *
      * @param string $id
+     *
      * @return bool
      */
     public function has(string $id): bool;

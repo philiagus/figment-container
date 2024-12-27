@@ -13,10 +13,12 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Builder\Proxy;
 
 use Philiagus\Figment\Container\Contract\Builder;
-use Philiagus\Figment\Container\Exception\ContainerException;
+use Philiagus\Figment\Container\Helper\TypeCheckTrait;
 
 readonly class TypeCheckProxy implements Builder, \IteratorAggregate
 {
+    use TypeCheckTrait;
+
     /**
      * @param Builder $builder
      * @param class-string|class-string[]|\Closure(object $object): bool $type
@@ -28,37 +30,11 @@ readonly class TypeCheckProxy implements Builder, \IteratorAggregate
     {
     }
 
-    public function build(string $name): object
+    public function build(string $id): object
     {
-        $result = $this->builder->build($name);
-        if ($this->type instanceof \Closure) {
-            if (!($this->type)($result)) {
-                throw new ContainerException(
-                    "Instance of class " . $result::class . " did not resolve to the expected class"
-                );
-            }
-        } elseif (is_string($this->type)) {
-            if (!$result instanceof $this->type) {
-                throw new ContainerException(
-                    "Instance of class " . $result::class . " is not instance of {$this->type}"
-                );
-            }
-        } else {
-            $matches = false;
-            foreach ($this->type as $type) {
-                if ($result instanceof $type) {
-                    $matches = true;
-                    break;
-                }
-            }
-            if (!$matches) {
-                throw new ContainerException(
-                    "Instance of class " . $result::class . " is not instance of " . implode('|', $this->type)
-                );
-            }
-        }
+        $result = $this->builder->build($id);
+        $this->assertType($this->type, $result);
         return $result;
-
     }
 
     public function getIterator(): \Traversable

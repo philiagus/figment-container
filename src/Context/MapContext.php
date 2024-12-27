@@ -15,9 +15,11 @@ namespace Philiagus\Figment\Container\Context;
 use Philiagus\Figment\Container\Contract;
 use Philiagus\Figment\Container\Exception\UndefinedContextException;
 
-readonly class MapContext implements Contract\Context {
+readonly class MapContext implements Contract\Context
+{
 
-    public function __construct(private array $context) {
+    public function __construct(private array $context)
+    {
     }
 
     public function has(string $name): bool

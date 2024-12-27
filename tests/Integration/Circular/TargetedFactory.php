@@ -12,7 +12,7 @@ class TargetedFactory implements Factory {
 
     }
 
-    public function create(Container $container, string $name): object
+    public function create(Container $container, string $id): object
     {
         return $container->get($this->target);
     }

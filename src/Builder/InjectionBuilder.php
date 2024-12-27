@@ -22,7 +22,10 @@ class InjectionBuilder
     implements Contract\Builder\InjectionBuilder, \IteratorAggregate
 {
 
+    /** @var array<string, bool> */
     private array $running = [];
+
+    /** @var array<string, Proxy\RedirectionProxy> */
     private array $redirection = [];
     private object $singleton;
 
@@ -40,59 +43,55 @@ class InjectionBuilder
         parent::__construct($configuration);
     }
 
-    public function build(string $name): object
+    /** @inheritDoc */
+    public function build(string $id): object
     {
         if (isset($this->singleton)) {
             return $this->singleton;
         }
-        if ($this->running[$name] ?? false) {
-            throw new ContainerRecursionException($name);
+        if ($this->running[$id] ?? false) {
+            throw new ContainerRecursionException($id);
         }
 
         $helper = $this->helperProvider->get($this->className);
-        $this->running[$name] = true;
+        $this->running[$id] = true;
         try {
-            $instance = $helper->buildInjected($this, $name);
+            $instance = $helper->buildInjected($this, $id);
             if (!$helper->singletonDisabled)
                 $this->singleton = $instance;
             return $instance;
-        } catch (ContainerRecursionException $e) {
-            $e->prepend($name);
+        } catch (Contract\ContainerTraceException $e) {
+            $e->prependContainerTrace($id);
         } finally {
-            $this->running[$name] = false;
+            $this->running[$id] = false;
         }
     }
 
+    /** @inheritDoc */
     public function get(string $id): Contract\Builder
     {
-        $redirection = $this->redirection[$id] ?? null;
-        if ($redirection === null) {
-            return parent::get($id);
-        }
-        return $redirection instanceof Contract\Builder
-            ? $redirection
-            : $this->configuration->get($redirection);
+        return $this->redirection[$id] ?? parent::get($id);
     }
 
+    /** @inheritDoc */
     public function redirect(string $id, Contract\Builder|string $to): static
     {
-        $this->redirection[$id] = $to instanceof Contract\Builder
-            ? $to
-            : $this->configuration->get($id);
+        $this->redirection[$id] = new Proxy\RedirectionProxy($this->configuration, $to);
 
         return $this;
     }
 
+    /** @inheritDoc */
     public function has(string $id): bool
     {
         $redirection = $this->redirection[$id] ?? null;
-        if ($redirection === null) {
-            return $this->configuration->has($id);
+        if ($redirection) {
+            return $redirection->exists();
         }
-        return $redirection instanceof Contract\Builder
-            || $this->configuration->has($redirection);
+        return $this->configuration->has($id);
     }
 
+    /** @inheritDoc */
     public function registerAs(string ...$id): Contract\Builder\Registrable
     {
         $this->configuration->register($this, ...$id);
@@ -100,6 +99,7 @@ class InjectionBuilder
         return $this;
     }
 
+    /** @inheritDoc */
     public function getIterator(): \Traversable
     {
         yield $this;

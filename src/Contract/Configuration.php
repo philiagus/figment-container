@@ -26,7 +26,7 @@ interface Configuration extends BuilderContainer
      * registerAs method of the builders.
      *
      * @param Builder $builder
-     * @param string ...$id
+     * @param non-empty-string ...$id
      *
      * @return self
      * @see Registrable::registerAs()

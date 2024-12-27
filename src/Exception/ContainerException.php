@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Exception;
 
+use Philiagus\Figment\Container\Contract\ContainerTraceException;
 use Psr\Container\ContainerExceptionInterface;
 
 /**
@@ -25,7 +26,12 @@ use Psr\Container\ContainerExceptionInterface;
  */
 class ContainerException
     extends \LogicException
-    implements ContainerExceptionInterface
+    implements ContainerExceptionInterface, ContainerTraceException
 {
 
+    public function prependContainerTrace(string $traceElement): never
+    {
+        $this->message = "$traceElement -> $this->message";
+        throw $this;
+    }
 }

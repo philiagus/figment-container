@@ -37,7 +37,7 @@ class ContextTest extends TestCase
 
         $hasValue = false;
         $inject = new Context('field');
-        $result = $inject->resolve($container, $parameter, $hasValue);
+        $result = $inject->resolve($container, $parameter, 'id', $hasValue);
         self::assertSame($hasContext, $hasValue);
         self::assertSame($contextValue, $result);
     }

@@ -46,28 +46,28 @@ class ConstructorBuilder
         return $this;
     }
 
-    public function build(string $name): object
+    public function build(string $id): object
     {
         if (isset($this->singleton))
             return $this->singleton;
 
-        if ($this->running[$name] ?? false) {
-            throw new ContainerRecursionException($name);
+        if ($this->running[$id] ?? false) {
+            throw new ContainerRecursionException($id);
         }
 
         $helper = $this->helperProvider->get($this->className);
         $this->singletonDisabled = $this->singletonDisabled || $helper->singletonDisabled;
 
-        $this->running[$name] = true;
+        $this->running[$id] = true;
         try {
-            $instance = $helper->buildConstructed($this, $name);
+            $instance = $helper->buildConstructed($this, $id);
             if (!$this->singletonDisabled)
                 $this->singleton = $instance;
             return $instance;
-        } catch (ContainerRecursionException $e) {
-            $e->prepend($name);
+        } catch (Contract\ContainerTraceException $e) {
+            $e->prependContainerTrace($id);
         } finally {
-            $this->running[$name] = false;
+            $this->running[$id] = false;
         }
     }
 

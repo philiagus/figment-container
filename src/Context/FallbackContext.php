@@ -15,14 +15,26 @@ namespace Philiagus\Figment\Container\Context;
 use Philiagus\Figment\Container\Contract\Context;
 use Philiagus\Figment\Container\Exception\UndefinedContextException;
 
-readonly class FallbackContext implements Context {
-    
+readonly class FallbackContext implements Context
+{
+
     private array $contexts;
 
     public function __construct(
         Context ...$contexts
-    ) {
+    )
+    {
         $this->contexts = $contexts;
+    }
+
+    public function get(string $name): mixed
+    {
+        foreach ($this->contexts as $context) {
+            if ($context->has($name)) {
+                return $context->get($name);
+            }
+        }
+        throw new UndefinedContextException($name);
     }
 
     public function has(string $name): bool
@@ -31,15 +43,5 @@ readonly class FallbackContext implements Context {
             $this->contexts,
             static fn($context) => $context->has($name)
         );
-    }
-
-    public function get(string $name): mixed
-    {
-        foreach($this->contexts as $context) {
-            if($context->has($name)) {
-                return $context->get($name);
-            }
-        }
-        throw new UndefinedContextException($name);
     }
 }

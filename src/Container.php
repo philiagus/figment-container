@@ -14,7 +14,7 @@ namespace Philiagus\Figment\Container;
 
 use Philiagus\Figment\Container\Contract\Context;
 
-readonly class Container implements Contract\Container
+readonly final class Container implements Contract\Container
 {
 
     public function __construct(private Contract\BuilderContainer $provider)
@@ -22,7 +22,7 @@ readonly class Container implements Contract\Container
     }
 
     /** @inheritDoc */
-    public function get(string $id)
+    public function get(string $id): object
     {
         return $this->provider->get($id)->build($id);
     }

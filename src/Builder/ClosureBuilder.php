@@ -26,7 +26,7 @@ class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggreg
 
     /**
      * @param Contract\Configuration $configuration
-     * @param \Closure(Container $container, string $name): object $generator
+     * @param \Closure(Container $container, string $id): object $generator
      */
     public function __construct(
         private readonly Contract\Configuration $configuration,
@@ -35,18 +35,18 @@ class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggreg
     {
     }
 
-    public function build(string $name): object
+    public function build(string $id): object
     {
         if (isset($this->singleton)) {
             return $this->singleton;
         }
-        if ($this->running[$name] ?? false) {
-            throw new ContainerRecursionException($name);
+        if ($this->running[$id] ?? false) {
+            throw new ContainerRecursionException($id);
         }
-        $this->running[$name] = true;
+        $this->running[$id] = true;
         try {
             $container = new \Philiagus\Figment\Container\Container($this->configuration);
-            $result = ($this->generator)($container, $name);
+            $result = ($this->generator)($container, $id);
             if (!is_object($result)) {
                 throw new ContainerException("Generator did not result in an object");
             }
@@ -54,10 +54,10 @@ class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggreg
                 $this->singleton = $result;
             }
             return $result;
-        } catch (ContainerRecursionException $e) {
-            $e->prepend($name);
+        } catch (Contract\ContainerTraceException $e) {
+            $e->prependContainerTrace($id);
         } finally {
-            $this->running[$name] = false;
+            $this->running[$id] = false;
         }
     }
 

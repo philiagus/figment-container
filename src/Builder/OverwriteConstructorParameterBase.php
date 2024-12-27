@@ -6,6 +6,7 @@ namespace Philiagus\Figment\Container\Builder;
 use Philiagus\Figment\Container\Container;
 use Philiagus\Figment\Container\Context\FallbackContext;
 use Philiagus\Figment\Container\Contract;
+use Philiagus\Figment\Container\Exception\ConfigurationException;
 
 abstract class OverwriteConstructorParameterBase
     implements
@@ -17,7 +18,8 @@ abstract class OverwriteConstructorParameterBase
     private const int IS_FIXED = 1,
         IS_INJECTED = 2,
         IS_CONFIG = 3,
-        IS_GENERATED = 4;
+        IS_GENERATED = 4,
+        IS_ID = 5;
 
     /** @var array<string, array{int, mixed}> */
     private array $parameters = [];
@@ -30,20 +32,30 @@ abstract class OverwriteConstructorParameterBase
     {
     }
 
-    public function resolveOverwriteConstructorParameter(string $forName): array
+    /** @inheritDoc */
+    public function resolveOverwriteConstructorParameter(string $forId): array
     {
         $realParameters = [];
         $selfAsContainer = $this->getContainer();
         foreach ($this->parameters as $name => [$type, $value]) {
             $realParameters[$name] = match ($type) {
                 self::IS_FIXED => $value,
-                self::IS_INJECTED => $value instanceof Contract\Builder ? $value->build("$forName parameter $name")
-                    : $this->configuration->get($value)->build("$forName parameter $name"),
-                self::IS_CONFIG => $this->configuration->context()->get($value),
-                self::IS_GENERATED => $value($selfAsContainer, $forName),
+                self::IS_INJECTED => new Proxy\RedirectionProxy($this->configuration, $value)
+                    ->build("$forId parameter $name"),
+                self::IS_CONFIG => $this->context()->get($value),
+                self::IS_GENERATED => $value($selfAsContainer, $forId),
+                self::IS_ID => $forId,
             };
         }
         return $realParameters;
+    }
+
+    /**
+     * @return Contract\Container
+     */
+    public function getContainer(): Contract\Container
+    {
+        return new Container($this);
     }
 
     public function get(string $id): Contract\Builder
@@ -56,32 +68,60 @@ abstract class OverwriteConstructorParameterBase
         return $this->context ?? $this->configuration->context();
     }
 
+    /** @inheritDoc */
     public function parameterSet(string $name, mixed $value): static
     {
-        $this->parameters[$name] = [self::IS_FIXED, $value];
+        return $this->parameter($name, self::IS_FIXED, $value);
+    }
+
+    /**
+     * @param string $name
+     * @param int $type
+     * @param mixed|null $definition
+     *
+     * @return $this
+     *
+     * @throws ConfigurationException
+     */
+    private function parameter(string $name, int $type, mixed $definition = null): static
+    {
+        if (preg_match('^\d++$', $name)) {
+            throw new ConfigurationException(
+                "The parameter '$name' consists only of numbers. Parameter names must be provided as name, not index"
+            );
+        }
+        if (isset($this->parameters[$name])) {
+            throw new ConfigurationException(
+                "Trying to overwrite parameter '$name' twice"
+            );
+        }
+        $this->parameters[$name] = [$type, $definition];
 
         return $this;
     }
 
+    /** @inheritDoc */
     public function parameterInject(string $name, string|Contract\Builder $injection): static
     {
-        $this->parameters[$name] = [self::IS_INJECTED, $injection];
-
-        return $this;
+        return $this->parameter($name, self::IS_INJECTED, $injection);
     }
 
-    public function parameterContext(string $name, string $context): static
+    /** @inheritDoc */
+    public function parameterContext(string $name, string $contextName): static
     {
-        $this->parameters[$name] = [self::IS_CONFIG, $context];
-
-        return $this;
+        return $this->parameter($name, self::IS_CONFIG, $contextName);
     }
 
+    /** @inheritDoc */
+    public function parameterId(string $name): static
+    {
+        return $this->parameter($name, self::IS_ID);
+    }
+
+    /** @inheritDoc */
     public function parameterGenerate(string $name, \Closure $generator): static
     {
-        $this->parameters[$name] = [self::IS_GENERATED, $generator];
-
-        return $this;
+        return $this->parameter($name, self::IS_GENERATED, $generator);
     }
 
     public function has(string $id): bool
@@ -92,19 +132,14 @@ abstract class OverwriteConstructorParameterBase
     public function setContext(Contract\Context $context, bool $enableFallback = false): static
     {
         if ($enableFallback) {
-            $this->context = new FallbackContext($context, $this->context);
+            $this->context = new FallbackContext(
+                $context,
+                $this->context ?? $this->configuration->context()
+            );
         } else {
             $this->context = $context;
         }
 
         return $this;
-    }
-
-    /**
-     * @return Contract\Container
-     */
-    public function getContainer(): Contract\Container
-    {
-        return new Container($this);
     }
 }

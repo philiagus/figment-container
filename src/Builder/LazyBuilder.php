@@ -13,7 +13,13 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Builder;
 
 use Philiagus\Figment\Container\Contract;
+use Philiagus\Figment\Container\Contract\ContainerTraceException;
+use Philiagus\Figment\Container\Exception\ContainerException;
+use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 use Philiagus\Figment\Container\Exception\NotFoundException;
+use Philiagus\Figment\Container\Exception\UndefinedContextException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
  * Used to lazily resolve targeted ids
@@ -39,24 +45,41 @@ readonly class LazyBuilder implements Contract\Builder, \IteratorAggregate
     {
     }
 
-    public function build(string $name): object
+    /** @inheritDoc */
+    public function build(string $id): object
     {
-        return $this->evaluate()->build($name);
+        return $this->evaluate()->build($id);
     }
 
+    /**
+     * Trys to get the actual builder from the container
+     * If the container does not have the actual builder registered the
+     * LazyBuilder will check that a corresponding class exists and register
+     * it as injectable with the container
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerTraceException
+     * @throws ContainerException
+     * @throws ContainerRecursionException
+     * @throws NotFoundException
+     * @throws UndefinedContextException
+     */
     public function evaluate(): Contract\Builder
     {
-        if (!isset($this->builder)) {
-            if($this->configuration->has($this->id)) {
-                $this->builder = $this->configuration->get($this->id);
-            } else {
-                if (!class_exists($this->id)) {
-                    throw new NotFoundException($this->id);
-                }
-                $builder = $this->configuration->injected($this->id);
-                $builder->registerAs($this->id);
-                $this->builder = $builder;
+        if (isset($this->builder)) {
+            return $this->builder;
+        }
+
+        if ($this->configuration->has($this->id)) {
+            $this->builder = $this->configuration->get($this->id);
+        } else {
+            if (!class_exists($this->id)) {
+                throw new NotFoundException($this->id);
             }
+            $builder = $this->configuration->injected($this->id);
+            $builder->registerAs($this->id);
+            $this->builder = $builder;
         }
 
         return $this->builder;
@@ -70,6 +93,14 @@ readonly class LazyBuilder implements Contract\Builder, \IteratorAggregate
      * This is used to lazy-expand lists to their contained Resolvable elements.
      *
      * @return \Traversable<int, Contract\Builder>
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerTraceException
+     * @throws ContainerException
+     * @throws ContainerRecursionException
+     * @throws NotFoundException
+     * @throws UndefinedContextException
      */
     public function getIterator(): \Traversable
     {

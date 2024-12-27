@@ -13,9 +13,7 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Contract\Builder;
 
 use Philiagus\Figment\Container\Contract\Builder;
-use Philiagus\Figment\Container\Contract\Override\OverridableContext;
 use Philiagus\Figment\Container\Contract\Override\OverridableContainer;
-use Philiagus\Figment\Container\Contract\BuilderContainer;
 
 interface InjectionBuilder extends Registrable, Builder, OverridableContainer, OverwriteConstructorParameterReceiver
 {
