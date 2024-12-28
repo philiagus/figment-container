@@ -5,9 +5,19 @@ namespace Philiagus\Figment\Container\Helper;
 
 use Philiagus\Figment\Container\Exception\ContainerException;
 
+/**
+ * @internal
+ */
 trait TypeCheckTrait
 {
 
+    /**
+     * @param \Closure|class-string|array<class-string> $type
+     * @param object $object
+     *
+     * @return void
+     * @throws ContainerException
+     */
     protected function assertType(\Closure|string|array $type, object $object): void
     {
         if ($type instanceof \Closure) {

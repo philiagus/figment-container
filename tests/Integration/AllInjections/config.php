@@ -19,27 +19,27 @@ $config = new Container\Configuration(
 );
 
 $config
-    ->injected(InjectedFull::class)
-    ->setContext(new Container\Context\MapContext([
+    ->attributed(InjectedFull::class)
+    ->setContext(new Container\Context\SimpleContext([
         'other' => 'other'
     ]), true)
     ->redirect('redirectMe', 'injected.default')
     ->registerAs('injected.default');
 
 $config
-    ->injected(InjectedFull::class)
+    ->attributed(InjectedFull::class)
     ->setContext(
-        new Container\Context\MapContext(['values' => ['altered context']])
+        new Container\Context\SimpleContext(['values' => ['altered context']])
     )
     ->setContext(
-        new Container\Context\MapContext(['other' => 'altered other']), true
+        new Container\Context\SimpleContext(['other' => 'altered other']), true
     )
     ->registerAs('injected.context-redirected');
 
 $config
-    ->injected(InjectedFull::class)
+    ->attributed(InjectedFull::class)
     ->redirect('does exist by redirection', 'injected.overwritten')
-    ->setContext(new Container\Context\MapContext(['context.id' => 'set id']))
+    ->setContext(new Container\Context\SimpleContext(['context.id' => 'set id']))
     ->parameterSet('context', ['set context'])
     ->parameterSet('otherContext', 'set other')
     ->parameterSet('selfByClass', new InjectedFullChild('class'))
@@ -60,7 +60,7 @@ $config
     ->list()
     ->append(
         InfoDTO::class,
-        $config->injected(InfoDTO::class)
+        $config->attributed(InfoDTO::class)
             ->parameterSet('info', 'INJECTED'),
         $config->object(new InfoDTO('NoId', 'OBJECT')),
         $config->constructed(InfoDTO::class)

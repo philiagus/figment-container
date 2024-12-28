@@ -36,7 +36,7 @@ interface Builder extends \Traversable
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ContainerTraceException
+     * @throws PrependMessageThrowableInterface
      * @throws ContainerException
      * @throws ContainerRecursionException
      * @throws NotFoundException

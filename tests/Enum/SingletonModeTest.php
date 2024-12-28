@@ -12,7 +12,7 @@ class SingletonModeTest extends TestCase
     public function testResolve(): void
     {
         self::assertSame(null, SingletonMode::DISABLED->resolve('anything'));
-        self::assertSame("\0anything", SingletonMode::BY_ID->resolve('anything'));
-        self::assertSame("\0", SingletonMode::BY_BUILDER->resolve('anything'));
+        self::assertSame("=anything", SingletonMode::BY_ID->resolve('anything'));
+        self::assertSame("*", SingletonMode::BY_BUILDER->resolve('anything'));
     }
 }

@@ -50,7 +50,7 @@ interface InstanceList extends \Traversable, \Countable
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ContainerTraceException
+     * @throws PrependMessageThrowableInterface
      * @throws ContainerException
      * @throws ContainerRecursionException
      * @throws NotFoundException

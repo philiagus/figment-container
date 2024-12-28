@@ -14,9 +14,9 @@ class UndefinedContextExceptionTest extends TestCase
     public function testPrependContainerTrace()
     {
         $exception = new UndefinedContextException('my.id');
-        $expectedMessage = 'xyz -> '. $exception->getMessage();
+        $expectedMessage = 'xyz -> ' . $exception->getMessage();
         $this->expectException(UndefinedContextException::class);
         $this->expectExceptionMessage($expectedMessage);
-        $exception->prependContainerTrace('xyz');
+        $exception->prependMessage('xyz');
     }
 }

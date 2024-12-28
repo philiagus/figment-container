@@ -13,6 +13,7 @@ use Prophecy\PhpUnit\ProphecyTrait;
 class RedirectionProxyTest extends TestCase
 {
     use ProphecyTrait;
+
     public function testGetIterator(): void
     {
         $config = $this->prophesize(Configuration::class)->reveal();

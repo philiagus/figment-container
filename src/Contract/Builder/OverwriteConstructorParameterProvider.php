@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Contract\Builder;
 
 use Philiagus\Figment\Container\Contract\BuilderContainer;
-use Philiagus\Figment\Container\Contract\ContainerTraceException;
+use Philiagus\Figment\Container\Contract\PrependMessageThrowableInterface;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 use Philiagus\Figment\Container\Exception\NotFoundException;
@@ -25,7 +25,7 @@ interface OverwriteConstructorParameterProvider extends BuilderContainer
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ContainerTraceException
+     * @throws PrependMessageThrowableInterface
      * @throws ContainerException
      * @throws ContainerRecursionException
      * @throws NotFoundException

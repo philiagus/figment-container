@@ -23,7 +23,7 @@ use Philiagus\Figment\Container\Exception\NotFoundException;
  * the Configuration::inject method of instance creation to target a registered
  * service for injection. The result of this injection will always be an object
  *
- * @see Configuration::injected()
+ * @see Configuration::attributed()
  */
 #[\Attribute(\Attribute::TARGET_PARAMETER)]
 readonly class Instance implements InjectionAttribute
@@ -37,6 +37,7 @@ readonly class Instance implements InjectionAttribute
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function resolve(
         Container $container,
         \ReflectionParameter $parameter,

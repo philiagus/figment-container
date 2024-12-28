@@ -3,18 +3,18 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Test\Context;
 
-use Philiagus\Figment\Container\Context\MapContext;
+use Philiagus\Figment\Container\Context\SimpleContext;
 use Philiagus\Figment\Container\Exception\UndefinedContextException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(MapContext::class)]
-class MapContextTest extends TestCase
+#[CoversClass(SimpleContext::class)]
+class SimpleContextTest extends TestCase
 {
 
     public function testFull(): void
     {
-        $map = new MapContext(
+        $map = new SimpleContext(
             [
                 'some.thing' => 'field 1',
                 'another.thing.entirely' => 'field 2'

@@ -12,19 +12,29 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Exception;
 
-use Philiagus\Figment\Container\Contract\ContainerTraceException;
+use Philiagus\Figment\Container\Contract\PrependMessageThrowableInterface;
 
-class UndefinedContextException extends \LogicException implements ContainerTraceException
+/**
+ * Exception thrown when a context field is requested that cannot be provided
+ *
+ * @internal
+ */
+class UndefinedContextException extends \LogicException implements PrependMessageThrowableInterface
 {
 
-    public function __construct(string $contextName)
+    /**
+     * @param string $contextName
+     */
+    public function __construct(string $contextName, ?\Throwable $previous = null)
     {
-        parent::__construct("The context '$contextName' is not registered");
+        parent::__construct("The context '$contextName' is not registered", previous: $previous);
     }
 
-    public function prependContainerTrace(string $traceElement): never
+    /** @inheritDoc */
+    #[\Override]
+    public function prependMessage(string $traceElement, string $glue = ' -> '): never
     {
-        $this->message = "$traceElement -> $this->message";
+        $this->message = $traceElement . $glue . $this->message;
         throw $this;
     }
 }

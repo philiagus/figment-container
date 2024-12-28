@@ -9,7 +9,7 @@ use Philiagus\Figment\Container\Contract\Container;
 $config = new Configuration();
 
 $config
-    ->injected(MockClass::class)
+    ->attributed(MockClass::class)
     ->redirect('child', 'b')
     ->registerAs('a');
 
@@ -22,7 +22,7 @@ $config
     ->registerAs('c');
 
 $config
-    ->injected(MockClass::class)
+    ->attributed(MockClass::class)
     ->redirect(
         'child',
         $config

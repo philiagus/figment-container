@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Builder;
 
 use Philiagus\Figment\Container\Contract;
-use Philiagus\Figment\Container\Contract\ContainerTraceException;
+use Philiagus\Figment\Container\Contract\PrependMessageThrowableInterface;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 use Philiagus\Figment\Container\Exception\NotFoundException;
@@ -46,6 +46,7 @@ readonly class LazyBuilder implements Contract\Builder, \IteratorAggregate
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function build(string $id): object
     {
         return $this->evaluate()->build($id);
@@ -59,13 +60,13 @@ readonly class LazyBuilder implements Contract\Builder, \IteratorAggregate
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ContainerTraceException
+     * @throws PrependMessageThrowableInterface
      * @throws ContainerException
      * @throws ContainerRecursionException
      * @throws NotFoundException
      * @throws UndefinedContextException
      */
-    public function evaluate(): Contract\Builder
+    private function evaluate(): Contract\Builder
     {
         if (isset($this->builder)) {
             return $this->builder;
@@ -77,7 +78,7 @@ readonly class LazyBuilder implements Contract\Builder, \IteratorAggregate
             if (!class_exists($this->id)) {
                 throw new NotFoundException($this->id);
             }
-            $builder = $this->configuration->injected($this->id);
+            $builder = $this->configuration->attributed($this->id);
             $builder->registerAs($this->id);
             $this->builder = $builder;
         }
@@ -96,12 +97,13 @@ readonly class LazyBuilder implements Contract\Builder, \IteratorAggregate
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ContainerTraceException
+     * @throws PrependMessageThrowableInterface
      * @throws ContainerException
      * @throws ContainerRecursionException
      * @throws NotFoundException
      * @throws UndefinedContextException
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         yield $this->evaluate();

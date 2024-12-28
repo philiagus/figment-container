@@ -14,9 +14,9 @@ class NotFoundExceptionTest extends TestCase
     public function testPrependContainerTrace(): void
     {
         $exception = new NotFoundException('my.id');
-        $expectedMessage = 'xyz -> '. $exception->getMessage();
+        $expectedMessage = 'xyz -> ' . $exception->getMessage();
         $this->expectException(NotFoundException::class);
         $this->expectExceptionMessage($expectedMessage);
-        $exception->prependContainerTrace('xyz');
+        $exception->prependMessage('xyz');
     }
 }

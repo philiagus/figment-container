@@ -15,6 +15,6 @@ class ContainerExceptionTest extends TestCase
         $exception = new ContainerException('abc');
         $this->expectException(ContainerException::class);
         $this->expectExceptionMessage('xyz -> abc');
-        $exception->prependContainerTrace('xyz');
+        $exception->prependMessage('xyz');
     }
 }

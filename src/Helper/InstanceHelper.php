@@ -16,7 +16,7 @@ use Philiagus\Figment\Container\Attribute\EagerInstantiation;
 use Philiagus\Figment\Container\Attribute\Singleton;
 use Philiagus\Figment\Container\Contract;
 use Philiagus\Figment\Container\Contract\Builder\OverwriteConstructorParameterProvider;
-use Philiagus\Figment\Container\Contract\ContainerTraceException;
+use Philiagus\Figment\Container\Contract\PrependMessageThrowableInterface;
 use Philiagus\Figment\Container\Enum\SingletonMode;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
@@ -83,20 +83,8 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
         }
     }
 
-    /**
-     * @param OverwriteConstructorParameterProvider $builder
-     * @param string $id
-     *
-     * @return object
-     *
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     * @throws ContainerTraceException
-     * @throws ContainerException
-     * @throws ContainerRecursionException
-     * @throws NotFoundException
-     * @throws UndefinedContextException
-     */
+    /** @inheritDoc */
+    #[\Override]
     public function buildInjected(OverwriteConstructorParameterProvider $builder, string $id): object
     {
         if ($this->eagerInstantiation) {
@@ -126,7 +114,7 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ContainerTraceException
+     * @throws PrependMessageThrowableInterface
      * @throws ContainerException
      * @throws ContainerRecursionException
      * @throws NotFoundException
@@ -167,20 +155,8 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
         return $arguments;
     }
 
-    /**
-     * @param OverwriteConstructorParameterProvider $parameterProvider
-     * @param string $id
-     *
-     * @return object
-     *
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     * @throws ContainerTraceException
-     * @throws ContainerException
-     * @throws ContainerRecursionException
-     * @throws NotFoundException
-     * @throws UndefinedContextException
-     */
+    /** @inheritDoc */
+    #[\Override]
     public function buildConstructed(OverwriteConstructorParameterProvider $parameterProvider, string $id): object
     {
         if ($this->eagerInstantiation) {
@@ -204,6 +180,8 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
         );
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function getSingletonMode(): SingletonMode
     {
         return $this->singletonMode;

@@ -7,7 +7,7 @@ use Philiagus\Figment\Container;
 
 $config = new Container\Configuration();
 $config
-    ->injected(SingletonById::class)
+    ->attributed(SingletonById::class)
     ->registerAs(
         'injected.by-id.0',
         'injected.by-id.1',
@@ -15,7 +15,7 @@ $config
         'injected.by-id.3',
     );
 
-$config->injected(SingletonByBuilder::class)
+$config->attributed(SingletonByBuilder::class)
     ->registerAs(
         'injected.by-builder.0',
         'injected.by-builder.1',
@@ -24,7 +24,7 @@ $config->injected(SingletonByBuilder::class)
     );
 
 $config
-    ->injected(SingletonDisabled::class)
+    ->attributed(SingletonDisabled::class)
     ->registerAs(
         'injected.disabled.0',
         'injected.disabled.1',
@@ -157,7 +157,6 @@ $config
         'get-factory.by-builder.2',
         'get-factory.by-builder.3',
     );
-
 
 
 return $config;

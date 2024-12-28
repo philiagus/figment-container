@@ -18,6 +18,9 @@ use Philiagus\Figment\Container\Enum\SingletonMode;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 
+/**
+ * @internal
+ */
 class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggregate
 {
     /** @var array<string, object> */
@@ -36,6 +39,8 @@ class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggreg
     {
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function build(string $id): object
     {
         $singleton = $this->singletonMode->resolve($id);
@@ -56,13 +61,15 @@ class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggreg
                 $this->singleton[$singleton] = $result;
             }
             return $result;
-        } catch (Contract\ContainerTraceException $e) {
-            $e->prependContainerTrace($id);
+        } catch (Contract\PrependMessageThrowableInterface $e) {
+            $e->prependMessage($id);
         } finally {
             $this->running[$id] = false;
         }
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function registerAs(string ...$id): Contract\Builder\Registrable
     {
         $this->configuration->register($this, ...$id);
@@ -70,11 +77,15 @@ class ClosureBuilder implements Contract\Builder\ClosureBuilder, \IteratorAggreg
         return $this;
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         yield $this;
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function singletonMode(SingletonMode $mode): static
     {
         $this->singletonMode = $mode;

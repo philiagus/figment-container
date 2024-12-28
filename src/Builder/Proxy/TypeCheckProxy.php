@@ -15,6 +15,9 @@ namespace Philiagus\Figment\Container\Builder\Proxy;
 use Philiagus\Figment\Container\Contract\Builder;
 use Philiagus\Figment\Container\Helper\TypeCheckTrait;
 
+/**
+ * @internal
+ */
 readonly class TypeCheckProxy implements Builder, \IteratorAggregate
 {
     use TypeCheckTrait;
@@ -30,6 +33,8 @@ readonly class TypeCheckProxy implements Builder, \IteratorAggregate
     {
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function build(string $id): object
     {
         $result = $this->builder->build($id);
@@ -37,6 +42,8 @@ readonly class TypeCheckProxy implements Builder, \IteratorAggregate
         return $result;
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         yield $this;

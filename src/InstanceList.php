@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container;
 
 use Philiagus\Figment\Container\Builder\Proxy\TypeCheckProxy;
-use Philiagus\Figment\Container\Contract\ContainerTraceException;
+use Philiagus\Figment\Container\Contract\PrependMessageThrowableInterface;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 use Philiagus\Figment\Container\Exception\NotFoundException;
@@ -42,7 +42,7 @@ readonly final class InstanceList implements Contract\InstanceList, \IteratorAgg
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ContainerTraceException
+     * @throws PrependMessageThrowableInterface
      * @throws ContainerException
      * @throws ContainerRecursionException
      * @throws NotFoundException

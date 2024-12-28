@@ -15,6 +15,10 @@ namespace Philiagus\Figment\Container\Context;
 use Philiagus\Figment\Container\Contract\Context;
 use Philiagus\Figment\Container\Exception\UndefinedContextException;
 
+/**
+ * A helper class using multiple contexts and iterating through them returning
+ * the value of the first context that contains the required element
+ */
 readonly class FallbackContext implements Context
 {
 

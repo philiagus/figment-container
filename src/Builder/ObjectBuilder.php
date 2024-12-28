@@ -14,6 +14,9 @@ namespace Philiagus\Figment\Container\Builder;
 
 use Philiagus\Figment\Container\Contract;
 
+/**
+ * @internal
+ */
 readonly class ObjectBuilder implements Contract\Builder\ObjectBuilder, \IteratorAggregate
 {
 
@@ -28,11 +31,15 @@ readonly class ObjectBuilder implements Contract\Builder\ObjectBuilder, \Iterato
     {
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function build(string $id): object
     {
         return $this->object;
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function registerAs(string ...$id): Contract\Builder\Registrable
     {
         $this->configuration->register($this, ...$id);
@@ -40,6 +47,8 @@ readonly class ObjectBuilder implements Contract\Builder\ObjectBuilder, \Iterato
         return $this;
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         yield $this;

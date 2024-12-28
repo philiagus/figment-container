@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Exception;
 
-use Philiagus\Figment\Container\Contract\ContainerTraceException;
+use Philiagus\Figment\Container\Contract\PrependMessageThrowableInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 /**
@@ -27,16 +27,22 @@ use Psr\Container\NotFoundExceptionInterface;
  */
 class NotFoundException
     extends \OutOfBoundsException
-    implements NotFoundExceptionInterface, ContainerTraceException
+    implements NotFoundExceptionInterface, PrependMessageThrowableInterface
 {
+    /**
+     * @param string $id
+     * @param null|\Throwable $previous
+     */
     public function __construct(string $id, ?\Throwable $previous = null)
     {
         parent::__construct("No service of id '$id' is registered", previous: $previous);
     }
 
-    public function prependContainerTrace(string $traceElement): never
+    /** @inheritDoc */
+    #[\Override]
+    public function prependMessage(string $traceElement, string $glue = ' -> '): never
     {
-        $this->message = "$traceElement -> $this->message";
+        $this->message = $traceElement . $glue . $this->message;
         throw $this;
     }
 }

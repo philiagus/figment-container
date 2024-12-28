@@ -43,8 +43,8 @@ enum SingletonMode
     {
         return match ($this) {
             self::DISABLED => null,
-            self::BY_BUILDER => "\0",
-            self::BY_ID => "\0$forId"
+            self::BY_BUILDER => "*",
+            self::BY_ID => "=$forId"
         };
     }
 

@@ -8,6 +8,9 @@ use Philiagus\Figment\Container\Contract\Helper\HelperProvider;
 use Philiagus\Figment\Container\Enum\SingletonMode;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 
+/**
+ * @internal
+ */
 class ConstructorBuilder
     extends OverwriteConstructorParameterBase
     implements Contract\Builder\ConstructorBuilder, \IteratorAggregate
@@ -35,6 +38,8 @@ class ConstructorBuilder
         parent::__construct($configuration);
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function registerAs(string ...$id): Contract\Builder\Registrable
     {
         $this->configuration->register($this, ...$id);
@@ -42,6 +47,8 @@ class ConstructorBuilder
         return $this;
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function build(string $id): object
     {
         $helper = $this->helperProvider->get($this->className);
@@ -60,18 +67,22 @@ class ConstructorBuilder
             if ($singleton !== null)
                 $this->singleton[$singleton] = $instance;
             return $instance;
-        } catch (Contract\ContainerTraceException $e) {
-            $e->prependContainerTrace($id);
+        } catch (Contract\PrependMessageThrowableInterface $e) {
+            $e->prependMessage($id);
         } finally {
             $this->running[$id] = false;
         }
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         yield $this;
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function singletonMode(SingletonMode $mode): static
     {
         $this->singletonMode = $mode;

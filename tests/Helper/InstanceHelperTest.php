@@ -9,7 +9,6 @@ use Philiagus\Figment\Container\Helper\InstanceHelper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
-use Psr\Container\ContainerInterface;
 
 #[CoversClass(InstanceHelper::class)]
 class InstanceHelperTest extends TestCase

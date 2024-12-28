@@ -15,6 +15,6 @@ namespace Philiagus\Figment\Container\Contract\Builder;
 use Philiagus\Figment\Container\Contract\Builder;
 use Philiagus\Figment\Container\Contract\Override\OverridableContainer;
 
-interface InjectionBuilder extends Registrable, Builder, OverridableContainer, OverwriteConstructorParameterReceiver
+interface AttributedBuilder extends Registrable, Builder, OverridableContainer, OverwriteConstructorParameterReceiver
 {
 }

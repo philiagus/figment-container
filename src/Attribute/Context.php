@@ -23,6 +23,8 @@ readonly class Context implements InjectionAttribute
     {
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function resolve(
         Container $container,
         \ReflectionParameter $parameter,

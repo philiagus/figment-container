@@ -4,17 +4,18 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Test;
 
 use Philiagus\Figment\Container\Configuration;
+use Philiagus\Figment\Container\Contract;
 use Philiagus\Figment\Container\Exception\ContainerConfigurationException;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
-use Philiagus\Figment\Container\Contract;
 
 #[CoversClass(Configuration::class)]
 class ConfigurationTest extends TestCase
 {
     use ProphecyTrait;
+
     public function testListResultsInNonList(): void
     {
         $builder = $this->prophesize(Contract\Builder::class)->reveal();

@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Test\Builder;
 
 use Philiagus\Figment\Container\Builder\ObjectBuilder;
+use Philiagus\Figment\Container\Contract;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Philiagus\Figment\Container\Contract;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 
@@ -14,12 +14,13 @@ use Prophecy\PhpUnit\ProphecyTrait;
 class ObjectBuilderTest extends TestCase
 {
     use ProphecyTrait;
+
     public function testFull(): void
     {
         $configuration = $this->prophesize(Contract\Configuration::class);
         $configuration->register(
             Argument::that(
-                function(object $o) use (&$builder) {
+                function (object $o) use (&$builder) {
                     return $o === $builder;
                 }
             ),

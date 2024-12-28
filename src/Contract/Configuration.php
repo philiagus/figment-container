@@ -39,9 +39,9 @@ interface Configuration extends BuilderContainer
      *
      * @param class-string $className
      *
-     * @return Builder\InjectionBuilder
+     * @return Builder\AttributedBuilder
      */
-    public function injected(string $className): Builder\InjectionBuilder;
+    public function attributed(string $className): Builder\AttributedBuilder;
 
     /**
      * Provides a builder that will use the constructor (if exists) of the
@@ -55,7 +55,7 @@ interface Configuration extends BuilderContainer
      * @param class-string $className
      *
      * @return Builder\ConstructorBuilder
-     * @see self::injected()
+     * @see self::attributed()
      * @see Singleton
      * @see EagerInstantiation
      * @see Builder\ConstructorBuilder

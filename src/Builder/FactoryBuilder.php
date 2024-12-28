@@ -9,6 +9,9 @@ use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 use Psr\Container\ContainerExceptionInterface;
 
+/**
+ * @internal
+ */
 class FactoryBuilder implements Contract\Builder\FactoryBuilder, \IteratorAggregate
 {
 
@@ -27,6 +30,7 @@ class FactoryBuilder implements Contract\Builder\FactoryBuilder, \IteratorAggreg
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function build(string $id): object
     {
         $singleton = null;
@@ -71,14 +75,15 @@ class FactoryBuilder implements Contract\Builder\FactoryBuilder, \IteratorAggreg
                 $this->singleton[$singleton] = $instance;
             }
             return $instance;
-        } catch (Contract\ContainerTraceException $e) {
-            $e->prependContainerTrace($id);
+        } catch (Contract\PrependMessageThrowableInterface $e) {
+            $e->prependMessage($id);
         } finally {
             $this->running[$id] = false;
         }
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function registerAs(string ...$id): Registrable
     {
         $this->configuration->register($this, ...$id);
@@ -87,6 +92,7 @@ class FactoryBuilder implements Contract\Builder\FactoryBuilder, \IteratorAggreg
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         yield $this;

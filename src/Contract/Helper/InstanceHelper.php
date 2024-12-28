@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Contract\Helper;
 
 use Philiagus\Figment\Container\Contract\Builder\OverwriteConstructorParameterProvider;
-use Philiagus\Figment\Container\Contract\ContainerTraceException;
+use Philiagus\Figment\Container\Contract\PrependMessageThrowableInterface;
 use Philiagus\Figment\Container\Enum\SingletonMode;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
@@ -34,7 +34,7 @@ interface InstanceHelper
      * @return object
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ContainerTraceException
+     * @throws PrependMessageThrowableInterface
      * @throws ContainerException
      * @throws ContainerRecursionException
      * @throws NotFoundException
@@ -49,7 +49,7 @@ interface InstanceHelper
      * @return object
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ContainerTraceException
+     * @throws PrependMessageThrowableInterface
      * @throws ContainerException
      * @throws ContainerRecursionException
      * @throws NotFoundException

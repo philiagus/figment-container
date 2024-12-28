@@ -11,7 +11,10 @@ class Factory implements Contract\Factory
 {
     public function __construct(
         private SingletonMode $singletonMode,
-    ){}
+    )
+    {
+    }
+
     public function create(Container $container, string $id): object
     {
         return new \stdClass();

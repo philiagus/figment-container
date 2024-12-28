@@ -17,9 +17,12 @@ use Philiagus\Figment\Container\Contract\Configuration;
 use Philiagus\Figment\Container\Contract\Helper\HelperProvider;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 
-class InjectionBuilder
+/**
+ * @internal
+ */
+class AttributedBuilder
     extends OverwriteConstructorParameterBase
-    implements Contract\Builder\InjectionBuilder, \IteratorAggregate
+    implements Contract\Builder\AttributedBuilder, \IteratorAggregate
 {
 
     /** @var array<string, bool> */
@@ -46,6 +49,7 @@ class InjectionBuilder
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function build(string $id): object
     {
         $helper = $this->helperProvider->get($this->className);
@@ -64,20 +68,22 @@ class InjectionBuilder
             if ($singleton !== null)
                 $this->singleton[$singleton] = $instance;
             return $instance;
-        } catch (Contract\ContainerTraceException $e) {
-            $e->prependContainerTrace($id);
+        } catch (Contract\PrependMessageThrowableInterface $e) {
+            $e->prependMessage($id);
         } finally {
             $this->running[$id] = false;
         }
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function get(string $id): Contract\Builder
     {
         return $this->redirection[$id] ?? parent::get($id);
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function redirect(string $id, Contract\Builder|string $to): static
     {
         $this->redirection[$id] = new Proxy\RedirectionProxy($this->configuration, $to);
@@ -86,6 +92,7 @@ class InjectionBuilder
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function has(string $id): bool
     {
         $redirection = $this->redirection[$id] ?? null;
@@ -96,6 +103,7 @@ class InjectionBuilder
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function registerAs(string ...$id): Contract\Builder\Registrable
     {
         $this->configuration->register($this, ...$id);
@@ -104,6 +112,7 @@ class InjectionBuilder
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         yield $this;

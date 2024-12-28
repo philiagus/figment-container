@@ -17,6 +17,12 @@ use Philiagus\Figment\Container\Contract\Factory;
 use Philiagus\Figment\Container\Exception\ContainerConfigurationException;
 use Philiagus\Figment\Container\Exception\ContainerException;
 
+/**
+ * Entry configuration used by the framework
+ *
+ * First create an instance of this configuration object and use its exposed
+ * methods to configure the services you want the container to provide.
+ */
 final class Configuration implements Contract\Configuration
 {
 
@@ -26,6 +32,11 @@ final class Configuration implements Contract\Configuration
 
     private readonly Contract\Container $container;
 
+    /**
+     *
+     *
+     * @param Contract\Context $context
+     */
     public function __construct(
         private readonly Contract\Context $context = new EmptyContext()
     )
@@ -37,42 +48,50 @@ final class Configuration implements Contract\Configuration
             ->registerAs('container');
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function object(object $object): Contract\Builder\ObjectBuilder
     {
         return new Builder\ObjectBuilder($this, $object);
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function closure(\Closure $closure): Contract\Builder\ClosureBuilder
     {
         return new Builder\ClosureBuilder($this, $closure);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function injected(string $className): Contract\Builder\InjectionBuilder
+    /** @inheritDoc */
+    #[\Override]
+    public function attributed(string $className): Contract\Builder\AttributedBuilder
     {
-        return new Builder\InjectionBuilder($this, $this->helperProvider, $className);
+        return new Builder\AttributedBuilder($this, $this->helperProvider, $className);
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function context(): Contract\Context
     {
         return $this->context;
     }
 
-    /**
-     * @return Contract\Container
-     */
+    /** @inheritDoc */
+    #[\Override]
     public function getContainer(): Contract\Container
     {
         return $this->container;
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function get(string $id): Contract\Builder
     {
         return $this->registry[$id] ?? $this->lazies[$id] ??= new Builder\LazyBuilder($this, $id);
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function register(Contract\Builder $builder, string ...$id): self
     {
         foreach ($id as $singleId) {
@@ -91,6 +110,8 @@ final class Configuration implements Contract\Configuration
         return $this;
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function list(?string $id = null): Contract\Builder\ListBuilder
     {
         if ($id === null)
@@ -110,18 +131,21 @@ final class Configuration implements Contract\Configuration
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function constructed(string $className): Contract\Builder\ConstructorBuilder
     {
         return new Builder\ConstructorBuilder($this, $this->helperProvider, $className);
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function has(string $id): bool
     {
         return isset($this->registry[$id]);
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function factory(Factory|string $factory): Contract\Builder\FactoryBuilder
     {
         return new Builder\FactoryBuilder($this, $factory);

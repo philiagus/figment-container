@@ -15,15 +15,20 @@ namespace Philiagus\Figment\Container\Context;
 use Philiagus\Figment\Container\Contract\Context;
 use Philiagus\Figment\Container\Exception\UndefinedContextException;
 
+/**
+ * A helper class for clarity representing an empty context
+ */
 readonly class EmptyContext implements Context
 {
 
+    /** @inheritDoc */
     #[\Override]
     public function has(string $name): bool
     {
         return false;
     }
 
+    /** @inheritDoc */
     #[\Override]
     public function get(string $name): mixed
     {
