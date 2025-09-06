@@ -120,7 +120,10 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
      * @throws NotFoundException
      * @throws UndefinedContextException
      */
-    private function buildInjectionConstructorParameters(OverwriteConstructorParameterProvider $provider, string $forId): array
+    private function buildInjectionConstructorParameters(
+        OverwriteConstructorParameterProvider $provider,
+        string $forId
+    ): array
     {
         if (empty($this->constructorParameters)) {
             return [];
