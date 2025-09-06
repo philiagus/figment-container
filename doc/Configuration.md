@@ -160,6 +160,11 @@ $config = new Configuration(
 
 This example splits its code in multiple files, which is the recommended way of doing things.
 
+This example assumes, that you have the following packages installed as well:
+
+- **philiagus/figment-http**: route and handle HTTP requests
+- **philiagus/figment-cli**: implement and invoke CLI commands
+
 Your project will (in most cases) have the following structure:
 
 Files marked `[I]` should be excluded from your revision tracking (.gitignore).
@@ -306,6 +311,10 @@ use Philiagus\Figment\Cli\Stream\InStream;use Philiagus\Figment\Container\Contra
 
 /** @var Container $container */
 $container = require __DIR__ . '/bootstrap.php';
-$terminal = InStream::default();
-$container->get('figment.cli.worker')->work($terminal);
+$terminal = new \Philiagus\Figment\Cli\Terminal($argv);
+$result = $container
+    ->get(\Philiagus\Figment\Cli\CommandWorker::class)
+    ->work($terminal);
+echo PHP_EOL; // insert blank line after every script
+exit($result);
 ```
