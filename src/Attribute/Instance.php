@@ -31,8 +31,12 @@ readonly class Instance implements InjectionAttribute
 
     /**
      * @param null|string $id
+     * @param null|class-string|object $fallback
      */
-    public function __construct(private ?string $id = null)
+    public function __construct(
+        private ?string $id = null,
+        private null|string|object $fallback = null
+    )
     {
     }
 
@@ -49,7 +53,15 @@ readonly class Instance implements InjectionAttribute
         try {
             $instance = $container->get($targetId);
         } catch (NotFoundException) {
-            return null;
+            if ($this->fallback === null) {
+                return null;
+            } else if (is_object($this->fallback)) {
+                $instance = $this->fallback;
+            } else try {
+                $instance = $container->get($this->fallback);
+            } catch (NotFoundException) {
+                return null;
+            }
         }
         $hasValue = true;
         return $instance;

@@ -302,11 +302,10 @@ try {
 <?
 declare(strict_types=1);
 
-use Philiagus\Figment\Container\Contract\Container;
-use Philiagus\Figment\CLI\Terminal;
+use Philiagus\Figment\Cli\Stream\InStream;use Philiagus\Figment\Container\Contract\Container;
 
 /** @var Container $container */
 $container = require __DIR__ . '/bootstrap.php';
-$terminal = Terminal::default();
+$terminal = InStream::default();
 $container->get('figment.cli.worker')->work($terminal);
 ```
