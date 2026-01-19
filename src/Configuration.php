@@ -44,8 +44,6 @@ final class Configuration implements Contract\Configuration
         $this->helperProvider = new Helper\HelperProvider();
 
         $this->container = new Container($this);
-        $this->object($this->container)
-            ->registerAs('container');
     }
 
     /** @inheritDoc */

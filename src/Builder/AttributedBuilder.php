@@ -12,10 +12,12 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Builder;
 
+use Override;
 use Philiagus\Figment\Container\Contract;
 use Philiagus\Figment\Container\Contract\Configuration;
 use Philiagus\Figment\Container\Contract\Helper\HelperProvider;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
+use Philiagus\Figment\Container\PreparedFunction;
 
 /**
  * @internal
@@ -116,5 +118,20 @@ class AttributedBuilder
     public function getIterator(): \Traversable
     {
         yield $this;
+    }
+
+    /** @inheritDoc */
+    #[Override]
+    public function invoke(\Closure $closure, ...$additionalArguments): mixed
+    {
+        $function = $this->prepare($closure, ...array_keys($additionalArguments));
+        return $function(...$additionalArguments);
+    }
+
+    /** @inheritDoc */
+    #[Override]
+    public function prepare(\Closure $closure, string ...$laterProvidedArguments): Contract\PreparedFunction
+    {
+        return new PreparedFunction($this, $closure, ...$laterProvidedArguments);
     }
 }

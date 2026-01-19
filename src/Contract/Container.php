@@ -53,4 +53,30 @@ interface Container extends ContainerInterface, ContextProvider
      */
     public function has(string $id): bool;
 
+    /**
+     * Prepares the closure for invocation, treating correspondingly
+     * annotated elements as something that will be injected by the container.
+     *
+     * The container makes sure it can instantiate the elements marked for injection
+     * by attributes right now. You can call the function later.
+     *
+     * You can provide a list of later provided arguments. These arguments
+     * will be ignored by the container, even if annotations are present. You'll
+     * have to provide the value for these parameters yourself when invoking the prepared function
+     *
+     * @param \Closure $closure
+     * @param string ...$laterProvidedArguments
+     *
+     * @return PreparedFunction
+     */
+    public function prepare(\Closure $closure, string ...$laterProvidedArguments): PreparedFunction;
+
+    /**
+     * @param \Closure $closure
+     * @param mixed ...$additionalArguments
+     *
+     * @return mixed
+     */
+    public function invoke(\Closure $closure, mixed ...$additionalArguments): mixed;
+
 }

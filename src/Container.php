@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
+use Override;
 use Philiagus\Figment\Container\Contract\Context;
 
 readonly final class Container implements Contract\Container
@@ -22,19 +23,39 @@ readonly final class Container implements Contract\Container
     }
 
     /** @inheritDoc */
+    #[Override]
     public function get(string $id): object
     {
         return $this->provider->get($id)->build($id);
     }
 
     /** @inheritDoc */
+    #[Override]
     public function has(string $id): bool
     {
         return $this->provider->has($id);
     }
 
+    /** @inheritDoc */
+    #[Override]
     public function context(): Context
     {
         return $this->provider->context();
+    }
+
+    /** @inheritDoc */
+    #[Override]
+    public function invoke(\Closure $closure, ...$additionalArguments): mixed
+    {
+        return $this
+            ->prepare($closure, ...array_keys($additionalArguments))
+            ->invoke(...$additionalArguments);
+    }
+
+    /** @inheritDoc */
+    #[Override]
+    public function prepare(\Closure $closure, string ...$laterProvidedArguments): Contract\PreparedFunction
+    {
+        return new PreparedFunction($this, $closure, ...$laterProvidedArguments);
     }
 }

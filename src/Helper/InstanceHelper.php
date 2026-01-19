@@ -176,10 +176,20 @@ readonly class InstanceHelper implements Contract\Helper\InstanceHelper
             }
         }
         return $this->class->newLazyGhost(
-            fn(object $object) => $this->constructor?->invokeArgs(
-                $object,
-                $parameterProvider->resolveOverwriteConstructorParameter($id)
-            )
+            function (object $object) use ($parameterProvider, $id) {
+                try {
+                    $this->constructor?->invokeArgs(
+                        $object,
+                        $parameterProvider->resolveOverwriteConstructorParameter($id)
+                    );
+                } catch (\Throwable $e) {
+                    throw new ContainerException(
+                        "Constructor for $this->className " .
+                        "for id '$id' could not be invoked",
+                        previous: $e
+                    );
+                }
+            }
         );
     }
 
