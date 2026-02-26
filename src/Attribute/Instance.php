@@ -29,15 +29,19 @@ use Philiagus\Figment\Container\Exception\NotFoundException;
 readonly class Instance implements InjectionAttribute
 {
 
+    /** @var array<string|object> */
+    private array $fallbacks;
+
     /**
      * @param null|string $id
-     * @param null|class-string|object $fallback
+     * @param string|object ...$fallback
      */
     public function __construct(
         private ?string $id = null,
-        private null|string|object $fallback = null
+        string|object ...$fallback
     )
     {
+        $this->fallbacks = $fallback;
     }
 
     /** @inheritDoc */
@@ -49,21 +53,30 @@ readonly class Instance implements InjectionAttribute
         false &$hasValue
     ): ?object
     {
-        $targetId = $this->id ?? (string)$parameter->getType();
+        $targetId = $this->id ?? (string) $parameter->getType();
         try {
             $instance = $container->get($targetId);
+            $hasValue = true;
+
+            return $instance;
         } catch (NotFoundException) {
-            if ($this->fallback === null) {
-                return null;
-            } else if (is_object($this->fallback)) {
-                $instance = $this->fallback;
-            } else try {
-                $instance = $container->get($this->fallback);
-            } catch (NotFoundException) {
-                return null;
+            foreach ($this->fallbacks as $fallback) {
+                if (is_object($fallback)) {
+                    $instance = $fallback;
+                    $hasValue = true;
+
+                    return $instance;
+                } else try {
+                    $instance = $container->get($fallback);
+                    $hasValue = true;
+
+                    return $instance;
+                } catch (NotFoundException) {
+                }
             }
         }
-        $hasValue = true;
-        return $instance;
+        $hasValue = false;
+
+        return null;
     }
 }
