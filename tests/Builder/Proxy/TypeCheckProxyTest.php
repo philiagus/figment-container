@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Test\Builder\Proxy;
 
-use Philiagus\Figment\Container\Builder\Proxy\TypeCheckProxy;
+use Philiagus\Figment\Container\Builder\Proxy\TypeCheckBuilderProxy;
 use Philiagus\Figment\Container\Contract\Builder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Container\ContainerExceptionInterface;
 
-#[CoversClass(TypeCheckProxy::class)]
+#[CoversClass(TypeCheckBuilderProxy::class)]
 class TypeCheckProxyTest extends TestCase
 {
     use ProphecyTrait;
@@ -71,7 +71,7 @@ class TypeCheckProxyTest extends TestCase
         $builder->build($name)->shouldBeCalledOnce()->willReturn($builderResult);
         $builder = $builder->reveal();
 
-        $instance = new TypeCheckProxy($builder, $type);
+        $instance = new TypeCheckBuilderProxy($builder, $type);
         self::assertSame([$instance], iterator_to_array($instance));
         if (!$expectSuccess) {
             $this->expectException(ContainerExceptionInterface::class);

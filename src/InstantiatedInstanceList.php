@@ -5,6 +5,9 @@ namespace Philiagus\Figment\Container;
 
 use Philiagus\Figment\Container\Helper\TypeCheckTrait;
 
+/**
+ * @internal
+ */
 readonly final class InstantiatedInstanceList implements Contract\InstanceList, \IteratorAggregate
 {
 

@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
+/**
+ * @internal
+ */
 readonly final class EmptyInstanceList implements Contract\InstanceList, \IteratorAggregate
 {
 

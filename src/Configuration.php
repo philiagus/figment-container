@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container;
 
 use Philiagus\Figment\Container\Context\EmptyContext;
-use Philiagus\Figment\Container\Contract\Factory;
 use Philiagus\Figment\Container\Exception\ContainerConfigurationException;
 use Philiagus\Figment\Container\Exception\ContainerException;
 
@@ -144,8 +143,28 @@ final class Configuration implements Contract\Configuration
 
     /** @inheritDoc */
     #[\Override]
-    public function factory(Factory|string $factory): Contract\Builder\FactoryBuilder
+    public function factory(Contract\Factory|string $factory): Contract\Builder\FactoryBuilder
     {
         return new Builder\FactoryBuilder($this, $factory);
+    }
+
+    /** @inheritDoc */
+    #[\Override]
+    public function map(?string $id = null): Contract\Builder\MapBuilder
+    {
+        if ($id === null)
+            return new Builder\MapBuilder($this);
+
+        $registeredMap = $this->registry[$id] ?? null;
+        if ($registeredMap === null) {
+            return $this->registry[$id] = new Builder\MapBuilder($this);
+        }
+        if ($registeredMap instanceof Contract\Builder\MapBuilder) {
+            return $registeredMap;
+        }
+
+        throw new ContainerException(
+            "Trying to access '$id' as map, which is already registered as not being a map"
+        );
     }
 }

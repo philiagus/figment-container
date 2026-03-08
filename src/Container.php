@@ -15,6 +15,9 @@ namespace Philiagus\Figment\Container;
 use Override;
 use Philiagus\Figment\Container\Contract\Context;
 
+/**
+ * @internal
+ */
 readonly final class Container implements Contract\Container
 {
 

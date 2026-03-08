@@ -48,7 +48,7 @@ interface Configuration extends BuilderContainer
      * defined class in order to create an instance of the required class
      * without taking Injection Attributes into account. If you want to use
      * injection attributes and only overwrite individual constructor parameters
-     * please use the injected($className) and configure your desired injections
+     * please use the attributed($className) and configure your desired injections
      * there.
      *
      *
@@ -98,8 +98,7 @@ interface Configuration extends BuilderContainer
     public function object(object $object): Builder\ObjectBuilder;
 
     /**
-     * Provides a builder that allows you to create and expose a list under the
-     * provided name.
+     * Provides a builder that allows you to create and expose a list
      *
      * If the $id is provided, the Builder will make sure the list is registered
      * under the given $id. If such a list already exists the returned builder
@@ -111,4 +110,13 @@ interface Configuration extends BuilderContainer
      * @return Builder\ListBuilder
      */
     public function list(?string $id = null): Builder\ListBuilder;
+
+    /**
+     * Provides a builder that allows you to create and expose a map
+     * @param string|null $id
+     *
+     * @return Builder\MapBuilder
+     * @see InstanceMap
+     */
+    public function map(?string $id = null): Builder\MapBuilder;
 }

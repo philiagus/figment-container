@@ -18,7 +18,7 @@ use Philiagus\Figment\Container\Helper\TypeCheckTrait;
 /**
  * @internal
  */
-readonly class TypeCheckProxy implements Builder, \IteratorAggregate
+readonly class TypeCheckBuilderProxy implements Builder, \IteratorAggregate
 {
     use TypeCheckTrait;
 

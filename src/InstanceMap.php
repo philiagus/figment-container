@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container;
 
 use Philiagus\Figment\Container\Builder\Proxy\TypeCheckBuilderProxy;
+use Philiagus\Figment\Container\Contract\Builder;
 use Philiagus\Figment\Container\Contract\PrependMessageThrowableInterface;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
@@ -24,20 +25,29 @@ use Psr\Container\NotFoundExceptionInterface;
 /**
  * @internal
  */
-readonly final class InstanceList implements Contract\InstanceList, \IteratorAggregate
+readonly final class InstanceMap implements Contract\InstanceMap, \IteratorAggregate
 {
 
-    private array $builders;
-
     /**
-     * @param Contract\Builder ...$builders
+     * @param string $name
+     * @param array $keys
+     * @param array<string|Builder> $builders
      */
     public function __construct(
         private string $name,
-        Contract\Builder ...$builders
+        private array $keys,
+        private array $builders
     )
     {
-        $this->builders = $builders;
+        if(
+            count($keys) !== count($this->builders) ||
+            !array_is_list($keys) ||
+            !array_is_list($builders)
+        ) {
+            throw new \InvalidArgumentException(
+                '$keys and $builders of InstanceMap must be provided as mapping arrays'
+            );
+        }
     }
 
     /**
@@ -59,8 +69,8 @@ readonly final class InstanceList implements Contract\InstanceList, \IteratorAgg
     /** @inheritDoc */
     public function traverseInstances(null|\Closure|string|array $type = null): \Traversable
     {
-        foreach ($this->traverseBuilders($type) as $index => $builder) {
-            yield $builder->build("$this->name#$index");
+        foreach($this->keys as $index => $key) {
+            yield $key => $this->builders[$index]->build("$this->name#$index");
         }
     }
 
@@ -68,7 +78,7 @@ readonly final class InstanceList implements Contract\InstanceList, \IteratorAgg
     public function traverseBuilders(null|\Closure|string|array $type = null): \Traversable
     {
         if ($type) {
-            foreach ($this->builders as $builder) {
+            foreach ($this->keys as $builder) {
                 yield new TypeCheckBuilderProxy($builder, $type);
             }
         } else {
@@ -80,5 +90,40 @@ readonly final class InstanceList implements Contract\InstanceList, \IteratorAgg
     public function count(): int
     {
         return count($this->builders);
+    }
+
+    /** @inheritDoc */
+    public function has(mixed $key): bool
+    {
+        return in_array($key, $this->keys, true);
+    }
+
+    /** @inheritDoc */
+    public function keys(): array
+    {
+        return $this->keys;
+    }
+
+    /** @inheritDoc */
+    public function getInstance(mixed $key, null|\Closure|string|array $type = null): object
+    {
+        $index = array_search($key, $this->keys, true);
+        if($index === false) {
+            throw new ContainerException("Accessing out of bounds key of InstanceMap '$this->name'");
+        }
+        return $this->getBuilder($key, $type)->build("$this->name#$index");
+    }
+
+    /** @inheritDoc */
+    public function getBuilder(mixed $key, null|\Closure|string|array $type = null): Contract\Builder
+    {
+        $index = array_search($key, $this->keys, true);
+        if($index === false) {
+            throw new ContainerException("Accessing out of bounds key of InstanceMap '$this->name'");
+        }
+        if($type !== null) {
+            return new TypeCheckBuilderProxy($this->builders[$index], $type);
+        }
+        return $this->builders[$index];
     }
 }
