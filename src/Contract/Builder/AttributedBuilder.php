@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Contract\Builder;
 
 use Philiagus\Figment\Container\Contract\Builder;
+use Philiagus\Figment\Container\Contract\BuilderContainer;
 use Philiagus\Figment\Container\Contract\Override\OverridableContainer;
 
 interface AttributedBuilder extends Registrable, Builder, OverridableContainer, OverwriteConstructorParameterReceiver

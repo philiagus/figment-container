@@ -119,19 +119,4 @@ class AttributedBuilder
     {
         yield $this;
     }
-
-    /** @inheritDoc */
-    #[Override]
-    public function invoke(\Closure $closure, ...$additionalArguments): mixed
-    {
-        $function = $this->prepare($closure, ...array_keys($additionalArguments));
-        return $function(...$additionalArguments);
-    }
-
-    /** @inheritDoc */
-    #[Override]
-    public function prepare(\Closure $closure, string ...$laterProvidedArguments): Contract\PreparedFunction
-    {
-        return new PreparedFunction($this, $closure, ...$laterProvidedArguments);
-    }
 }

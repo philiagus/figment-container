@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
-use Override;
 use Philiagus\Figment\Container\Contract\Context;
+use Philiagus\Figment\Container\Exception\ContainerException;
 
 /**
  * @internal
@@ -26,28 +26,46 @@ readonly final class Container implements Contract\Container
     }
 
     /** @inheritDoc */
-    #[Override]
-    public function get(string $id): object
+    #[\Override]
+    public function class(string $className): object
     {
-        return $this->provider->get($id)->build($id);
+        return $this->get($className, $className);
     }
 
     /** @inheritDoc */
-    #[Override]
+    #[\Override]
+    public function get(string $id, ?string $className = null): object
+    {
+        $instance = $id === Contract\Container::class
+            ? $this
+            : $this->provider->get($id)->build($id);
+        if ($className === null || $instance instanceof $className) {
+            return $instance;
+        }
+
+        throw new ContainerException(
+            "Result of class call for id $id did not result in instance of $className"
+        );
+    }
+
+    /** @inheritDoc */
+    #[\Override]
     public function has(string $id): bool
     {
+        if ($id === Contract\Container::class) return true;
+
         return $this->provider->has($id);
     }
 
     /** @inheritDoc */
-    #[Override]
+    #[\Override]
     public function context(): Context
     {
         return $this->provider->context();
     }
 
     /** @inheritDoc */
-    #[Override]
+    #[\Override]
     public function invoke(\Closure $closure, ...$additionalArguments): mixed
     {
         return $this
@@ -56,7 +74,7 @@ readonly final class Container implements Contract\Container
     }
 
     /** @inheritDoc */
-    #[Override]
+    #[\Override]
     public function prepare(\Closure $closure, string ...$laterProvidedArguments): Contract\PreparedFunction
     {
         return new PreparedFunction($this, $closure, ...$laterProvidedArguments);

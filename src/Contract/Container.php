@@ -25,8 +25,11 @@ interface Container extends ContainerInterface, ContextProvider
 
     /**
      * @param string $id
+     * @param null|class-string<TResult> $className = null
      *
-     * @return mixed
+     * @return TResult
+     *
+     * @template TResult as object
      *
      *
      * @throws ContainerExceptionInterface
@@ -37,7 +40,29 @@ interface Container extends ContainerInterface, ContextProvider
      * @throws NotFoundException
      * @throws UndefinedContextException
      */
-    public function get(string $id): object;
+    public function get(string $id, ?string $className = null): object;
+
+
+    /**
+     * Works by invoking self::get with identical $id and $class
+     *
+     * @param class-string<T> $className
+     *
+     * @return T
+     *
+     * @template T
+     *
+     * @see self::get()
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws PrependMessageThrowableInterface
+     * @throws ContainerException
+     * @throws ContainerRecursionException
+     * @throws NotFoundException
+     * @throws UndefinedContextException
+     */
+    public function class(string $className): object;
 
     /**
      * @param string $id
