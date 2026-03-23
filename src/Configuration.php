@@ -15,6 +15,7 @@ namespace Philiagus\Figment\Container;
 use Philiagus\Figment\Container\Context\EmptyContext;
 use Philiagus\Figment\Container\Exception\ContainerConfigurationException;
 use Philiagus\Figment\Container\Exception\ContainerException;
+use Psr\Container\ContainerInterface;
 
 /**
  * Entry configuration used by the framework
@@ -43,6 +44,11 @@ final class Configuration implements Contract\Configuration
         $this->helperProvider = new Helper\HelperProvider();
 
         $this->container = new Container($this);
+        $this->object($this->container)
+            ->registerAs(
+                Contract\Container::class,
+                ContainerInterface::class
+            );
     }
 
     /** @inheritDoc */

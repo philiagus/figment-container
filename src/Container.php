@@ -36,9 +36,7 @@ readonly final class Container implements Contract\Container
     #[\Override]
     public function get(string $id, ?string $className = null): object
     {
-        $instance = $id === Contract\Container::class
-            ? $this
-            : $this->provider->get($id)->build($id);
+        $instance = $this->provider->get($id)->build($id);
         if ($className === null || $instance instanceof $className) {
             return $instance;
         }
@@ -52,8 +50,6 @@ readonly final class Container implements Contract\Container
     #[\Override]
     public function has(string $id): bool
     {
-        if ($id === Contract\Container::class) return true;
-
         return $this->provider->has($id);
     }
 
