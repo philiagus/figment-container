@@ -7,9 +7,7 @@ readonly class InjectedFullChild extends InjectedFull
 {
 
     /** @noinspection PhpMissingParentConstructorInspection */
-    public function __construct(
-        public readonly string $info
-    )
+    public function __construct(public string $info)
     {
     }
 

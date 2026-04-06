@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Builder;
 
+use Philiagus\Figment\Container\Builder\Proxy\TypeCheckBuilderProxy;
 use Philiagus\Figment\Container\Container;
 use Philiagus\Figment\Container\Context\FallbackContext;
 use Philiagus\Figment\Container\Contract;
+use Philiagus\Figment\Container\Contract\Builder;
 use Philiagus\Figment\Container\Exception\ContainerConfigurationException;
 
 /**
@@ -32,9 +34,7 @@ abstract class OverwriteConstructorParameterBase
     /**
      * @param Contract\Configuration $configuration
      */
-    public function __construct(
-        protected readonly Contract\Configuration $configuration
-    )
+    public function __construct(protected readonly Contract\Configuration $configuration)
     {
     }
 
@@ -164,5 +164,12 @@ abstract class OverwriteConstructorParameterBase
         }
 
         return $this;
+    }
+
+    /** @inheritDoc */
+    #[\Override]
+    public function instance(string $className, array $parameters = []): Builder
+    {
+        return new TypeCheckBuilderProxy($this->configuration->instance($className, $parameters), $className);
     }
 }

@@ -50,4 +50,14 @@ interface BuilderContainer extends ContextProvider
      */
     public function getContainer(): Container;
 
+    /**
+     * Returns a builder that will build an instance of the targeted class, using the defined list of parameters
+     * for specified parameters
+     *
+     * @param string $className
+     * @param array $parameters
+     * @return Builder
+     */
+    public function instance(string $className, array $parameters = []): Builder;
+
 }

@@ -173,4 +173,15 @@ final class Configuration implements Contract\Configuration
             "Trying to access '$id' as map, which is already registered as not being a map"
         );
     }
+
+    /** @inheritDoc */
+    #[\Override]
+    public function instance(string $className, array $parameters = []): Contract\Builder
+    {
+        $builder = $this->attributed($className);
+        foreach($parameters as $name => $value) {
+            $builder->parameterSet($name, $value);
+        }
+        return $builder;
+    }
 }

@@ -75,4 +75,11 @@ readonly final class Container implements Contract\Container
     {
         return new PreparedFunction($this, $closure, ...$laterProvidedArguments);
     }
+
+    /** @inheritDoc */
+    #[\Override]
+    public function instance(string $className, array $parameters = []): object
+    {
+        return $this->provider->instance($className, $parameters)->build($className);
+    }
 }

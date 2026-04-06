@@ -42,7 +42,6 @@ interface Container extends ContainerInterface, ContextProvider
      */
     public function get(string $id, ?string $className = null): object;
 
-
     /**
      * Works by invoking self::get with identical $id and $class
      *
@@ -103,5 +102,27 @@ interface Container extends ContainerInterface, ContextProvider
      * @return mixed
      */
     public function invoke(\Closure $closure, mixed ...$additionalArguments): mixed;
+
+    /**
+     * Creates a new instance of the targeted class, setting parameters via attributes if they are not set by
+     * the list of provided parameters
+     *
+     * @param class-string<TResult> $className
+     * @param array<string, mixed> $parameters
+     *
+     * @return TResult
+     *
+     * @template TResult as object
+     *
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws PrependMessageThrowableInterface
+     * @throws ContainerException
+     * @throws ContainerRecursionException
+     * @throws NotFoundException
+     * @throws UndefinedContextException
+     */
+    public function instance(string $className, array $parameters = []): object;
 
 }
