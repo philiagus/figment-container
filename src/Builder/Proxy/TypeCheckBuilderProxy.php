@@ -13,15 +13,13 @@ declare(strict_types=1);
 namespace Philiagus\Figment\Container\Builder\Proxy;
 
 use Philiagus\Figment\Container\Contract\Builder;
-use Philiagus\Figment\Container\Helper\TypeCheckTrait;
+use Philiagus\Figment\Container\Helper\TypeCheck;
 
 /**
  * @internal
  */
 readonly class TypeCheckBuilderProxy implements Builder, \IteratorAggregate
 {
-    use TypeCheckTrait;
-
     /**
      * @param Builder $builder
      * @param class-string|class-string[]|\Closure(object $object): bool $type
@@ -38,7 +36,7 @@ readonly class TypeCheckBuilderProxy implements Builder, \IteratorAggregate
     public function build(string $id): object
     {
         $result = $this->builder->build($id);
-        $this->assertType($this->type, $result);
+        TypeCheck::assertType($this->type, $result);
         return $result;
     }
 

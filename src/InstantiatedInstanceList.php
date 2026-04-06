@@ -3,16 +3,13 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container;
 
-use Philiagus\Figment\Container\Helper\TypeCheckTrait;
+use Philiagus\Figment\Container\Helper\TypeCheck;
 
 /**
  * @internal
  */
 readonly final class InstantiatedInstanceList implements Contract\InstanceList, \IteratorAggregate
 {
-
-    use TypeCheckTrait;
-
     private array $content;
 
     public function __construct(
@@ -39,7 +36,7 @@ readonly final class InstantiatedInstanceList implements Contract\InstanceList, 
         if ($type === null) {
             yield from $this->content;
         } else foreach ($this->content as $content) {
-            $this->assertType($type, $content);
+            TypeCheck::assertType($type, $content);
             yield $content;
         }
     }

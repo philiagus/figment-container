@@ -8,7 +8,7 @@ use Philiagus\Figment\Container\Exception\ContainerException;
 /**
  * @internal
  */
-trait TypeCheckTrait
+class TypeCheck
 {
 
     /**
@@ -18,7 +18,7 @@ trait TypeCheckTrait
      * @return void
      * @throws ContainerException
      */
-    protected function assertType(\Closure|string|array $type, object $object): void
+    public static function assertType(\Closure|string|array $type, object $object): void
     {
         if ($type instanceof \Closure) {
             if (!$type($object)) {
