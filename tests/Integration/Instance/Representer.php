@@ -2,7 +2,7 @@
 
 namespace Philiagus\Figment\Container\Test\Integration\Instance;
 
-use Philiagus\Figment\Container\Attribute\Instance;
+use Philiagus\Figment\Container\Attribute\Inject;
 use PHPUnit\Framework\Assert;
 
 readonly class Representer
@@ -12,8 +12,8 @@ readonly class Representer
 
 
     public function __construct(
-        #[Instance('1')] public object $o1,
-        #[Instance('2')] public object $o2,
+        #[Inject('1')] public object $o1,
+        #[Inject('2')] public object $o2,
         ...$parameters
     )
     {

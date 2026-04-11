@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Test\Attribute;
 
-use Philiagus\Figment\Container\Attribute\Instance;
+use Philiagus\Figment\Container\Attribute\Inject;
 use Philiagus\Figment\Container\Contract\Container;
 use Philiagus\Figment\Container\Exception\NotFoundException;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 
-#[CoversClass(Instance::class)]
+#[CoversClass(Inject::class)]
 class InstanceTest extends TestCase
 {
     use ProphecyTrait;
@@ -36,7 +36,7 @@ class InstanceTest extends TestCase
         $parameter = $this->prophesize(\ReflectionParameter::class)->reveal();
         $hasValue = false;
 
-        $inject = new Instance('targetId');
+        $inject = new Inject('targetId');
         $result = $inject->resolve($container, $parameter, 'id', $hasValue);
         self::assertSame($instance, $result);
         self::assertSame($hasInstance, $hasValue);

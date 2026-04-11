@@ -26,22 +26,18 @@ use Philiagus\Figment\Container\Exception\NotFoundException;
  * @see Configuration::attributed()
  */
 #[\Attribute(\Attribute::TARGET_PARAMETER)]
-readonly class Instance implements InjectionAttribute
+readonly class Inject implements InjectionAttribute
 {
 
     /** @var array<string|object> */
-    private array $fallbacks;
+    private array $targets;
 
     /**
-     * @param null|string $id
-     * @param string|object ...$fallback
+     * @param string|object ...$target
      */
-    public function __construct(
-        private ?string $id = null,
-        string|object ...$fallback
-    )
+    public function __construct(string|object ...$target)
     {
-        $this->fallbacks = $fallback;
+        $this->targets = $target;
     }
 
     /** @inheritDoc */
@@ -53,26 +49,18 @@ readonly class Instance implements InjectionAttribute
         false &$hasValue
     ): ?object
     {
-        $targetId = $this->id ?? (string) $parameter->getType();
-        try {
-            $instance = $container->get($targetId);
-            $hasValue = true;
+        $targets = $this->targets ?: [(string) $parameter->getType()];
+        foreach ($targets as $target) {
+            if (is_object($target)) {
+                $hasValue = true;
 
-            return $instance;
-        } catch (NotFoundException) {
-            foreach ($this->fallbacks as $fallback) {
-                if (is_object($fallback)) {
-                    $instance = $fallback;
-                    $hasValue = true;
+                return $target;
+            } else try {
+                $instance = $container->get($target);
+                $hasValue = true;
 
-                    return $instance;
-                } else try {
-                    $instance = $container->get($fallback);
-                    $hasValue = true;
-
-                    return $instance;
-                } catch (NotFoundException) {
-                }
+                return $instance;
+            } catch (NotFoundException) {
             }
         }
         $hasValue = false;

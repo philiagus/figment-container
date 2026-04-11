@@ -15,6 +15,9 @@ namespace Philiagus\Figment\Container\Attribute;
 use Philiagus\Figment\Container\Contract\Container;
 use Philiagus\Figment\Container\Contract\InjectionAttribute;
 
+/**
+ * Injects the defined context path into the parameter
+ */
 #[\Attribute(\Attribute::TARGET_PARAMETER)]
 readonly class Context implements InjectionAttribute
 {

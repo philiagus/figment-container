@@ -29,12 +29,12 @@ readonly final class InstanceMap implements Contract\InstanceMap, \IteratorAggre
 {
 
     /**
-     * @param string $name
+     * @param string $id
      * @param array $keys
      * @param array<string|Builder> $builders
      */
     public function __construct(
-        private string $name,
+        private string $id,
         private array $keys,
         private array $builders
     )
@@ -70,7 +70,7 @@ readonly final class InstanceMap implements Contract\InstanceMap, \IteratorAggre
     public function traverseInstances(null|\Closure|string|array $type = null): \Traversable
     {
         foreach($this->keys as $index => $key) {
-            yield $key => $this->builders[$index]->build("$this->name#$index");
+            yield $key => $this->builders[$index]->build("$this->id#$index");
         }
     }
 
@@ -107,20 +107,24 @@ readonly final class InstanceMap implements Contract\InstanceMap, \IteratorAggre
     /** @inheritDoc */
     public function getInstance(mixed $key, null|\Closure|string|array $type = null): object
     {
+        $index = $this->getIndex($key);
+        return $this->getBuilder($key, $type)->build("$this->id#$index");
+    }
+
+    private function getIndex(mixed $key): int
+    {
         $index = array_search($key, $this->keys, true);
         if($index === false) {
-            throw new ContainerException("Accessing out of bounds key of InstanceMap '$this->name'");
+            throw new ContainerException("Accessing out of bounds key of InstanceMap '$this->id'");
         }
-        return $this->getBuilder($key, $type)->build("$this->name#$index");
+
+        return $index;
     }
 
     /** @inheritDoc */
     public function getBuilder(mixed $key, null|\Closure|string|array $type = null): Contract\Builder
     {
-        $index = array_search($key, $this->keys, true);
-        if($index === false) {
-            throw new ContainerException("Accessing out of bounds key of InstanceMap '$this->name'");
-        }
+        $index = $this->getIndex($key);
         if($type !== null) {
             return new TypeCheckBuilderProxy($this->builders[$index], $type);
         }

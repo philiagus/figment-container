@@ -41,7 +41,7 @@ $config
 class MyObject {
 
     public function __construct(
-    #[\Philiagus\Figment\Container\Attribute\Instance('pdo_object')] \PDO $pdo
+    #[\Philiagus\Figment\Container\Attribute\Inject('pdo_object')] \PDO $pdo
     ) {}
 }
 

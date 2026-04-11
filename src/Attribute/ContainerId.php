@@ -14,18 +14,19 @@ namespace Philiagus\Figment\Container\Attribute;
 
 use Philiagus\Figment\Container\Contract\Container;
 use Philiagus\Figment\Container\Contract\InjectionAttribute;
+use Philiagus\Figment\Container\Enum\SingletonMode;
 
 /**
  * Will inject the current id of the builder into the created instance as string
- * Please be aware that any class that is not singleton disabled will only be
- * instantiated once, even if it is registered under multiple ids so you cannot
- * relly on the created instance only being used under the received id.
+ * IMPORTANT: Depending on the singleton mode a class might only be
+ * instantiated once (even if registered under multiple ids).
  *
  * Singletons are handled on builder level. If you want to ensure a class is
  * only used on per-id basis please either disable singleton or set it to the
  * appropriate singleton mode
  *
  * @see Singleton
+ * @see SingletonMode
  */
 #[\Attribute(\Attribute::TARGET_PARAMETER)]
 readonly class ContainerId implements InjectionAttribute

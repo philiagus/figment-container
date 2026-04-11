@@ -12,18 +12,20 @@ readonly final class InstantiatedInstanceList implements Contract\InstanceList, 
 {
     private array $content;
 
-    public function __construct(
-        object ...$content
-    )
+    public function __construct(object ...$content)
     {
         $this->content = array_values($content);
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function count(): int
     {
         return count($this->content);
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function traverseBuilders(array|string|\Closure|null $type = null): \Traversable
     {
         foreach ($this->content as $content) {
@@ -31,6 +33,8 @@ readonly final class InstantiatedInstanceList implements Contract\InstanceList, 
         }
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function traverseInstances(array|string|\Closure|null $type = null): \Traversable
     {
         if ($type === null) {
@@ -41,6 +45,8 @@ readonly final class InstantiatedInstanceList implements Contract\InstanceList, 
         }
     }
 
+    /** @inheritDoc */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         yield from $this->content;

@@ -32,10 +32,7 @@ readonly final class InstanceList implements Contract\InstanceList, \IteratorAgg
     /**
      * @param Contract\Builder ...$builders
      */
-    public function __construct(
-        private string $name,
-        Contract\Builder ...$builders
-    )
+    public function __construct(private string $id, Contract\Builder ...$builders)
     {
         $this->builders = $builders;
     }
@@ -60,7 +57,7 @@ readonly final class InstanceList implements Contract\InstanceList, \IteratorAgg
     public function traverseInstances(null|\Closure|string|array $type = null): \Traversable
     {
         foreach ($this->traverseBuilders($type) as $index => $builder) {
-            yield $builder->build("$this->name#$index");
+            yield $builder->build("$this->id#$index");
         }
     }
 

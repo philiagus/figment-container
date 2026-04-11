@@ -15,9 +15,6 @@ namespace Philiagus\Figment\Container;
 use Philiagus\Figment\Container\Contract\Context;
 use Philiagus\Figment\Container\Exception\ContainerException;
 
-/**
- * @internal
- */
 readonly final class Container implements Contract\Container
 {
 
