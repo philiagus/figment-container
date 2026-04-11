@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Philiagus\Figment\Container\Contract;
 
+use Closure;
 use Philiagus\Figment\Container\Exception\ContainerException;
 use Philiagus\Figment\Container\Exception\ContainerRecursionException;
 use Philiagus\Figment\Container\Exception\NotFoundException;
@@ -88,20 +89,25 @@ interface Container extends ContainerInterface, ContextProvider
      * will be ignored by the container, even if annotations are present. You'll
      * have to provide the value for these parameters yourself when invoking the prepared function
      *
-     * @param \Closure $closure
-     * @param string ...$laterProvidedArguments
+     * @param Closure $closure
+     * @param array<string, mixed> $definedArguments
+     * @param array $laterProvidedArguments
      *
      * @return PreparedFunction
      */
-    public function prepare(\Closure $closure, string ...$laterProvidedArguments): PreparedFunction;
+    public function prepare(
+        \Closure $closure,
+        array $definedArguments = [],
+        array $laterProvidedArguments = []
+    ): PreparedFunction;
 
     /**
      * @param \Closure $closure
-     * @param mixed ...$additionalArguments
+     * @param array<string, mixed> $additionalArguments
      *
      * @return mixed
      */
-    public function invoke(\Closure $closure, mixed ...$additionalArguments): mixed;
+    public function invoke(\Closure $closure, array $additionalArguments): mixed;
 
     /**
      * Creates a new instance of the targeted class, setting parameters via attributes if they are not set by

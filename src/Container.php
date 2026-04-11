@@ -59,18 +59,22 @@ readonly final class Container implements Contract\Container
 
     /** @inheritDoc */
     #[\Override]
-    public function invoke(\Closure $closure, ...$additionalArguments): mixed
+    public function invoke(\Closure $closure, array $additionalArguments): mixed
     {
         return $this
-            ->prepare($closure, ...array_keys($additionalArguments))
-            ->invoke(...$additionalArguments);
+            ->prepare($closure, $additionalArguments)
+            ->invoke();
     }
 
     /** @inheritDoc */
     #[\Override]
-    public function prepare(\Closure $closure, string ...$laterProvidedArguments): Contract\PreparedFunction
+    public function prepare(
+        \Closure $closure,
+        array $definedArguments = [],
+        array $laterProvidedArguments = [],
+    ): Contract\PreparedFunction
     {
-        return new PreparedFunction($this, $closure, ...$laterProvidedArguments);
+        return new PreparedFunction($this, $closure, $definedArguments, $laterProvidedArguments);
     }
 
     /** @inheritDoc */
